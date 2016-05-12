@@ -1,0 +1,4 @@
+﻿  Servidor.c
+c:\users\sergio\desktop\dungeonrpg\dungeonrpg\servidor\servidor\servidor.c(26): warning C4101: 'buf': unreferenced local variable
+c:\users\sergio\desktop\dungeonrpg\dungeonrpg\servidor\servidor\servidor.c(24): warning C4101: 'n': unreferenced local variable
+  Servidor.vcxproj -> C:\Users\Sergio\Desktop\DungeonRPG\DungeonRPG\Servidor\Debug\Servidor.exe
