@@ -12,7 +12,7 @@ DWORD WINAPI RecebeDoServidor(LPVOID param);
 
 int _tmain(int argc, LPTSTR argv[]) {
 	TCHAR buf[256];
-	HANDLE hPipe, hPipe2;
+	HANDLE wPipe, rPipe;
 	int i = 0;
 	BOOL ret;
 	DWORD n;
@@ -29,84 +29,73 @@ int _tmain(int argc, LPTSTR argv[]) {
 		_tprintf(TEXT("[ERRO] Ligar ao pipe '%s'... (WaitNamedPipe)\n"), PIPE_N_WRITE);
 		exit(-1);
 	}
-
-	_tprintf(TEXT("[CLIENTE] Ligação ao SERVIDOR... (CreateFile)\n"));
-	hPipe = CreateFile(PIPE_N_WRITE, GENERIC_WRITE, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL); //cria ligaçao
+	_tprintf(TEXT("[CLIENTE] Ligação ao SERVIDOR...\n"));
 	
-	if (hPipe == NULL) {
+	wPipe = CreateFile(PIPE_N_WRITE, GENERIC_WRITE, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL); //cria ligaçao	
+	if (wPipe == NULL) {
 		_tprintf(TEXT("[ERRO] Ligar ao pipe '%s'... (CreateFile)\n"), PIPE_N_WRITE);
 		exit(-1);
 	}
+	_tprintf(TEXT("[CLIENTE] Pipe para escrita estabelecido...\n"));
 
-	hPipe2 = CreateFile(PIPE_N_READ, GENERIC_READ, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
 
-	if (hPipe2 == NULL) {
+	rPipe = CreateFile(PIPE_N_READ, GENERIC_READ, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);	
+	if (rPipe == NULL) {
 		_tprintf(TEXT("[ERRO] Ligar ao pipe '%s'... (CreateFile)\n"), PIPE_N_READ);
 		exit(-1);
 	}
-
+	_tprintf(TEXT("[CLIENTE] Pipe para leitura estabelecido...\n"));
 
 	//Invocar a thread que recebe info do servidor
-	hThread = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)RecebeDoServidor, (LPVOID)hPipe2, 0, NULL);
-	//Sleep(200);
-	//_tprintf(TEXT("[CLIENTE]Liguei-me...\n"));
+	hThread = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)RecebeDoServidor, (LPVOID)rPipe, 0, NULL);	
+	if (hThread == NULL) {
+		_tprintf(TEXT("[ERRO] Thread não foi lançada\n"));
+		exit(-1);
+	}
+	_tprintf(TEXT("[CLIENTE]Criei a Thread para receber do servidor...\n"));
 
-	while (1) 
+	while (1)
 	{
-		_tprintf(TEXT("[Cliente] Frase: "));
+		Sleep(200); //tirar e implementar mutex
+		_tprintf(TEXT("[CLIENTE] Frase: "));
 		_fgetts(buf, 256, stdin);
 
-		ret = WriteFile(hPipe, buf, _tcslen(buf) * sizeof(TCHAR), &n, NULL);
-		//buf[n / sizeof(TCHAR)] = '\0';
+		ret = WriteFile(wPipe, buf, _tcslen(buf) * sizeof(TCHAR), &n, NULL);
+		buf[n / sizeof(TCHAR)] = '\0';
 		
 		if (!ret || !n)
 			break;
-		_tprintf(TEXT("[CLIENTE] enviei %d bytes: '%s'... (ReadFile)\n"), n, buf);
+		_tprintf(TEXT("[CLIENTE](ReadFile) enviei %d bytes: %s "), n, buf);
 
-
-	//:::::::::::::::::::::::::::::::::::
-		/*
-		ret = ReadFile(hPipe2, buf, sizeof(buf), &n, NULL);
-		buf[n / sizeof(TCHAR)] = '\0';
-		if (!ret || !n)
+		if (!_tcsncmp(buf, TEXT("fim"), 3)) 
+		{
 			break;
-
-		_tprintf(TEXT("[Cliente] Recebi %d bytes: '%s'... (ReadFile)\n"), n, buf);*/
-
+		}
 	}
-	CloseHandle(hPipe);
 
+	CloseHandle(wPipe);
+	CloseHandle(rPipe);
+	CloseHandle(hThread);
 	Sleep(200);
 	return 0;
 }
 
-DWORD WINAPI RecebeDoServidor(LPVOID param) {
-	HANDLE hPipe = (HANDLE)param;
+DWORD WINAPI RecebeDoServidor(LPVOID param) { //recebe o pipe 
+	HANDLE rPipe = (HANDLE)param; //atribui o pipe que recebe (pipe )
 	TCHAR buf[256];
 	int i = 0;
 	BOOL ret;
 	DWORD n;
 
-	
-		//hPipe = CreateFile(PIPE_N_READ, GENERIC_READ, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
-		
-		//if (hPipe == NULL) {
-		//	_tprintf(TEXT("[ERRO] Ligar ao pipe '%s'... (CreateFile)\n"), PIPE_N_READ);
-		//	exit(-1);
-		//}
-
-		//_tprintf(TEXT("[Cliente]Liguei-me...\n"));
-
 		while (1) 
 		{
-			ret = ReadFile(hPipe, buf, sizeof(buf), &n, NULL);
+			ret = ReadFile(rPipe, buf, sizeof(buf), &n, NULL);
 			buf[n / sizeof(TCHAR)] = '\0';
 			if (!ret || !n)
 				break;
 
-			_tprintf(TEXT("[Cliente] Recebi %d bytes: '%s'... (ReadFile)\n"), n, buf);
+			_tprintf(TEXT("[CLIENTE](ReadFile) Recebi %d bytes: %s "), n, buf);
 		}
-	
-	CloseHandle(hPipe);
+		
 	return 0;
 }

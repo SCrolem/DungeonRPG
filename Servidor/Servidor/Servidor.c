@@ -9,21 +9,19 @@
 #define PIPE_N_WRITE TEXT("\\\\.\\pipe\\ParaCliente")
 
 
-#define N_MAX_LEITORES 10
+#define N_MAX_CLIENTES 10
 #define TAM 256
 
-HANDLE PipeLeitores[N_MAX_LEITORES];
+HANDLE wPipeClientes[N_MAX_CLIENTES];
 int total = 0;
 BOOL fim = FALSE;
 
-DWORD WINAPI RecebeLeitores(LPVOID param);
+DWORD WINAPI RecebeClientes(LPVOID param);
 DWORD WINAPI AtendeCliente(LPVOID param);
 
 
 int _tmain(int argc, LPTSTR argv[]) {
-	DWORD n;
-	HANDLE hThread;
-	TCHAR buf[TAM];
+	HANDLE hThread;	
 
 #ifdef UNICODE
 	_setmode(_fileno(stdin), _O_WTEXT);
@@ -31,21 +29,12 @@ int _tmain(int argc, LPTSTR argv[]) {
 	_setmode(_fileno(stderr), _O_WTEXT);
 #endif
 	//Invocar a thread que inscreve novos leitores
-	hThread = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)RecebeLeitores, NULL, 0, NULL);
+	hThread = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)RecebeClientes, NULL, 0, NULL);
+	if (hThread == NULL) {
+		_tprintf(TEXT("[ERRO] Thread não foi lançada\n"));
+		exit(-1);
+	}
 
-	/*do {
-		_tprintf(TEXT("[ESCRITOR] Frase: "));
-		_fgetts(buf, 256, stdin);
-		//Escrever para todos os leitores inscritos
-		for (int i = 0; i < total; i++)
-			if (!WriteFile(PipeLeitores[i], buf, _tcslen(buf) * sizeof(TCHAR), &n, NULL)) {
-				_tperror(TEXT("[ERRO] Escrever no pipe... (WriteFile)\n"));
-				exit(-1);
-			}
-
-		_tprintf(TEXT("[Servidor] Enviei %d bytes aos %d Clientes... (WriteFile)\n"), n, total);
-	} while (_tcsncmp(buf, TEXT("fim"), 3));
-	fim = TRUE;*/
 
 	//Esperar a thread recebeLeitores terminar
 	WaitForSingleObject(hThread, INFINITE);
@@ -53,50 +42,55 @@ int _tmain(int argc, LPTSTR argv[]) {
 	exit(0);
 }
 
-DWORD WINAPI RecebeLeitores(LPVOID param) {
-	HANDLE hPipe;
+DWORD WINAPI RecebeClientes(LPVOID param) {
+	HANDLE rPipe;
+	HANDLE ThreadAtendeCli[N_MAX_CLIENTES];
 
-	while (!fim && total < N_MAX_LEITORES) 
+	while (!fim && total < N_MAX_CLIENTES)
 	{
-		_tprintf(TEXT("[Servidor] Vou passar à criação de uma cópia do pipe '%s' ... (CreateNamedPipe)\n"), PIPE_N_WRITE);
+		_tprintf(TEXT("[Servidor](CreateNamedPipe) Copiar pipe '%s' \n"), PIPE_N_WRITE);
 
 
-		PipeLeitores[total] = CreateNamedPipe(PIPE_N_WRITE, PIPE_ACCESS_OUTBOUND, PIPE_WAIT | PIPE_TYPE_MESSAGE
-			| PIPE_READMODE_MESSAGE, N_MAX_LEITORES, TAM * sizeof(TCHAR), TAM * sizeof(TCHAR),
+		wPipeClientes[total] = CreateNamedPipe(PIPE_N_WRITE, PIPE_ACCESS_OUTBOUND, PIPE_WAIT | PIPE_TYPE_MESSAGE
+			| PIPE_READMODE_MESSAGE, N_MAX_CLIENTES, TAM * sizeof(TCHAR), TAM * sizeof(TCHAR),
 			1000, NULL);
-		if (PipeLeitores[total] == INVALID_HANDLE_VALUE) {
+		if (wPipeClientes[total] == INVALID_HANDLE_VALUE) {
 			_tperror(TEXT("Erro na ligação ao leitor!"));
 			exit(-1);
 		}
 
-		hPipe = CreateNamedPipe(PIPE_N_READ, PIPE_ACCESS_INBOUND, PIPE_WAIT | PIPE_TYPE_MESSAGE
-			| PIPE_READMODE_MESSAGE, N_MAX_LEITORES, TAM * sizeof(TCHAR), TAM * sizeof(TCHAR),
+		rPipe = CreateNamedPipe(PIPE_N_READ, PIPE_ACCESS_INBOUND, PIPE_WAIT | PIPE_TYPE_MESSAGE
+			| PIPE_READMODE_MESSAGE, N_MAX_CLIENTES, TAM * sizeof(TCHAR), TAM * sizeof(TCHAR),
 			1000, NULL);
-
-		if (hPipe == INVALID_HANDLE_VALUE) {
+		if (rPipe == INVALID_HANDLE_VALUE) {
 			_tperror(TEXT("Erro na ligação ao leitor!"));
 			exit(-1);
 		}
 		
 
+		_tprintf(TEXT("[Servidor] Esperar ligação de um cliente... (ConnectNamedPipe)\n"));
 
-		_tprintf(TEXT("[Servidor] Esperar ligação de um leitor... (ConnectNamedPipe)\n"));
-
-		if (!ConnectNamedPipe(PipeLeitores[total], NULL)) {
-			_tperror(TEXT("Erro na ligação ao leitor!"));
+		if (!ConnectNamedPipe(wPipeClientes[total], NULL)) {
+			_tperror(TEXT("Erro na ligação ao Cliente!"));
 			exit(-1);
 		}
 
-		CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)AtendeCliente, (LPVOID)hPipe, 0, NULL);
+		ThreadAtendeCli[total] = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)AtendeCliente, (LPVOID)rPipe, 0, NULL);
+		if (ThreadAtendeCli == NULL) {
+			_tprintf(TEXT("[ERRO] ThreadAtendeCli não foi lançada\n"));
+			exit(-1);
+		}
 
 		total++;
 	}
 
 	for (int i = 0; i < total; i++) {
-		DisconnectNamedPipe(PipeLeitores[i]);
+		DisconnectNamedPipe(wPipeClientes[i]);
 		_tprintf(TEXT("[Servidor] Vou desligar o pipe... (CloseHandle)\n"));
-		CloseHandle(PipeLeitores[i]);
+		CloseHandle(wPipeClientes[i]);
+		CloseHandle(ThreadAtendeCli[i]);
 	}
+	
 	return 0;
 }
 
@@ -105,31 +99,22 @@ DWORD WINAPI AtendeCliente(LPVOID param)
 	TCHAR buf[TAM];
 	DWORD n;
 	BOOL ret;
-	HANDLE hPipe = (HANDLE)param;
-
-
-
-	
-
-
-
-
+	HANDLE rPipe = (HANDLE)param;
 
 	while (1)
 	{    
-		_tprintf(TEXT("[Servidor] a espera de receber algo do CLIENTE"));
+		_tprintf(TEXT("[Servidor] a espera de resposta de cliente...\n"));
 		//ler do pipe do seu cliente
-		ret = ReadFile(hPipe, buf, TAM, &n, NULL);
+		ret = ReadFile(rPipe, buf, TAM, &n, NULL);
 		buf[n / sizeof(TCHAR)] = '\0';
 
 		if (!ret || !n)
 			break;
-		_tprintf(TEXT("[Servidor] recebi %d bytes: '%s'... (ReadFile)\n"), n, buf);
+		_tprintf(TEXT("[Servidor](ReadFile) recebi %d bytes: %s \n"), n, buf);
 
 		//escrever para todos
 		for (int i = 0; i < total; i++)
-			WriteFile(PipeLeitores[i], buf, _tcslen(buf) * sizeof(TCHAR), &n, NULL);
-
+			WriteFile(wPipeClientes[i], buf, _tcslen(buf) * sizeof(TCHAR), &n, NULL);
 
 	}
 	return 0;
