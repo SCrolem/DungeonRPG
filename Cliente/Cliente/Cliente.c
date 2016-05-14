@@ -3,6 +3,7 @@
 #include <io.h>
 #include <fcntl.h>
 #include <stdio.h>
+#include "dll.h"
 
 
 #define PIPE_N_WRITE TEXT("\\\\.\\pipe\\ParaServidor")
@@ -22,7 +23,7 @@ int _tmain(int argc, LPTSTR argv[]) {
 	_setmode(_fileno(stdin), _O_WTEXT);
 	_setmode(_fileno(stdout), _O_WTEXT);
 #endif
-
+	/*
 	_tprintf(TEXT("[CLIENTE]Esperar pelo pipe '%s'(WaitNamedPipe)\n"), PIPE_N_WRITE);
 
 	if (!WaitNamedPipe(PIPE_N_WRITE, NMPWAIT_WAIT_FOREVER)) {
@@ -45,7 +46,9 @@ int _tmain(int argc, LPTSTR argv[]) {
 		exit(-1);
 	}
 	_tprintf(TEXT("[CLIENTE] Pipe para leitura estabelecido...\n"));
+*/
 
+	Inicia_comunicacao();
 	//Invocar a thread que recebe info do servidor
 	hThread = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)RecebeDoServidor, (LPVOID)rPipe, 0, NULL);	
 	if (hThread == NULL) {
@@ -56,7 +59,7 @@ int _tmain(int argc, LPTSTR argv[]) {
 
 	while (1)
 	{
-		Sleep(200); //tirar e implementar mutex
+		Sleep(200); 
 		_tprintf(TEXT("[CLIENTE] Frase: "));
 		_fgetts(buf, 256, stdin);
 
@@ -73,8 +76,8 @@ int _tmain(int argc, LPTSTR argv[]) {
 		}
 	}
 
-	CloseHandle(wPipe);
-	CloseHandle(rPipe);
+	//CloseHandle(wPipe);
+	//CloseHandle(rPipe);
 	CloseHandle(hThread);
 	Sleep(200);
 	return 0;

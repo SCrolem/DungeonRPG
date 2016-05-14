@@ -1,2 +1,3 @@
 ﻿  Cliente.c
-  Cliente.vcxproj -> C:\Users\Sergio\Desktop\DungeonRPG\DungeonRPG\Cliente\Debug\Cliente.exe
+c:\users\sergio\desktop\dungeonrpg\dungeonrpg\dll\dll\dll.h(25): error C2059: syntax error: 'string'
+c:\users\sergio\desktop\dungeonrpg\dungeonrpg\cliente\cliente\cliente.c(51): warning C4013: 'Inicia_comunicacao' undefined; assuming extern returning int

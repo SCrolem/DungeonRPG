@@ -14,7 +14,7 @@
 
 HANDLE wPipeClientes[N_MAX_CLIENTES];
 int total = 0;
-BOOL fim = FALSE;
+BOOL sair = FALSE;
 
 DWORD WINAPI RecebeClientes(LPVOID param);
 DWORD WINAPI AtendeCliente(LPVOID param);
@@ -28,7 +28,8 @@ int _tmain(int argc, LPTSTR argv[]) {
 	_setmode(_fileno(stdout), _O_WTEXT);
 	_setmode(_fileno(stderr), _O_WTEXT);
 #endif
-	//Invocar a thread que inscreve novos leitores
+
+	//Invocar a thread que inscreve novos clientes
 	hThread = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)RecebeClientes, NULL, 0, NULL);
 	if (hThread == NULL) {
 		_tprintf(TEXT("[ERRO] Thread não foi lançada\n"));
@@ -44,29 +45,28 @@ int _tmain(int argc, LPTSTR argv[]) {
 
 DWORD WINAPI RecebeClientes(LPVOID param) {
 	HANDLE rPipe;
+	int i;
 	HANDLE ThreadAtendeCli[N_MAX_CLIENTES];
 
-	while (!fim && total < N_MAX_CLIENTES)
+	while (!sair && total < N_MAX_CLIENTES)
 	{
 		_tprintf(TEXT("[Servidor](CreateNamedPipe) Copiar pipe '%s' \n"), PIPE_N_WRITE);
 
-
 		wPipeClientes[total] = CreateNamedPipe(PIPE_N_WRITE, PIPE_ACCESS_OUTBOUND, PIPE_WAIT | PIPE_TYPE_MESSAGE
 			| PIPE_READMODE_MESSAGE, N_MAX_CLIENTES, TAM * sizeof(TCHAR), TAM * sizeof(TCHAR),
-			1000, NULL);
-		if (wPipeClientes[total] == INVALID_HANDLE_VALUE) {
-			_tperror(TEXT("Erro na ligação ao leitor!"));
-			exit(-1);
-		}
+			1000, NULL);		
+
+		_tprintf(TEXT("[Servidor](CreateNamedPipe) Copiar pipe '%s' \n"), PIPE_N_READ);
 
 		rPipe = CreateNamedPipe(PIPE_N_READ, PIPE_ACCESS_INBOUND, PIPE_WAIT | PIPE_TYPE_MESSAGE
 			| PIPE_READMODE_MESSAGE, N_MAX_CLIENTES, TAM * sizeof(TCHAR), TAM * sizeof(TCHAR),
 			1000, NULL);
-		if (rPipe == INVALID_HANDLE_VALUE) {
-			_tperror(TEXT("Erro na ligação ao leitor!"));
+
+		//verifica pipes
+		if ((rPipe == INVALID_HANDLE_VALUE) && (wPipeClientes[total] == INVALID_HANDLE_VALUE)) {
+			_tperror(TEXT("[ERRO] Não são permitidos mais clientes!"));
 			exit(-1);
-		}
-		
+		}		
 
 		_tprintf(TEXT("[Servidor] Esperar ligação de um cliente... (ConnectNamedPipe)\n"));
 
@@ -74,23 +74,30 @@ DWORD WINAPI RecebeClientes(LPVOID param) {
 			_tperror(TEXT("Erro na ligação ao Cliente!"));
 			exit(-1);
 		}
+		
 
-		ThreadAtendeCli[total] = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)AtendeCliente, (LPVOID)rPipe, 0, NULL);
+		ThreadAtendeCli[total++] = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)AtendeCliente, (LPVOID)rPipe, 0, NULL);
 		if (ThreadAtendeCli == NULL) {
 			_tprintf(TEXT("[ERRO] ThreadAtendeCli não foi lançada\n"));
 			exit(-1);
 		}
 
-		total++;
+		//total++;
 	}
 
-	for (int i = 0; i < total; i++) {
+	/*
+	//espera que todos os clientes saiam
+	for (i = 0; i < total; i++) {
+		WaitForSingleObject(ThreadAtendeCli[i], INFINITE);
+	}*/
+
+
+	for (i = 0; i < total; i++) {
 		DisconnectNamedPipe(wPipeClientes[i]);
 		_tprintf(TEXT("[Servidor] Vou desligar o pipe... (CloseHandle)\n"));
 		CloseHandle(wPipeClientes[i]);
 		CloseHandle(ThreadAtendeCli[i]);
-	}
-	
+	}	
 	return 0;
 }
 
