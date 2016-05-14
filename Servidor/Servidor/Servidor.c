@@ -4,10 +4,21 @@
 #include <fcntl.h>
 #include <stdio.h>
 
+#include "struct.h"
+
 
 #define PIPE_N_READ TEXT("\\\\.\\pipe\\ParaServidor")
 #define PIPE_N_WRITE TEXT("\\\\.\\pipe\\ParaCliente")
 
+USER users[U_MAX] = { NULL };
+USER usersOnline[U_MAX] = { NULL };
+
+MEMORIA *ptrMapa;
+
+TCHAR NomeMemoria[] = TEXT("Mapa Partilhado");
+TCHAR NomeMutexMapa[] = TEXT("MapaMUTEX");
+
+HANDLE hMemoria, hMutexMapa, hMutexUsers;
 
 #define N_MAX_CLIENTES 10
 #define TAM 256
@@ -18,6 +29,30 @@ BOOL sair = FALSE;
 
 DWORD WINAPI RecebeClientes(LPVOID param);
 DWORD WINAPI AtendeCliente(LPVOID param);
+
+BOOL encerrar = FALSE;
+
+JOGO game;
+
+// THREADS
+
+
+//OUTRAS COISAS
+
+void TrataComando(COMANDO *c);
+void LoginUser(COMANDO *c);
+void CriaJogo(COMANDO *c);
+void AdicionaJogadorAoJogo(COMANDO *c);
+void IniciaJogo(COMANDO *c);
+void CalculaPosicaoAleatoria(POSICAO *p);
+int VerificaExisteAlgoPosicao(POSICAO *p);
+int VerificaJogadorNoMapa(TCHAR *nome);
+void CriaMapaParaEnvio(MAPACLIENTE *mapa);
+
+void VerificaJogo(COMANDO *cmd);
+void Move(COMANDO *cmd);
+JOGADOR JogadorMorre(JOGADOR j);
+void ApanhaObjecto(POSICAO p, COMANDO *c);
 
 
 int _tmain(int argc, LPTSTR argv[]) {
@@ -42,6 +77,830 @@ int _tmain(int argc, LPTSTR argv[]) {
 	CloseHandle(hThread);
 	exit(0);
 }
+
+void ApanhaObjecto(POSICAO p, COMANDO *c) {
+	int obj, i, j;
+
+
+	WaitForSingleObject(hMutexMapa, INFINITE);
+
+	obj = ptrMapa->mapa[p.x][p.y].objecto;
+
+
+	switch (obj)
+	{
+	case 1: // obrigatorios
+		obrigatorios--;
+		c->Player.pontos += 10;
+		ptrMapa->mapa[p.x][p.y].objecto = 0;
+
+		if (obrigatorios == 0) {
+			for (i = 1; i<L - 1; i++) {
+				for (j = 1; j<C - 1; j++) {
+					if (ptrMapa->mapa[i][j].objecto == 4)
+						ptrMapa->mapa[i][j].objecto = 5;
+				}
+			}
+		}
+		//MandaDifusao(20,&jog);
+		break;
+	case 2: //vidas
+		c->Player.vidas++;
+		ptrMapa->mapa[p.x][p.y].objecto = 0;
+		break;
+	case 3: //Bombas extra
+		c->Player.bombas += 10;
+		ptrMapa->mapa[p.x][p.y].objecto = 0;
+		break;
+	case 5:
+		MandaDifusao(21, NULL);
+		break;
+
+	default:
+		break;
+	}
+
+
+	ptrMapa->mapa[p.x][p.y].jogador = c->Player;
+	ReleaseMutex(hMutexMapa);
+}
+
+JOGADOR JogadorMorre(JOGADOR j) {
+	int res;
+	POSICAO p;
+
+	if (j.vidas>0) { //se ainda tiver vidas
+
+		j.vidas--;
+		j.bombas = 20;
+		j.saude = 100;
+
+
+		//j->pos=p;
+
+	}
+	else {// senao morre
+		j.vidas--;
+		j.bombas = 0;
+		j.saude = 0;
+
+	}
+
+	do {
+		CalculaPosicaoAleatoria(&p);
+		res = VerificaExisteAlgoPosicao(&p);
+	} while (res != 0);
+
+	j.pos = p;
+
+	return j;
+
+}
+
+void VerificaJogo(COMANDO *cmd) {
+	if (!game.criado) {
+		cmd->resposta = 0;
+		return;
+	}
+	else {
+		if (!game.iniciado) {
+			cmd->resposta = 1;
+			return;
+		}
+		cmd->resposta = 2;
+		return;
+	}
+}
+
+void CriaMapaParaEnvio(MAPACLIENTE *mapa) {
+	int i, j;
+	WaitForSingleObject(hMutexMapa, INFINITE);
+	for (i = 0; i<L; i++) {
+		for (j = 0; j<C; j++) {//para cada posicao
+			mapa->mapa[i][j].jogador = ptrMapa->mapa[i][j].jogador;
+			mapa->mapa[i][j].monstro = FALSE;
+			mapa->mapa[i][j].objecto = 0;
+
+
+			if (ptrMapa->mapa[i][j].monstro.presente == 1) {
+				mapa->mapa[i][j].monstro = TRUE;
+
+			}
+			else {
+				if (ptrMapa->mapa[i][j].bloco.tipo == 2) {
+					mapa->mapa[i][j].bloco = ptrMapa->mapa[i][j].bloco.tipo;
+
+				}
+
+				else {
+					if (ptrMapa->mapa[i][j].bloco.tipo == 1) {
+						if (ptrMapa->mapa[i][j].bloco.saude == 0)
+							mapa->mapa[i][j].bloco = ptrMapa->mapa[i][j].bloco.tipo = 0;
+						else {
+							if (ptrMapa->mapa[i][j].bloco.saude == 10)
+								mapa->mapa[i][j].bloco = ptrMapa->mapa[i][j].bloco.tipo;
+							else
+								mapa->mapa[i][j].bloco = 3;
+						}
+
+
+						//
+						/*if(ptrMapa->mapa[i][j].bloco.saude>0)
+						mapa->mapa[i][j].bloco=ptrMapa->mapa[i][j].bloco.tipo;
+						else
+						mapa->mapa[i][j].bloco=ptrMapa->mapa[i][j].bloco.tipo=0;*/
+						//
+					}
+
+					else {
+
+
+
+						if (ptrMapa->mapa[i][j].bomba != 0) {
+
+							mapa->mapa[i][j].bomba = ptrMapa->mapa[i][j].bomba;
+
+						}
+						else {
+							if (ptrMapa->mapa[i][j].objecto != 0) {
+
+								mapa->mapa[i][j].objecto = ptrMapa->mapa[i][j].objecto;
+							}
+						}
+					}
+				}
+			}
+		}
+		ReleaseMutex(hMutexMapa);
+	}
+}
+
+int VerificaExisteAlgoPosicao(POSICAO *p) {
+
+	if (_tcscmp(ptrMapa->mapa[p->x][p->y].jogador.nome, TEXT("")) != 0) {
+		return 1;	//existe um jogador
+	}
+	else {
+		if (ptrMapa->mapa[p->x][p->y].inimigo.presente == 1) {
+			//if (_tcscmp(ptrMapa->mapa[p->x][p->y].inimigo.nome,TEXT(""))!=0){
+			return 2; // existe um inimigo
+		}
+		else {
+			if (ptrMapa->mapa[p->x][p->y].bloco.tipo == 1) {
+				return 3; // existe um bloco mole
+			}
+			else {
+				if (ptrMapa->mapa[p->x][p->y].bloco.tipo == 2) {
+					return 4; // existe um bloco duro
+				}
+				else {
+					if (ptrMapa->mapa[p->x][p->y].bomba == 2)
+						return 5;
+
+				}
+			}
+		}
+	}
+	return 0; // está livre
+}
+
+void CalculaPosicaoAleatoria(POSICAO *p) {
+	int x, y;
+	x = rand() % (L - 1) + 1;
+	y = rand() % (C - 1) + 1;
+	p->x = x;
+	p->y = y;
+}
+
+void AdicionaJogadorAoJogo(COMANDO *c) {
+	int resp = 0;
+	POSICAO p;
+
+
+	WaitForSingleObject(hMutexMapa, INFINITE);
+
+	if (!game.criado) {
+		c->resposta = 1;
+		ReleaseMutex(hMutexMapa);
+		return;
+	}
+
+	if (game.iniciado) {
+		c->resposta = 2;
+		ReleaseMutex(hMutexMapa);
+		return;
+	}
+
+	do {
+		CalculaPosicaoAleatoria(&p);
+		resp = VerificaExisteAlgoPosicao(&p);
+
+	} while (resp != 0);
+
+	c->Player.pos = p;
+	ptrMapa->mapa[p.x][p.y].jogador = c->Player;
+	switch (game.dificuldade)
+	{
+	case 1:
+		c->Player.bombas = 20;
+		break;
+	case 2:
+		c->Player.bombas = 15;
+		break;
+	case 3:
+		c->Player.bombas = 10;
+		break;
+	default:
+		break;
+	}
+
+	ReleaseMutex(hMutexMapa);
+	c->resposta = 0;
+}
+
+void IniciaJogo(COMANDO *c) {
+	TCHAR inimigoPath[100];
+	BLOCO mole;
+	POSICAO p;
+	int resp, i;
+
+	/*
+	ZeroMemory(&si, sizeof(si));
+	ZeroMemory(&pi, sizeof(pi));
+
+	for (i = 0; i<10; i++) {
+		si[i].cb = sizeof(si);
+		//si[i].dwFlags = STARTF_USESHOWWINDOW;
+		//si[i].wShowWindow = SW_HIDE;
+	}
+	*/
+
+	WaitForSingleObject(hMutexMapa, INFINITE);
+
+	if (!game.criado) {
+		c->resposta = 1;
+		ReleaseMutex(hMutexMapa);
+		return;
+	}
+
+	switch (game.dificuldade)//Coloca peças mediante difuculdade escolhida
+	{
+	case 1: //coloca em jogo 3 inimigos 
+
+		for (i = 0; i<3; i++) {
+			do {
+				CalculaPosicaoAleatoria(&p);
+				resp = VerificaExisteAlgoPosicao(&p);
+			} while (resp != 0);
+
+			_stprintf_s(inimigoPath, 100, TEXT("C:\\Users\\Marco\\Desktop\\Trabalho final v19\\Inimigo\\Debug\\Inimigo.exe %d %d 500"), p.x, p.y);
+			Sleep(500);
+
+			if (!CreateProcess(NULL, inimigoPath, NULL, NULL, 0, CREATE_NEW_CONSOLE, NULL, NULL, &si[i], &pi[i])) {
+				MessageBox(NULL, _T("Unable to create process."), _T("Error"), MB_OK);
+				break;
+			}
+			else {
+				ptrMapa->mapa[p.x][p.y].inimigo.pos = p;
+				ptrMapa->mapa[p.x][p.y].inimigo.presente = 1;
+				ptrMapa->mapa[p.x][p.y].inimigo.saude = 10;
+				ptrMapa->mapa[p.x][p.y].inimigo.velocidade = 2000;
+			}
+		}
+
+
+		ReleaseMutex(hMutexMapa);
+		game.iniciado = TRUE;
+		c->resposta = 0;
+		break;
+	case 2:
+
+		for (i = 0; i<4; i++) {
+			do {
+				CalculaPosicaoAleatoria(&p);
+				resp = VerificaExisteAlgoPosicao(&p);
+			} while (resp != 0);
+
+			_stprintf_s(inimigoPath, 100, TEXT("D:\\So2Final\\Trabalho final v19\\Inimigo\\Debug\\Inimigo.exe %d %d 1200"), p.x, p.y);
+			Sleep(500);
+
+			if (!CreateProcess(NULL, inimigoPath, NULL, NULL, 0, CREATE_NEW_CONSOLE, NULL, NULL, &si[i], &pi[i])) {
+				MessageBox(NULL, _T("Unable to create process."), _T("Error"), MB_OK);
+				break;
+			}
+			else {
+				ptrMapa->mapa[p.x][p.y].inimigo.pos = p;
+				ptrMapa->mapa[p.x][p.y].inimigo.presente = 1;
+				ptrMapa->mapa[p.x][p.y].inimigo.saude = 10;
+				ptrMapa->mapa[p.x][p.y].inimigo.velocidade = 1000;
+
+			}
+		}
+
+
+		ReleaseMutex(hMutexMapa);
+		game.iniciado = TRUE;
+		c->resposta = 0;
+		break;
+	case 3:
+
+		for (i = 0; i<5; i++) {
+			do {
+				CalculaPosicaoAleatoria(&p);
+				resp = VerificaExisteAlgoPosicao(&p);
+			} while (resp != 0);
+
+			_stprintf_s(inimigoPath, 100, TEXT("D:\\So2Final\\Trabalho final v19\\Inimigo\\Debug\\Inimigo.exe %d %d 1200"), p.x, p.y);
+			Sleep(500);
+
+			if (!CreateProcess(NULL, inimigoPath, NULL, NULL, 0, CREATE_NEW_CONSOLE, NULL, NULL, &si[i], &pi[i])) {
+				MessageBox(NULL, _T("Unable to create process."), _T("Error"), MB_OK);
+				break;
+			}
+			else {
+				ptrMapa->mapa[p.x][p.y].inimigo.pos = p;
+				ptrMapa->mapa[p.x][p.y].inimigo.presente = 1;
+				ptrMapa->mapa[p.x][p.y].inimigo.saude = 10;
+				ptrMapa->mapa[p.x][p.y].inimigo.velocidade = 500;
+			}
+		}
+
+
+		ReleaseMutex(hMutexMapa);
+		game.iniciado = TRUE;
+		c->resposta = 0;
+
+		break;
+	default:
+		break;
+	}
+
+
+
+}
+
+
+
+void CriaJogo(COMANDO *c) {
+	POSICAO p;
+	int resp = 0;
+	int i, j, k, count;
+	//TCHAR inimigoPath[100];
+	BLOCO duro, vazio, mole;
+
+	vazio.tipo = 0;
+	mole.tipo = 1;
+	duro.tipo = 2;
+
+	if (c->dificuldade <= 0 || c->dificuldade>3) {
+		c->resposta = 2;
+		return;
+	}
+
+	WaitForSingleObject(hMutexMapa, INFINITE);
+
+	if (game.criado) {
+		c->resposta = 1;
+		return;
+	}
+	//Sleep(20000);
+	////////////////INICIA MAPA VAZIO///////////////////////
+	for (i = 0; i < L; i++) {
+		for (j = 0; j < C; j++) {
+			_stprintf_s(ptrMapa->mapa[i][j].jogador.nome, 10, TEXT(""));
+			ptrMapa->mapa[i][j].inimigo.presente = 0;
+			ptrMapa->mapa[i][j].objecto = 0;
+			//_stprintf_s(ptrMapa->mapa[i][j].inimigo.nome,10,TEXT(""));
+
+			if (i == 0 || i == L - 1 || j == 0 || j == C - 1) {
+
+				ptrMapa->mapa[i][j].bloco = duro;
+			}
+			else {
+				if (i % 2 == 0 && j % 2 == 0) {
+					ptrMapa->mapa[i][j].bloco = duro;
+				}
+				else {
+					ptrMapa->mapa[i][j].bloco = vazio;
+				}
+
+			}
+
+		}
+	}
+
+	//////////////////////////////////////////////////////////////
+	c->Player.bombas = 20;
+
+	switch (c->dificuldade)
+	{
+	case 1: //se dificuldade=1 coloca 20 blocos moles 5 objectos obrigatorios
+
+		obrigatorios = 10;
+
+		for (i = 0; i<20; i++) { // 20 blocos moles
+			do {
+				CalculaPosicaoAleatoria(&p);
+				resp = VerificaExisteAlgoPosicao(&p);
+			} while (resp != 0);
+			ptrMapa->mapa[p.x][p.y].bloco = mole;
+		}
+
+		for (i = 0; i<obrigatorios; i++) {  // objectos obrigtorios
+			do {
+				CalculaPosicaoAleatoria(&p);
+				resp = VerificaExisteAlgoPosicao(&p);
+
+				if (ptrMapa->mapa[p.x][p.y].objecto != 0)
+					resp = 4;
+
+			} while (resp != 0 && resp != 3);
+
+			ptrMapa->mapa[p.x][p.y].objecto = 1;
+		}
+
+		for (i = 0; i<2; i++) {  //vidas
+			do {
+				CalculaPosicaoAleatoria(&p);
+				resp = VerificaExisteAlgoPosicao(&p);
+
+				if (ptrMapa->mapa[p.x][p.y].objecto != 0)
+					resp = 4;
+
+			} while (resp != 3);
+
+			ptrMapa->mapa[p.x][p.y].objecto = 2;
+		}
+
+		for (i = 0; i<2; i++) {  //bombas extra
+			do {
+				CalculaPosicaoAleatoria(&p);
+				resp = VerificaExisteAlgoPosicao(&p);
+
+				if (ptrMapa->mapa[p.x][p.y].objecto != 0)
+					resp = 4;
+
+			} while (resp != 3);
+
+			ptrMapa->mapa[p.x][p.y].objecto = 3;
+
+		}
+
+		do { //porta
+			CalculaPosicaoAleatoria(&p);
+			resp = VerificaExisteAlgoPosicao(&p);
+		} while (resp != 0);
+		ptrMapa->mapa[p.x][p.y].objecto = 4;
+
+		break;
+
+
+	case 2://se dificuldade=2 coloca 30 blocos moles
+		obrigatorios = 15;
+
+		for (i = 0; i<30; i++) {
+			do {
+				CalculaPosicaoAleatoria(&p);
+				resp = VerificaExisteAlgoPosicao(&p);
+			} while (resp != 0);
+			ptrMapa->mapa[p.x][p.y].bloco = mole;
+		}
+
+		for (i = 0; i<obrigatorios; i++) {  // objectos obrigtorios
+			do {
+				CalculaPosicaoAleatoria(&p);
+				resp = VerificaExisteAlgoPosicao(&p);
+
+				if (ptrMapa->mapa[p.x][p.y].objecto != 0)
+					resp = 4;
+
+			} while (resp != 0 && resp != 3);
+
+			ptrMapa->mapa[p.x][p.y].objecto = 1;
+		}
+
+		for (i = 0; i<1; i++) {  //vidas
+			do {
+				CalculaPosicaoAleatoria(&p);
+				resp = VerificaExisteAlgoPosicao(&p);
+
+				if (ptrMapa->mapa[p.x][p.y].objecto != 0)
+					resp = 4;
+
+			} while (resp != 3);
+
+			ptrMapa->mapa[p.x][p.y].objecto = 2;
+		}
+
+		for (i = 0; i<2; i++) {  //bombas extra
+			do {
+				CalculaPosicaoAleatoria(&p);
+				resp = VerificaExisteAlgoPosicao(&p);
+
+				if (ptrMapa->mapa[p.x][p.y].objecto != 0)
+					resp = 4;
+
+			} while (resp != 3);
+
+			ptrMapa->mapa[p.x][p.y].objecto = 3;
+
+		}
+
+		do { //porta
+			CalculaPosicaoAleatoria(&p);
+			resp = VerificaExisteAlgoPosicao(&p);
+		} while (resp != 0);
+		ptrMapa->mapa[p.x][p.y].objecto = 4;
+
+
+		break;
+
+
+	case 3://se dificuldade=3 coloca 40 blocos moles
+		obrigatorios = 20;
+		for (i = 0; i<40; i++) {
+			do {
+				CalculaPosicaoAleatoria(&p);
+				resp = VerificaExisteAlgoPosicao(&p);
+			} while (resp != 0);
+			ptrMapa->mapa[p.x][p.y].bloco = mole;
+		}
+
+		for (i = 0; i<obrigatorios; i++) {  // objectos obrigtorios
+			do {
+				CalculaPosicaoAleatoria(&p);
+				resp = VerificaExisteAlgoPosicao(&p);
+
+				if (ptrMapa->mapa[p.x][p.y].objecto != 0)
+					resp = 4;
+
+			} while (resp != 0 && resp != 3);
+
+			ptrMapa->mapa[p.x][p.y].objecto = 1;
+		}
+
+		for (i = 0; i<1; i++) {  //vidas
+			do {
+				CalculaPosicaoAleatoria(&p);
+				resp = VerificaExisteAlgoPosicao(&p);
+
+				if (ptrMapa->mapa[p.x][p.y].objecto != 0)
+					resp = 4;
+
+			} while (resp != 3);
+
+			ptrMapa->mapa[p.x][p.y].objecto = 2;
+		}
+
+		for (i = 0; i<3; i++) {  //bombas extra
+			do {
+				CalculaPosicaoAleatoria(&p);
+				resp = VerificaExisteAlgoPosicao(&p);
+
+				if (ptrMapa->mapa[p.x][p.y].objecto != 0)
+					resp = 4;
+
+			} while (resp != 3);
+
+			ptrMapa->mapa[p.x][p.y].objecto = 3;
+
+		}
+
+		do { //porta
+			CalculaPosicaoAleatoria(&p);
+			resp = VerificaExisteAlgoPosicao(&p);
+		} while (resp != 0);
+		ptrMapa->mapa[p.x][p.y].objecto = 4;
+
+		break;
+
+	default:
+		break;
+	}
+
+
+	/////////////Coloca jogador no mapa///////////
+
+
+	do {
+		CalculaPosicaoAleatoria(&p);
+		resp = VerificaExisteAlgoPosicao(&p);
+	} while (resp != 0); //se nao existir ocupa a posicao com o jogador
+	c->Player.pos = p;
+	ptrMapa->mapa[p.x][p.y].jogador = c->Player;
+
+
+
+
+	game.criado = TRUE;
+	game.dificuldade = c->dificuldade;
+
+	ReleaseMutex(hMutexMapa);
+
+
+	c->resposta = 0;
+}
+
+void TrataComando(COMANDO *cmd) {
+
+	//if(!game.criado){//JOGO NÃO CRIADO E NÃO INICIADO
+
+	switch (cmd->tipo)
+	{
+	case 0:  //AUTENTICAR
+		LoginUtilizador(cmd);
+		break;
+
+	case 1: //REGISTAR 
+		RegistaUtilizador(cmd);
+		break;
+
+	case 2:  // Criar Jogo
+		CriarJogo(cmd);
+		break;
+
+	case 3:  // Juntar Ao Jogo
+		JuntaJogadorAoJogo(cmd);
+		break;
+
+	case 4:  // Inicia o Jogo
+		IniciaJogo(cmd);
+		break;
+
+	case 5:  //move
+	case 6:
+	case 7:
+	case 8:
+		Move(cmd);
+		break;
+
+	case 9:  // Larga bomba
+		LargaBomba(cmd);
+		break;
+	case 10: // verifica jogo
+		VerificaJogo(cmd);
+		break;
+	default:
+		break;
+	}
+
+	return;
+}
+
+void LoginUser(COMANDO *c) {
+	int i;
+	int conta = 0;
+
+	for (i = 0; i<U_MAX; i++) {
+		if (_tcscmp(users[i].login, c->user.login) == 0) {
+			if (_tcscmp(users[i].pass, c->user.pass) == 0) {
+				//
+				for (i = 0; i<U_MAX; i++) {
+					if (_tcscmp(usersOnline[i].login, c->user.login) == 0) {
+						c->resposta = 3;
+						return; //já esta logado
+					}
+					if (_tcslen(usersOnline[i].login)>0)
+						conta++;
+				}
+				_stprintf_s(usersOnline[conta].login, 15, c->user.login);
+				_stprintf_s(usersOnline[conta].pass, 15, c->user.pass);
+				_stprintf_s(c->Player.nome, 15, c->user.login);
+				c->Player.pontos = 0;
+				c->Player.saude = 100;
+				c->resposta = 0;
+				return; // login com sucesso
+			}
+			else {
+				c->resposta = 2;
+				return; // password errada
+			}
+		}
+	}
+	c->resposta = 1;
+	return; // User não existe
+}
+
+void Move(COMANDO *cmd) {
+	int res;
+	POSICAO posInicial;
+	POSICAO posFinal;
+
+	if (cmd->badguy.presente) //se for inimigo 
+		posInicial = cmd->badguy.pos; //assume posicao do inimigo
+	else  //se for jogador
+		posInicial = cmd->Player.pos;//assume posicao jogador
+
+
+	posFinal = posInicial;
+
+	switch (cmd->tipo)
+	{
+	case 5:
+		posFinal.x = posInicial.x - 1;
+		break;
+	case 6:
+		posFinal.x = posInicial.x + 1;
+		break;
+	case 7:
+		posFinal.y = posInicial.y - 1;
+		break;
+	case 8:
+		posFinal.y = posInicial.y + 1;
+		break;
+	default:
+		break;
+	}
+
+	WaitForSingleObject(hMutexMapa, INFINITE);
+
+	res = VerificaExisteAlgoPosicao(&posFinal);
+
+	if (cmd->badguy.presente) { // se comando vier de um inimigo
+
+
+		if (res != 0 && res != 1) {// se nao estiver vazio ou nao tenha um jogador
+								   //if(ptrMapa->mapa[posFinal.x][posFinal.y].inimigo.presente!=0 && res!=1){
+			cmd->resposta = 1; // não faz nada
+			ReleaseMutex(hMutexMapa);
+			return;
+			//}
+		}
+		else { //senao
+			if (ptrMapa->mapa[posFinal.x][posFinal.y].inimigo.presente != 0) { // se estiver outro inimigo nao avanca
+				cmd->resposta = 1; // não faz nada
+				ReleaseMutex(hMutexMapa);
+				return;
+			}
+			//////////
+			else {
+				if (_tcscmp(ptrMapa->mapa[posFinal.x][posFinal.y].jogador.nome, TEXT("")) != 0) {
+					JOGADOR j;
+					POSICAO p;
+					j = JogadorMorre(ptrMapa->mapa[posFinal.x][posFinal.y].jogador);
+					p = j.pos;
+
+					if (j.vidas >= 0)
+						ptrMapa->mapa[p.x][p.y].jogador = j;
+					//cmd->Player=j;
+					_stprintf_s(ptrMapa->mapa[posFinal.x][posFinal.y].jogador.nome, 15, TEXT(""));
+					MandaDifusao(20, &j);
+
+				}
+
+				/////////////////
+				ptrMapa->mapa[posFinal.x][posFinal.y].inimigo = ptrMapa->mapa[posInicial.x][posInicial.y].inimigo;
+				ptrMapa->mapa[posFinal.x][posFinal.y].inimigo.pos = posFinal;
+				cmd->badguy = ptrMapa->mapa[posFinal.x][posFinal.y].inimigo;
+				ptrMapa->mapa[posInicial.x][posInicial.y].inimigo.presente = 0;
+				cmd->resposta = 0;
+				ReleaseMutex(hMutexMapa);
+				return;
+
+			}
+		}
+
+	}
+	else { // se comando vier de um jogador
+
+		if (res != 0 && res != 2) {  // se nao estiver vazio ou nao tiver um inimigo
+			cmd->resposta = 1; // não faz nada
+			ReleaseMutex(hMutexMapa);
+			return;
+		}
+		else {
+			if (ptrMapa->mapa[posFinal.x][posFinal.y].inimigo.presente == 1) {
+				JOGADOR j;
+				POSICAO p;
+				j = JogadorMorre(ptrMapa->mapa[posInicial.x][posInicial.y].jogador);
+				p = j.pos;
+
+				if (j.vidas >= 0)
+					ptrMapa->mapa[p.x][p.y].jogador = j;
+				cmd->Player = j;
+				_stprintf_s(ptrMapa->mapa[posInicial.x][posInicial.y].jogador.nome, 15, TEXT(""));
+
+				ReleaseMutex(hMutexMapa);
+				return;
+
+			}
+			else {
+				ptrMapa->mapa[posFinal.x][posFinal.y].jogador = ptrMapa->mapa[posInicial.x][posInicial.y].jogador;
+				ptrMapa->mapa[posFinal.x][posFinal.y].jogador.pos = posFinal;
+				cmd->Player.pos = posFinal;
+				_stprintf_s(ptrMapa->mapa[posInicial.x][posInicial.y].jogador.nome, 15, TEXT(""));
+
+				ApanhaObjecto(posFinal, cmd);
+
+				cmd->resposta = 0;
+			}
+		}
+	}
+
+	ReleaseMutex(hMutexMapa);
+	return;
+}
+
 
 DWORD WINAPI RecebeClientes(LPVOID param) {
 	HANDLE rPipe;

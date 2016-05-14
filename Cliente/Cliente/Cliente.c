@@ -4,6 +4,7 @@
 #include <fcntl.h>
 #include <stdio.h>
 #include "dll.h"
+#include "struct.h"
 
 
 #define PIPE_N_WRITE TEXT("\\\\.\\pipe\\ParaServidor")

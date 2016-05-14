@@ -71,7 +71,7 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>C:\Users\Sergio\Desktop\DungeonRPG\DungeonRPG\DLL\DLL;$(IncludePath)</IncludePath>
+    <IncludePath>C:\Users\Dmytro Yaremyshyn\Desktop\DungeonRPG\DLL\DLL;C:\Users\Sergio\Desktop\DungeonRPG\DungeonRPG\DLL\DLL;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
@@ -148,6 +148,9 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Cliente.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="struct.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
