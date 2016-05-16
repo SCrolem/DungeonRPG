@@ -25,6 +25,7 @@ HANDLE hMemoria, hMutexMapa, hMutexUsers;
 
 HANDLE wPipeClientes[N_MAX_CLIENTES];
 int total = 0;
+int obrigatorios = 10;
 BOOL sair = FALSE;
 
 DWORD WINAPI RecebeClientes(LPVOID param);
@@ -78,40 +79,40 @@ int _tmain(int argc, LPTSTR argv[]) {
 	exit(0);
 }
 
+
+
 void ApanhaObjecto(POSICAO p, COMANDO *c) {
 	int obj, i, j;
-
+	
 
 	WaitForSingleObject(hMutexMapa, INFINITE);
 
-	obj = ptrMapa->mapa[p.x][p.y].objecto;
+	obj = ptrMapa->mapa[p.x][p.y].obj;
 
 
 	switch (obj)
 	{
 	case 1: // obrigatorios
+		
 		obrigatorios--;
-		c->Player.pontos += 10;
-		ptrMapa->mapa[p.x][p.y].objecto = 0;
+		c->jogador.pontos += 10;
+		ptrMapa->mapa[p.x][p.y].obj = 0;
 
 		if (obrigatorios == 0) {
 			for (i = 1; i<L - 1; i++) {
 				for (j = 1; j<C - 1; j++) {
-					if (ptrMapa->mapa[i][j].objecto == 4)
-						ptrMapa->mapa[i][j].objecto = 5;
+					if (ptrMapa->mapa[i][j].obj == 4)
+						ptrMapa->mapa[i][j].obj = 5;
 				}
 			}
 		}
 		//MandaDifusao(20,&jog);
 		break;
 	case 2: //vidas
-		c->Player.vidas++;
-		ptrMapa->mapa[p.x][p.y].objecto = 0;
+		c->jogador.vidas++;
+		ptrMapa->mapa[p.x][p.y].obj = 0;
 		break;
-	case 3: //Bombas extra
-		c->Player.bombas += 10;
-		ptrMapa->mapa[p.x][p.y].objecto = 0;
-		break;
+	
 	case 5:
 		MandaDifusao(21, NULL);
 		break;
@@ -121,7 +122,7 @@ void ApanhaObjecto(POSICAO p, COMANDO *c) {
 	}
 
 
-	ptrMapa->mapa[p.x][p.y].jogador = c->Player;
+	ptrMapa->mapa[p.x][p.y].jogador = c->jogador;
 	ReleaseMutex(hMutexMapa);
 }
 
@@ -132,7 +133,6 @@ JOGADOR JogadorMorre(JOGADOR j) {
 	if (j.vidas>0) { //se ainda tiver vidas
 
 		j.vidas--;
-		j.bombas = 20;
 		j.saude = 100;
 
 
@@ -141,7 +141,6 @@ JOGADOR JogadorMorre(JOGADOR j) {
 	}
 	else {// senao morre
 		j.vidas--;
-		j.bombas = 0;
 		j.saude = 0;
 
 	}
@@ -175,8 +174,8 @@ void VerificaJogo(COMANDO *cmd) {
 void CriaMapaParaEnvio(MAPACLIENTE *mapa) {
 	int i, j;
 	WaitForSingleObject(hMutexMapa, INFINITE);
-	for (i = 0; i<L; i++) {
-		for (j = 0; j<C; j++) {//para cada posicao
+	for (i = 0; i < L; i++) {
+		for (j = 0; j < C; j++) {//para cada posicao
 			mapa->mapa[i][j].jogador = ptrMapa->mapa[i][j].jogador;
 			mapa->mapa[i][j].monstro = FALSE;
 			mapa->mapa[i][j].objecto = 0;
@@ -188,50 +187,36 @@ void CriaMapaParaEnvio(MAPACLIENTE *mapa) {
 			}
 			else {
 				if (ptrMapa->mapa[i][j].bloco.tipo == 2) {
-					mapa->mapa[i][j].bloco = ptrMapa->mapa[i][j].bloco.tipo;
+					mapa->mapa[i][j].parede = ptrMapa->mapa[i][j].bloco.tipo;
 
 				}
-
-				else {
-					if (ptrMapa->mapa[i][j].bloco.tipo == 1) {
-						if (ptrMapa->mapa[i][j].bloco.saude == 0)
-							mapa->mapa[i][j].bloco = ptrMapa->mapa[i][j].bloco.tipo = 0;
-						else {
-							if (ptrMapa->mapa[i][j].bloco.saude == 10)
-								mapa->mapa[i][j].bloco = ptrMapa->mapa[i][j].bloco.tipo;
-							else
-								mapa->mapa[i][j].bloco = 3;
-						}
-
-
-						//
-						/*if(ptrMapa->mapa[i][j].bloco.saude>0)
-						mapa->mapa[i][j].bloco=ptrMapa->mapa[i][j].bloco.tipo;
-						else
-						mapa->mapa[i][j].bloco=ptrMapa->mapa[i][j].bloco.tipo=0;*/
-						//
-					}
-
-					else {
+				//	/*
+				//	else {
+				//		if (ptrMapa->mapa[i][j].bloco.tipo == 1) {
+				//			if (ptrMapa->mapa[i][j].bloco. == 0)
+				//				mapa->mapa[i][j].bloco = ptrMapa->mapa[i][j].bloco.tipo = 0;
+				//			else {
+				//				if (ptrMapa->mapa[i][j].bloco.saude == 10)
+				//					mapa->mapa[i][j].bloco = ptrMapa->mapa[i][j].bloco.tipo;
+				//				else
+				//					mapa->mapa[i][j].bloco = 3;
+				//			}
 
 
+				//			//
+				//			/*if(ptrMapa->mapa[i][j].bloco.saude>0)
+				//			mapa->mapa[i][j].bloco=ptrMapa->mapa[i][j].bloco.tipo;
+				//			else
+				//			mapa->mapa[i][j].bloco=ptrMapa->mapa[i][j].bloco.tipo=0;*/
+				//			
+				//		}
+				//*/
 
-						if (ptrMapa->mapa[i][j].bomba != 0) {
 
-							mapa->mapa[i][j].bomba = ptrMapa->mapa[i][j].bomba;
-
-						}
-						else {
-							if (ptrMapa->mapa[i][j].objecto != 0) {
-
-								mapa->mapa[i][j].objecto = ptrMapa->mapa[i][j].objecto;
-							}
-						}
-					}
-				}
 			}
 		}
-		ReleaseMutex(hMutexMapa);
+	
+	ReleaseMutex(hMutexMapa);
 	}
 }
 
@@ -241,7 +226,7 @@ int VerificaExisteAlgoPosicao(POSICAO *p) {
 		return 1;	//existe um jogador
 	}
 	else {
-		if (ptrMapa->mapa[p->x][p->y].inimigo.presente == 1) {
+		if (ptrMapa->mapa[p->x][p->y].monstro.presente == 1) {
 			//if (_tcscmp(ptrMapa->mapa[p->x][p->y].inimigo.nome,TEXT(""))!=0){
 			return 2; // existe um inimigo
 		}
@@ -254,8 +239,8 @@ int VerificaExisteAlgoPosicao(POSICAO *p) {
 					return 4; // existe um bloco duro
 				}
 				else {
-					if (ptrMapa->mapa[p->x][p->y].bomba == 2)
-						return 5;
+					//if (ptrMapa->mapa[p->x][p->y].bomba == 2)
+						//return 5;
 
 				}
 			}
@@ -297,22 +282,22 @@ void AdicionaJogadorAoJogo(COMANDO *c) {
 
 	} while (resp != 0);
 
-	c->Player.pos = p;
-	ptrMapa->mapa[p.x][p.y].jogador = c->Player;
-	switch (game.dificuldade)
+	c->jogador.pos = p;
+	ptrMapa->mapa[p.x][p.y].jogador = c->jogador;
+	/*switch (game.dificuldade)
 	{
 	case 1:
-		c->Player.bombas = 20;
+		c->jogador. = 20;
 		break;
 	case 2:
-		c->Player.bombas = 15;
+		c->jogador. = 15;
 		break;
 	case 3:
-		c->Player.bombas = 10;
+		c->jogador. = 10;
 		break;
 	default:
 		break;
-	}
+	}*/
 
 	ReleaseMutex(hMutexMapa);
 	c->resposta = 0;
@@ -361,10 +346,10 @@ void IniciaJogo(COMANDO *c) {
 				break;
 			}
 			else {
-				ptrMapa->mapa[p.x][p.y].inimigo.pos = p;
-				ptrMapa->mapa[p.x][p.y].inimigo.presente = 1;
-				ptrMapa->mapa[p.x][p.y].inimigo.saude = 10;
-				ptrMapa->mapa[p.x][p.y].inimigo.velocidade = 2000;
+				ptrMapa->mapa[p.x][p.y].monstro.pos = p;
+				ptrMapa->mapa[p.x][p.y].monstro.presente = 1;
+				ptrMapa->mapa[p.x][p.y].monstro.saude = 10;
+				ptrMapa->mapa[p.x][p.y].monstro.lentidao = 2000;
 			}
 		}
 
@@ -389,10 +374,10 @@ void IniciaJogo(COMANDO *c) {
 				break;
 			}
 			else {
-				ptrMapa->mapa[p.x][p.y].inimigo.pos = p;
-				ptrMapa->mapa[p.x][p.y].inimigo.presente = 1;
-				ptrMapa->mapa[p.x][p.y].inimigo.saude = 10;
-				ptrMapa->mapa[p.x][p.y].inimigo.velocidade = 1000;
+				ptrMapa->mapa[p.x][p.y].monstro.pos = p;
+				ptrMapa->mapa[p.x][p.y].monstro.presente = 1;
+				ptrMapa->mapa[p.x][p.y].monstro.saude = 10;
+				ptrMapa->mapa[p.x][p.y].monstro.lentidao = 1000;
 
 			}
 		}
@@ -418,10 +403,10 @@ void IniciaJogo(COMANDO *c) {
 				break;
 			}
 			else {
-				ptrMapa->mapa[p.x][p.y].inimigo.pos = p;
-				ptrMapa->mapa[p.x][p.y].inimigo.presente = 1;
-				ptrMapa->mapa[p.x][p.y].inimigo.saude = 10;
-				ptrMapa->mapa[p.x][p.y].inimigo.velocidade = 500;
+				ptrMapa->mapa[p.x][p.y].monstro.pos = p;
+				ptrMapa->mapa[p.x][p.y].monstro.presente = 1;
+				ptrMapa->mapa[p.x][p.y].monstro.saude = 10;
+				ptrMapa->mapa[p.x][p.y].monstro.lentidao = 500;
 			}
 		}
 
@@ -468,8 +453,8 @@ void CriaJogo(COMANDO *c) {
 	for (i = 0; i < L; i++) {
 		for (j = 0; j < C; j++) {
 			_stprintf_s(ptrMapa->mapa[i][j].jogador.nome, 10, TEXT(""));
-			ptrMapa->mapa[i][j].inimigo.presente = 0;
-			ptrMapa->mapa[i][j].objecto = 0;
+			ptrMapa->mapa[i][j].monstro.presente = 0;
+			ptrMapa->mapa[i][j].obj = 0;
 			//_stprintf_s(ptrMapa->mapa[i][j].inimigo.nome,10,TEXT(""));
 
 			if (i == 0 || i == L - 1 || j == 0 || j == C - 1) {
@@ -490,7 +475,7 @@ void CriaJogo(COMANDO *c) {
 	}
 
 	//////////////////////////////////////////////////////////////
-	c->Player.bombas = 20;
+	//c->jogador.bombas = 20;
 
 	switch (c->dificuldade)
 	{
@@ -511,12 +496,12 @@ void CriaJogo(COMANDO *c) {
 				CalculaPosicaoAleatoria(&p);
 				resp = VerificaExisteAlgoPosicao(&p);
 
-				if (ptrMapa->mapa[p.x][p.y].objecto != 0)
+				if (ptrMapa->mapa[p.x][p.y].obj != 0)
 					resp = 4;
 
 			} while (resp != 0 && resp != 3);
 
-			ptrMapa->mapa[p.x][p.y].objecto = 1;
+			ptrMapa->mapa[p.x][p.y].obj = 1;
 		}
 
 		for (i = 0; i<2; i++) {  //vidas
@@ -524,12 +509,12 @@ void CriaJogo(COMANDO *c) {
 				CalculaPosicaoAleatoria(&p);
 				resp = VerificaExisteAlgoPosicao(&p);
 
-				if (ptrMapa->mapa[p.x][p.y].objecto != 0)
+				if (ptrMapa->mapa[p.x][p.y].obj != 0)
 					resp = 4;
 
 			} while (resp != 3);
 
-			ptrMapa->mapa[p.x][p.y].objecto = 2;
+			ptrMapa->mapa[p.x][p.y].obj = 2;
 		}
 
 		for (i = 0; i<2; i++) {  //bombas extra
@@ -537,12 +522,12 @@ void CriaJogo(COMANDO *c) {
 				CalculaPosicaoAleatoria(&p);
 				resp = VerificaExisteAlgoPosicao(&p);
 
-				if (ptrMapa->mapa[p.x][p.y].objecto != 0)
+				if (ptrMapa->mapa[p.x][p.y].obj != 0)
 					resp = 4;
 
 			} while (resp != 3);
 
-			ptrMapa->mapa[p.x][p.y].objecto = 3;
+			ptrMapa->mapa[p.x][p.y].obj = 3;
 
 		}
 
@@ -550,7 +535,7 @@ void CriaJogo(COMANDO *c) {
 			CalculaPosicaoAleatoria(&p);
 			resp = VerificaExisteAlgoPosicao(&p);
 		} while (resp != 0);
-		ptrMapa->mapa[p.x][p.y].objecto = 4;
+		ptrMapa->mapa[p.x][p.y].obj = 4;
 
 		break;
 
@@ -571,12 +556,12 @@ void CriaJogo(COMANDO *c) {
 				CalculaPosicaoAleatoria(&p);
 				resp = VerificaExisteAlgoPosicao(&p);
 
-				if (ptrMapa->mapa[p.x][p.y].objecto != 0)
+				if (ptrMapa->mapa[p.x][p.y].obj != 0)
 					resp = 4;
 
 			} while (resp != 0 && resp != 3);
 
-			ptrMapa->mapa[p.x][p.y].objecto = 1;
+			ptrMapa->mapa[p.x][p.y].obj = 1;
 		}
 
 		for (i = 0; i<1; i++) {  //vidas
@@ -584,12 +569,12 @@ void CriaJogo(COMANDO *c) {
 				CalculaPosicaoAleatoria(&p);
 				resp = VerificaExisteAlgoPosicao(&p);
 
-				if (ptrMapa->mapa[p.x][p.y].objecto != 0)
+				if (ptrMapa->mapa[p.x][p.y].obj != 0)
 					resp = 4;
 
 			} while (resp != 3);
 
-			ptrMapa->mapa[p.x][p.y].objecto = 2;
+			ptrMapa->mapa[p.x][p.y].obj = 2;
 		}
 
 		for (i = 0; i<2; i++) {  //bombas extra
@@ -597,12 +582,12 @@ void CriaJogo(COMANDO *c) {
 				CalculaPosicaoAleatoria(&p);
 				resp = VerificaExisteAlgoPosicao(&p);
 
-				if (ptrMapa->mapa[p.x][p.y].objecto != 0)
+				if (ptrMapa->mapa[p.x][p.y].obj != 0)
 					resp = 4;
 
 			} while (resp != 3);
 
-			ptrMapa->mapa[p.x][p.y].objecto = 3;
+			ptrMapa->mapa[p.x][p.y].obj = 3;
 
 		}
 
@@ -610,7 +595,7 @@ void CriaJogo(COMANDO *c) {
 			CalculaPosicaoAleatoria(&p);
 			resp = VerificaExisteAlgoPosicao(&p);
 		} while (resp != 0);
-		ptrMapa->mapa[p.x][p.y].objecto = 4;
+		ptrMapa->mapa[p.x][p.y].obj = 4;
 
 
 		break;
@@ -631,12 +616,12 @@ void CriaJogo(COMANDO *c) {
 				CalculaPosicaoAleatoria(&p);
 				resp = VerificaExisteAlgoPosicao(&p);
 
-				if (ptrMapa->mapa[p.x][p.y].objecto != 0)
+				if (ptrMapa->mapa[p.x][p.y].obj != 0)
 					resp = 4;
 
 			} while (resp != 0 && resp != 3);
 
-			ptrMapa->mapa[p.x][p.y].objecto = 1;
+			ptrMapa->mapa[p.x][p.y].obj = 1;
 		}
 
 		for (i = 0; i<1; i++) {  //vidas
@@ -644,12 +629,12 @@ void CriaJogo(COMANDO *c) {
 				CalculaPosicaoAleatoria(&p);
 				resp = VerificaExisteAlgoPosicao(&p);
 
-				if (ptrMapa->mapa[p.x][p.y].objecto != 0)
+				if (ptrMapa->mapa[p.x][p.y].obj != 0)
 					resp = 4;
 
 			} while (resp != 3);
 
-			ptrMapa->mapa[p.x][p.y].objecto = 2;
+			ptrMapa->mapa[p.x][p.y].obj = 2;
 		}
 
 		for (i = 0; i<3; i++) {  //bombas extra
@@ -657,12 +642,12 @@ void CriaJogo(COMANDO *c) {
 				CalculaPosicaoAleatoria(&p);
 				resp = VerificaExisteAlgoPosicao(&p);
 
-				if (ptrMapa->mapa[p.x][p.y].objecto != 0)
+				if (ptrMapa->mapa[p.x][p.y].obj != 0)
 					resp = 4;
 
 			} while (resp != 3);
 
-			ptrMapa->mapa[p.x][p.y].objecto = 3;
+			ptrMapa->mapa[p.x][p.y].obj = 3;
 
 		}
 
@@ -670,7 +655,7 @@ void CriaJogo(COMANDO *c) {
 			CalculaPosicaoAleatoria(&p);
 			resp = VerificaExisteAlgoPosicao(&p);
 		} while (resp != 0);
-		ptrMapa->mapa[p.x][p.y].objecto = 4;
+		ptrMapa->mapa[p.x][p.y].obj = 4;
 
 		break;
 
@@ -686,8 +671,8 @@ void CriaJogo(COMANDO *c) {
 		CalculaPosicaoAleatoria(&p);
 		resp = VerificaExisteAlgoPosicao(&p);
 	} while (resp != 0); //se nao existir ocupa a posicao com o jogador
-	c->Player.pos = p;
-	ptrMapa->mapa[p.x][p.y].jogador = c->Player;
+	c->jogador.pos = p;
+	ptrMapa->mapa[p.x][p.y].jogador = c->jogador;
 
 
 
@@ -765,9 +750,9 @@ void LoginUser(COMANDO *c) {
 				}
 				_stprintf_s(usersOnline[conta].login, 15, c->user.login);
 				_stprintf_s(usersOnline[conta].pass, 15, c->user.pass);
-				_stprintf_s(c->Player.nome, 15, c->user.login);
-				c->Player.pontos = 0;
-				c->Player.saude = 100;
+				_stprintf_s(c->jogador.nome, 15, c->user.login);
+				c->jogador.pontos = 0;
+				c->jogador.saude = 100;
 				c->resposta = 0;
 				return; // login com sucesso
 			}
@@ -786,10 +771,10 @@ void Move(COMANDO *cmd) {
 	POSICAO posInicial;
 	POSICAO posFinal;
 
-	if (cmd->badguy.presente) //se for inimigo 
-		posInicial = cmd->badguy.pos; //assume posicao do inimigo
+	if (cmd->monstro.presente) //se for inimigo 
+		posInicial = cmd->monstro.pos; //assume posicao do inimigo
 	else  //se for jogador
-		posInicial = cmd->Player.pos;//assume posicao jogador
+		posInicial = cmd->monstro.pos;//assume posicao jogador
 
 
 	posFinal = posInicial;
@@ -816,7 +801,7 @@ void Move(COMANDO *cmd) {
 
 	res = VerificaExisteAlgoPosicao(&posFinal);
 
-	if (cmd->badguy.presente) { // se comando vier de um inimigo
+	if (cmd->monstro.presente) { // se comando vier de um inimigo
 
 
 		if (res != 0 && res != 1) {// se nao estiver vazio ou nao tenha um jogador
@@ -827,7 +812,7 @@ void Move(COMANDO *cmd) {
 			//}
 		}
 		else { //senao
-			if (ptrMapa->mapa[posFinal.x][posFinal.y].inimigo.presente != 0) { // se estiver outro inimigo nao avanca
+			if (ptrMapa->mapa[posFinal.x][posFinal.y].monstro.presente != 0) { // se estiver outro inimigo nao avanca
 				cmd->resposta = 1; // não faz nada
 				ReleaseMutex(hMutexMapa);
 				return;
@@ -849,10 +834,10 @@ void Move(COMANDO *cmd) {
 				}
 
 				/////////////////
-				ptrMapa->mapa[posFinal.x][posFinal.y].inimigo = ptrMapa->mapa[posInicial.x][posInicial.y].inimigo;
-				ptrMapa->mapa[posFinal.x][posFinal.y].inimigo.pos = posFinal;
-				cmd->badguy = ptrMapa->mapa[posFinal.x][posFinal.y].inimigo;
-				ptrMapa->mapa[posInicial.x][posInicial.y].inimigo.presente = 0;
+				ptrMapa->mapa[posFinal.x][posFinal.y].monstro = ptrMapa->mapa[posInicial.x][posInicial.y].monstro;
+				ptrMapa->mapa[posFinal.x][posFinal.y].monstro.pos = posFinal;
+				cmd->monstro = ptrMapa->mapa[posFinal.x][posFinal.y].monstro;
+				ptrMapa->mapa[posInicial.x][posInicial.y].monstro.presente = 0;
 				cmd->resposta = 0;
 				ReleaseMutex(hMutexMapa);
 				return;
@@ -869,7 +854,7 @@ void Move(COMANDO *cmd) {
 			return;
 		}
 		else {
-			if (ptrMapa->mapa[posFinal.x][posFinal.y].inimigo.presente == 1) {
+			if (ptrMapa->mapa[posFinal.x][posFinal.y].monstro.presente == 1) {
 				JOGADOR j;
 				POSICAO p;
 				j = JogadorMorre(ptrMapa->mapa[posInicial.x][posInicial.y].jogador);
@@ -877,7 +862,7 @@ void Move(COMANDO *cmd) {
 
 				if (j.vidas >= 0)
 					ptrMapa->mapa[p.x][p.y].jogador = j;
-				cmd->Player = j;
+				cmd->jogador = j;
 				_stprintf_s(ptrMapa->mapa[posInicial.x][posInicial.y].jogador.nome, 15, TEXT(""));
 
 				ReleaseMutex(hMutexMapa);
@@ -887,7 +872,7 @@ void Move(COMANDO *cmd) {
 			else {
 				ptrMapa->mapa[posFinal.x][posFinal.y].jogador = ptrMapa->mapa[posInicial.x][posInicial.y].jogador;
 				ptrMapa->mapa[posFinal.x][posFinal.y].jogador.pos = posFinal;
-				cmd->Player.pos = posFinal;
+				cmd->jogador.pos = posFinal;
 				_stprintf_s(ptrMapa->mapa[posInicial.x][posInicial.y].jogador.nome, 15, TEXT(""));
 
 				ApanhaObjecto(posFinal, cmd);
@@ -899,6 +884,38 @@ void Move(COMANDO *cmd) {
 
 	ReleaseMutex(hMutexMapa);
 	return;
+}
+
+
+
+void RegistaUtilizador(COMANDO *c) {
+	int i;
+	int conta = 0;
+
+	WaitForSingleObject(hMutexUsers, INFINITE);
+
+	for (i = 0; i<U_MAX; i++) { // verifica se está vazio ou quantos campos tem
+
+		if (_tcslen(users[i].login)>0)
+			conta++;
+	}
+
+	for (i = 0; i<conta; i++) {  // Para os campos preenchidos verifica se o login ja foi registado
+		if (_tcscmp(users[i].login, c->user.login) == 0) {
+			c->resposta = 1; //
+			return;
+		}
+	}
+	//se nao estiver ja registado, regista e adiciona à chave de registo
+	_stprintf_s(users[conta].login, 15, c->user.login);
+	_stprintf_s(users[conta].pass, 15, c->user.pass);
+
+
+	//RegSetValueEx(regKey, TEXT("LOGINS"), 0, REG_BINARY, (LPBYTE)users, U_MAX * sizeof(UTILIZADOR));
+	ReleaseMutex(hMutexUsers);
+	c->resposta = 0;
+	return;
+
 }
 
 

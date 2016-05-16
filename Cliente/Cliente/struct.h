@@ -78,6 +78,7 @@ typedef struct {
 	JOGADOR jogador;
 	BOOL monstro;
 	int objecto;
+	int parede;
 }CELULACLI;
 
 typedef struct {
@@ -87,5 +88,5 @@ typedef struct {
 typedef struct {
 	BOOL criado;
 	BOOL iniciado;
-	//int dificuldade;
+	int dificuldade;
 }JOGO;
