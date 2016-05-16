@@ -51,6 +51,7 @@ typedef struct {
 	int tipoComando;
 	int resposta;
 	JOGADOR jogador;
+	USER user;
 }COMANDO_DO_CLIENTE;
 
 typedef struct {
