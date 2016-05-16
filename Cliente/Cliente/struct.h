@@ -23,7 +23,7 @@ typedef struct {
 	int presente;
 	TCHAR nome[TAM_LOG];
 	POSICAO pos;
-	OBJETO obj[T_OBJ];
+	OBJETO mochila[T_OBJ];
 	int lentidao;
 	int saude;
 	int vidas;

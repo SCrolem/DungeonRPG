@@ -47,6 +47,8 @@ void RegistaUtilizador(COMANDO_DO_CLIENTE *c);			//FEITO
 void LoginUser(COMANDO_DO_CLIENTE *c);					
 //void CriaJogo(COMANDO_DO_CLIENTE *c);
 void CriaMundo(COMANDO_DO_CLIENTE *c);
+void PreencheJogador(COMANDO_DO_CLIENTE *c);
+
 
 void AdicionaJogadorAoJogo(COMANDO_DO_CLIENTE*c);
 void IniciaJogo(COMANDO_DO_CLIENTE *c);
@@ -361,6 +363,28 @@ void CriaMundo(COMANDO_DO_CLIENTE *c) {
 			}
 		}
 	}
+}
+
+void PreencheJogador(COMANDO_DO_CLIENTE * c)
+{
+	int x = 0;
+	int y = 0;
+	c->jogador.mochila[0].tipo = 1;
+	c->jogador.pontos = 0;
+	c->jogador.lentidao = 5;
+	c->jogador.saude = 10;
+
+	do {
+		srand((unsigned)time(NULL));
+		x = rand() % 10;
+		y = rand() % 10;
+
+		if (mundo[x][y].bloco.tipo == 0) {
+			mundo[x][y].jogador = c->jogador;
+		}
+	} while (mundo[x][y].bloco.tipo != 0);
+
+	c->resposta = 1;
 }
 
 
