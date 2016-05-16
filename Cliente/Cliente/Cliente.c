@@ -50,6 +50,7 @@ int _tmain(int argc, LPTSTR argv[]) {
 */
 
 	Inicia_comunicacao();
+
 	//Invocar a thread que recebe info do servidor
 	hThread = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)RecebeDoServidor, (LPVOID)rPipe, 0, NULL);	
 	if (hThread == NULL) {
@@ -87,6 +88,7 @@ int _tmain(int argc, LPTSTR argv[]) {
 DWORD WINAPI RecebeDoServidor(LPVOID param) { //recebe o pipe 
 	HANDLE rPipe = (HANDLE)param; //atribui o pipe que recebe (pipe )
 	TCHAR buf[256];
+	COMANDO resposta;
 	int i = 0;
 	BOOL ret;
 	DWORD n;
