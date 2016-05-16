@@ -15,6 +15,11 @@ typedef struct {
 }POSICAO;
 
 typedef struct {
+	int tipo;
+	int raridade;
+}OBJETO;
+
+typedef struct {
 	int presente;
 	TCHAR nome[TAM_LOG];
 	POSICAO pos;
@@ -43,19 +48,23 @@ typedef struct {
 }MONSTRO;
 
 typedef struct {
-	TCHAR nome[20];
-	int tipo;
+	int tipoComando;
 	int resposta;
-	int dificuldade;
-	MONSTRO monstro;
-	USER user;
 	JOGADOR jogador;
-}COMANDO;
+}COMANDO_DO_CLIENTE;
 
 typedef struct {
-	int tipo;
-	int raridade;
-}OBJETO;
+	int tipoComando;
+	int resposta;
+	TCHAR msg[200];
+	JOGADOR jogador;
+	CELULA mapa[10][10];
+}COMANDO_DO_SERVIDOR;
+
+typedef struct {
+	MONSTRO monstro;
+}ATACAR;
+
 
 typedef struct {
 	int tipo;

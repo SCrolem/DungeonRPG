@@ -27,6 +27,7 @@ HANDLE wPipeClientes[N_MAX_CLIENTES];
 int total = 0;
 int obrigatorios = 10;
 BOOL sair = FALSE;
+CELULA mundo[L][C];
 
 DWORD WINAPI RecebeClientes(LPVOID param);
 DWORD WINAPI AtendeCliente(LPVOID param);
@@ -40,15 +41,24 @@ JOGO game;
 
 //OUTRAS COISAS
 
-void TrataComando(COMANDO *c);
-void LoginUser(COMANDO *c);
+
+
+void RegistaUtilizador(COMANDO *c);			//FEITO
+void LoginUser(COMANDO *c);					
 void CriaJogo(COMANDO *c);
+
 void AdicionaJogadorAoJogo(COMANDO *c);
 void IniciaJogo(COMANDO *c);
 void CalculaPosicaoAleatoria(POSICAO *p);
 int VerificaExisteAlgoPosicao(POSICAO *p);
 int VerificaJogadorNoMapa(TCHAR *nome);
 void CriaMapaParaEnvio(MAPACLIENTE *mapa);
+
+
+void TrataComando(COMANDO *c);
+
+
+
 
 void VerificaJogo(COMANDO *cmd);
 void Move(COMANDO *cmd);
@@ -303,125 +313,53 @@ void AdicionaJogadorAoJogo(COMANDO *c) {
 	c->resposta = 0;
 }
 
-void IniciaJogo(COMANDO *c) {
-	TCHAR inimigoPath[100];
-	BLOCO mole;
-	POSICAO p;
-	int resp, i;
+void IniciaJogo(COMANDO_DO_CLIENTE *c) {
 
-	/*
-	ZeroMemory(&si, sizeof(si));
-	ZeroMemory(&pi, sizeof(pi));
+	//float perc;
+	int i, j, k;
+	int x, y;
+	int g, l, c, p;
 
-	for (i = 0; i<10; i++) {
-		si[i].cb = sizeof(si);
-		//si[i].dwFlags = STARTF_USESHOWWINDOW;
-		//si[i].wShowWindow = SW_HIDE;
-	}
-	*/
+	/* --------------------------------------------------------- CRIAÇAO DO MUNDO --------------------------------------------------------*/
 
-	WaitForSingleObject(hMutexMapa, INFINITE);
+	srand((unsigned)time(NULL));
 
-	if (!game.criado) {
-		c->resposta = 1;
-		ReleaseMutex(hMutexMapa);
-		return;
-	}
+	for (i = 0; i<L; i++) {			//criacao do mundo a funcionar
+		for (j = 0; j<C; j++) {
+			mundo[i][j].bloco.tipo = 0;
 
-	switch (game.dificuldade)//Coloca peças mediante difuculdade escolhida
-	{
-	case 1: //coloca em jogo 3 inimigos 
+			if (i == 0)								// paredes nas extremidades
+				mundo[i][j].bloco.tipo = 1;
+			if (i == 9)
+				mundo[i][j].bloco.tipo = 1;
+			if (j == 0)
+				mundo[i][j].bloco.tipo = 1;
+			if (j == 9)
+				mundo[i][j].bloco.tipo = 1;
 
-		for (i = 0; i<3; i++) {
-			do {
-				CalculaPosicaoAleatoria(&p);
-				resp = VerificaExisteAlgoPosicao(&p);
-			} while (resp != 0);
+			if (mundo[i][j].bloco.tipo != 1) {
+				for (g = 0; g < 4; g++) //CRIACAO DE ITEMS
+				{
+					x = 0 + (rand() % 100);
 
-			_stprintf_s(inimigoPath, 100, TEXT("C:\\Users\\Marco\\Desktop\\Trabalho final v19\\Inimigo\\Debug\\Inimigo.exe %d %d 500"), p.x, p.y);
-			Sleep(500);
-
-			if (!CreateProcess(NULL, inimigoPath, NULL, NULL, 0, CREATE_NEW_CONSOLE, NULL, NULL, &si[i], &pi[i])) {
-				MessageBox(NULL, _T("Unable to create process."), _T("Error"), MB_OK);
-				break;
-			}
-			else {
-				ptrMapa->mapa[p.x][p.y].monstro.pos = p;
-				ptrMapa->mapa[p.x][p.y].monstro.presente = 1;
-				ptrMapa->mapa[p.x][p.y].monstro.saude = 10;
-				ptrMapa->mapa[p.x][p.y].monstro.lentidao = 2000;
+					if (x >= 0 && x < 10) {
+						mundo[i][j].obj = 1;
+					}
+					else if (x >= 10 && x < 30) {
+						mundo[i][j].obj = 2;
+					}
+					else if (x >= 30 && x < 34) {
+						mundo[i][j].obj=3;
+						
+					}
+					else if (x >= 34 && x < 39) {
+						mundo[i][j].obj=4;
+					}
+					
+				}
 			}
 		}
-
-
-		ReleaseMutex(hMutexMapa);
-		game.iniciado = TRUE;
-		c->resposta = 0;
-		break;
-	case 2:
-
-		for (i = 0; i<4; i++) {
-			do {
-				CalculaPosicaoAleatoria(&p);
-				resp = VerificaExisteAlgoPosicao(&p);
-			} while (resp != 0);
-
-			_stprintf_s(inimigoPath, 100, TEXT("D:\\So2Final\\Trabalho final v19\\Inimigo\\Debug\\Inimigo.exe %d %d 1200"), p.x, p.y);
-			Sleep(500);
-
-			if (!CreateProcess(NULL, inimigoPath, NULL, NULL, 0, CREATE_NEW_CONSOLE, NULL, NULL, &si[i], &pi[i])) {
-				MessageBox(NULL, _T("Unable to create process."), _T("Error"), MB_OK);
-				break;
-			}
-			else {
-				ptrMapa->mapa[p.x][p.y].monstro.pos = p;
-				ptrMapa->mapa[p.x][p.y].monstro.presente = 1;
-				ptrMapa->mapa[p.x][p.y].monstro.saude = 10;
-				ptrMapa->mapa[p.x][p.y].monstro.lentidao = 1000;
-
-			}
-		}
-
-
-		ReleaseMutex(hMutexMapa);
-		game.iniciado = TRUE;
-		c->resposta = 0;
-		break;
-	case 3:
-
-		for (i = 0; i<5; i++) {
-			do {
-				CalculaPosicaoAleatoria(&p);
-				resp = VerificaExisteAlgoPosicao(&p);
-			} while (resp != 0);
-
-			_stprintf_s(inimigoPath, 100, TEXT("D:\\So2Final\\Trabalho final v19\\Inimigo\\Debug\\Inimigo.exe %d %d 1200"), p.x, p.y);
-			Sleep(500);
-
-			if (!CreateProcess(NULL, inimigoPath, NULL, NULL, 0, CREATE_NEW_CONSOLE, NULL, NULL, &si[i], &pi[i])) {
-				MessageBox(NULL, _T("Unable to create process."), _T("Error"), MB_OK);
-				break;
-			}
-			else {
-				ptrMapa->mapa[p.x][p.y].monstro.pos = p;
-				ptrMapa->mapa[p.x][p.y].monstro.presente = 1;
-				ptrMapa->mapa[p.x][p.y].monstro.saude = 10;
-				ptrMapa->mapa[p.x][p.y].monstro.lentidao = 500;
-			}
-		}
-
-
-		ReleaseMutex(hMutexMapa);
-		game.iniciado = TRUE;
-		c->resposta = 0;
-
-		break;
-	default:
-		break;
 	}
-
-
-
 }
 
 
@@ -892,7 +830,7 @@ void RegistaUtilizador(COMANDO *c) {
 	int i;
 	int conta = 0;
 
-	WaitForSingleObject(hMutexUsers, INFINITE);
+	//WaitForSingleObject(hMutexUsers, INFINITE);
 
 	for (i = 0; i<U_MAX; i++) { // verifica se está vazio ou quantos campos tem
 
@@ -906,13 +844,17 @@ void RegistaUtilizador(COMANDO *c) {
 			return;
 		}
 	}
+	conta++;
 	//se nao estiver ja registado, regista e adiciona à chave de registo
-	_stprintf_s(users[conta].login, 15, c->user.login);
-	_stprintf_s(users[conta].pass, 15, c->user.pass);
-
+	if (conta < U_MAX) {
+		_stprintf_s(users[conta].login, 15, c->user.login);
+		_stprintf_s(users[conta].pass, 15, c->user.pass);
+	}
+	else
+		; //envia mensagem de que excedeu o numero de users 
 
 	//RegSetValueEx(regKey, TEXT("LOGINS"), 0, REG_BINARY, (LPBYTE)users, U_MAX * sizeof(UTILIZADOR));
-	ReleaseMutex(hMutexUsers);
+	//ReleaseMutex(hMutexUsers);
 	c->resposta = 0;
 	return;
 

@@ -1,2 +1,18 @@
 ﻿  Servidor.c
-  Servidor.vcxproj -> C:\Users\Sergio\Desktop\DungeonRPG\DungeonRPG\Servidor\Debug\Servidor.exe
+c:\users\dmytro yaremyshyn\desktop\dungeonrpg\servidor\servidor\servidor.c(13): warning C4047: 'initializing': 'TCHAR' differs in levels of indirection from 'void *'
+c:\users\dmytro yaremyshyn\desktop\dungeonrpg\servidor\servidor\servidor.c(14): warning C4047: 'initializing': 'TCHAR' differs in levels of indirection from 'void *'
+c:\users\dmytro yaremyshyn\desktop\dungeonrpg\servidor\servidor\servidor.c(118): warning C4013: 'MandaDifusao' undefined; assuming extern returning int
+c:\users\dmytro yaremyshyn\desktop\dungeonrpg\servidor\servidor\servidor.c(309): warning C4101: 'mole': unreferenced local variable
+c:\users\dmytro yaremyshyn\desktop\dungeonrpg\servidor\servidor\servidor.c(433): warning C4101: 'k': unreferenced local variable
+c:\users\dmytro yaremyshyn\desktop\dungeonrpg\servidor\servidor\servidor.c(433): warning C4101: 'count': unreferenced local variable
+c:\users\dmytro yaremyshyn\desktop\dungeonrpg\servidor\servidor\servidor.c(697): warning C4013: 'LoginUtilizador' undefined; assuming extern returning int
+c:\users\dmytro yaremyshyn\desktop\dungeonrpg\servidor\servidor\servidor.c(705): warning C4013: 'CriarJogo' undefined; assuming extern returning int
+c:\users\dmytro yaremyshyn\desktop\dungeonrpg\servidor\servidor\servidor.c(709): warning C4013: 'JuntaJogadorAoJogo' undefined; assuming extern returning int
+c:\users\dmytro yaremyshyn\desktop\dungeonrpg\servidor\servidor\servidor.c(724): warning C4013: 'LargaBomba' undefined; assuming extern returning int
+  LINK : C:\Users\Dmytro Yaremyshyn\Desktop\DungeonRPG\Servidor\Debug\Servidor.exe not found or not built by the last incremental link; performing full link
+Servidor.obj : error LNK2019: unresolved external symbol _MandaDifusao referenced in function _ApanhaObjecto
+Servidor.obj : error LNK2019: unresolved external symbol _LoginUtilizador referenced in function _TrataComando
+Servidor.obj : error LNK2019: unresolved external symbol _CriarJogo referenced in function _TrataComando
+Servidor.obj : error LNK2019: unresolved external symbol _JuntaJogadorAoJogo referenced in function _TrataComando
+Servidor.obj : error LNK2019: unresolved external symbol _LargaBomba referenced in function _TrataComando
+C:\Users\Dmytro Yaremyshyn\Desktop\DungeonRPG\Servidor\Debug\Servidor.exe : fatal error LNK1120: 5 unresolved externals

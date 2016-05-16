@@ -1,4 +1,5 @@
 ﻿  dll.cpp
-c:\users\sergio\desktop\dungeonrpg\dungeonrpg\dll\dll\dll.cpp(15): warning C4101: 'n': unreferenced local variable
-     Creating library C:\Users\Sergio\Desktop\DungeonRPG\DungeonRPG\DLL\Debug\DLL.lib and object C:\Users\Sergio\Desktop\DungeonRPG\DungeonRPG\DLL\Debug\DLL.exp
-  DLL.vcxproj -> C:\Users\Sergio\Desktop\DungeonRPG\DungeonRPG\DLL\Debug\DLL.dll
+c:\users\dmytro yaremyshyn\desktop\dungeonrpg\dll\dll\dll.cpp(15): warning C4101: 'n': unreferenced local variable
+  LINK : C:\Users\Dmytro Yaremyshyn\Desktop\DungeonRPG\DLL\Debug\DLL.dll not found or not built by the last incremental link; performing full link
+     Creating library C:\Users\Dmytro Yaremyshyn\Desktop\DungeonRPG\DLL\Debug\DLL.lib and object C:\Users\Dmytro Yaremyshyn\Desktop\DungeonRPG\DLL\Debug\DLL.exp
+  DLL.vcxproj -> C:\Users\Dmytro Yaremyshyn\Desktop\DungeonRPG\DLL\Debug\DLL.dll
