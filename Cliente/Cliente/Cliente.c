@@ -18,12 +18,12 @@ int indice = 0;
 int _tmain(int argc, LPTSTR argv[]) {
 	TCHAR buf[256];
 	HANDLE wPipe, rPipe;
-	//int i = 0;
 	int comando;
 	BOOL ret;
 	DWORD n;
 	HANDLE hThread;
-	COMANDO_DO_CLIENTE cmd;
+	COMANDO_DO_CLIENTE cmd1;
+	COMANDO_DO_SERVIDOR cmd;
     
 	hMutexEspera = CreateMutex(NULL, TRUE, NULL);
 
@@ -66,6 +66,18 @@ int _tmain(int argc, LPTSTR argv[]) {
 	}
 	_tprintf(TEXT("[CLIENTE]Criei a Thread para receber do servidor...\n"));
 
+	
+	ret = ReadFile(rPipe, &cmd, sizeof(COMANDO_DO_SERVIDOR), &n, NULL);
+	if (!ret || !n)
+
+	_tprintf(TEXT("[CLIENTE]Recebi %d bytes\n "), n);
+
+	if (cmd.resposta == 20)
+	{
+		indice = cmd.jogador.ID;
+		_tprintf(TEXT("[CLIENTE[%d]]Recebi o meu ID\n "), indice);
+	}
+
 	while (1)
 	{
 		//Sleep(400); 
@@ -85,21 +97,35 @@ int _tmain(int argc, LPTSTR argv[]) {
 		
 				if(comando >=1 && comando <= 2)
 				{
-				cmd.tipoComando = comando;
+				cmd1.tipoComando = comando;
+				cmd1.ID = indice;
 
-				ret = WriteFile(wPipe, &cmd, sizeof(COMANDO_DO_CLIENTE), &n, NULL);
+				ret = WriteFile(wPipe, &cmd1, sizeof(COMANDO_DO_CLIENTE), &n, NULL);
 		
 		
 				if (!ret || !n)
 					break;
 
-				_tprintf(TEXT("[CLIENTE]em jogo = 0 \n"));
-				}
+
 				
+					ret = ReadFile(rPipe, &cmd, sizeof(COMANDO_DO_SERVIDOR), &n, NULL);
+					if (!ret || !n)
+						break;
+
+					_tprintf(TEXT("[CLIENTE]Recebi %d bytes\n "), n);
+
+
+
+					if (cmd.resposta == 1)  //entra em jogo
+					{
+						emjogo = 1;
+						_tprintf(TEXT("[CLIENTE[%d]]Entrei em jogo\n "), indice);
+					}
+				}				
 		}
 		else 
 		{   
-			_tprintf(TEXT("[CLIENTE] cliente indice [%d]  \n"), cmd.ID);
+			_tprintf(TEXT("[CLIENTE] cliente indice [%d]  \n"), indice);
 
 			_tprintf(TEXT("0 - direita \n 1 - esquerda \n 2 - cima \n 3 - baixo\n"));
 			_tprintf(TEXT("[CLIENTE] comando: "));
@@ -108,8 +134,8 @@ int _tmain(int argc, LPTSTR argv[]) {
 			_fgetts(buf, 256, stdin);
 
 			comando = _ttoi(buf);
-			cmd.tipoComando = comando;
-			
+			cmd1.tipoComando = comando;
+			cmd1.ID = indice;
 
 			if (comando >=0 && comando <= 3)
 			{
@@ -121,17 +147,40 @@ int _tmain(int argc, LPTSTR argv[]) {
 				comando = 7;
 			if (comando == 3)
 				comando = 8;
-				cmd.tipoComando = comando;
 
-				ret = WriteFile(wPipe, &cmd, sizeof(COMANDO_DO_CLIENTE), &n, NULL);
+				cmd1.tipoComando = comando;
+
+				ret = WriteFile(wPipe, &cmd1, sizeof(COMANDO_DO_CLIENTE), &n, NULL);
 
 
 				if (!ret || !n)
 					break;
-				_tprintf(TEXT("[CLIENTE](ReadFile) enviei %d bytes"), n);
+				_tprintf(TEXT("[CLIENTE](ReadFile) enviei %d bytes\n"), n);
+
+
+				ret = ReadFile(rPipe, &cmd, sizeof(COMANDO_DO_SERVIDOR), &n, NULL);
+
+				if (!ret || !n)
+					break;
+
+
+				_tprintf(TEXT("[CLIENTE](ReadFile) Recebi %d bytes\n "), n);
+
+				if (cmd.resposta == 2) {} //actualizaMapa
+				if (cmd.resposta == 1)
+				{
+					_tprintf(TEXT("Jogador[%d] : saude : %d \n lentidao : %d \n x = %d y = %d\n",cmd.jogador.ID, cmd.jogador.saude, cmd.jogador.lentidao, cmd.jogador.pos.x, cmd.jogador.pos.y));
+				}
+				//...
+
 			}
 		}
 		
+
+
+
+
+
 
 		if (comando == -1) 
 		{
@@ -160,7 +209,7 @@ DWORD WINAPI RecebeDoServidor(LPVOID param) { //recebe o pipe
 		{
 			//WaitForSingleObject(hMutexEspera, INFINITE);
 			
-			if (emjogo == 0)
+		/*	if (emjogo == 0)
 			{		   
 				ret = ReadFile(rPipe, &cmd, sizeof(COMANDO_DO_SERVIDOR), &n, NULL);
 				if (!ret || !n)
@@ -199,7 +248,7 @@ DWORD WINAPI RecebeDoServidor(LPVOID param) { //recebe o pipe
 				}
 				//...
 			
-			}
+			}*/
 
 			//ReleaseMutex(hMutexEspera);
 			

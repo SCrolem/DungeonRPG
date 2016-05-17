@@ -373,6 +373,35 @@ void iniciajogo()
 
 }
 
+
+
+void enviaRestposta(COMANDO_DO_CLIENTE *cmd,int  tipo) {
+	DWORD n;
+	COMANDO_DO_SERVIDOR msg_a_enviar;
+
+	msg_a_enviar.resposta = tipo;
+
+	WriteFile(wPipeClientes[cmd->ID], &msg_a_enviar, sizeof(COMANDO_DO_SERVIDOR), &n, NULL);
+	_tprintf(TEXT("[SERVIDOR] Enviei %d bytes ao cliente [%d]...\n"), n, cmd->ID);
+
+
+}
+
+void enviaRestpostamovimento(COMANDO_DO_CLIENTE *cmd, int tipo)
+{
+	DWORD n;
+	COMANDO_DO_SERVIDOR msg_a_enviar;
+
+	JOGADOR j = JogadoresOnline[cmd->ID];
+	
+	msg_a_enviar.jogador = j;
+	msg_a_enviar.resposta = 1;
+
+	WriteFile(wPipeClientes[cmd->ID], &msg_a_enviar, sizeof(COMANDO_DO_SERVIDOR), &n, NULL);
+	_tprintf(TEXT("[SERVIDOR] Enviei %d bytes ao cliente [%d]...\n"), n,cmd->ID);
+
+}
+
 void TrataComando(COMANDO_DO_CLIENTE *cmd) {
 
 	//if(!game.criado){//JOGO NÃO CRIADO E NÃO INICIADO
@@ -392,14 +421,15 @@ void TrataComando(COMANDO_DO_CLIENTE *cmd) {
 		//CriarJogo(cmd);
 
 		//_tprintf(TEXT("[Servidor]ACTUALIZEI MAPAS \n"));
-		Sleep(400);
-		WaitForSingleObject(hMutexUsers, INFINITE);
+		//Sleep(400);
+	//	WaitForSingleObject(hMutexUsers, INFINITE);
 		CriaMundo(cmd); //so para teste
 		_tprintf(TEXT("[Servidor]CrieiMUNDO \n"));
 	//	PreencheJogador(cmd->ID);    //aqui ele ainda nao tem o ID
 		_tprintf(TEXT("[Servidor]CrieioJogador \n"));
-		ActualizaOsMapas();
-		ReleaseMutex(hMutexUsers);
+		//ActualizaOsMapas();
+	//	ReleaseMutex(hMutexUsers);
+		enviaRestposta(cmd, 1);
 		break;
 
 	case 3:  // Juntar Ao Jogo
@@ -419,6 +449,7 @@ void TrataComando(COMANDO_DO_CLIENTE *cmd) {
 		WaitForSingleObject(hMutexUsers, INFINITE);
 		Move(cmd->ID, cmd->tipoComando);
 		ReleaseMutex(hMutexUsers);
+		enviaRestpostamovimento(cmd, 1);
 		break;
 
 	case 10: // verifica jogo
@@ -667,8 +698,8 @@ DWORD WINAPI AtendeCliente(LPVOID rparam)
 
 		//calcular
 		TrataComando(&cmd_cliente);
-		//RespodeAoCliente();
-		ActualizaOsMapas();
+		
+		//ActualizaOsMapas();
 		
 		_tprintf(TEXT("[SERVIDOR] o comando do cliente indice [%d] foi %d \n"),indice_deste_cliente, cmd_cliente.tipoComando);
 	} while (!(cmd_cliente.tipoComando == (-1)));
