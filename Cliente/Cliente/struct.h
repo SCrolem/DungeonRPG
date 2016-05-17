@@ -9,6 +9,7 @@
 #define TAM_PASS 15
 #define T_OBJ 5
 #define U_MAX 30
+#define MAX_SAUDE 20
 
 
 
@@ -26,6 +27,7 @@ typedef struct {
 }BLOCO;
 
 typedef struct {
+	TCHAR username[TAM_LOG];
 	int presente;
 	POSICAO pos;
 	int nPedras;
@@ -37,7 +39,6 @@ typedef struct {
 
 typedef struct {
 	TCHAR login[TAM_LOG];
-	TCHAR pass[TAM_PASS];
 }USER;
 
 typedef struct {
@@ -66,6 +67,7 @@ typedef struct {
 	int tipoComando;
 	int resposta;
 	USER user;
+	TCHAR msg[200];
 }COMANDO_DO_CLIENTE;
 
 typedef struct {
