@@ -1,25 +1,28 @@
 ﻿  Servidor.c
-c:\users\sergio\desktop\dungeonrpg\dungeonrpg\servidor\servidor\servidor.c(17): warning C4047: 'initializing': 'TCHAR' differs in levels of indirection from 'void *'
-c:\users\sergio\desktop\dungeonrpg\dungeonrpg\servidor\servidor\servidor.c(372): warning C4013: 'time' undefined; assuming extern returning int
-c:\users\sergio\desktop\dungeonrpg\dungeonrpg\servidor\servidor\servidor.c(366): warning C4101: 'k': unreferenced local variable
-c:\users\sergio\desktop\dungeonrpg\dungeonrpg\servidor\servidor\servidor.c(368): warning C4101: 'p': unreferenced local variable
-c:\users\sergio\desktop\dungeonrpg\dungeonrpg\servidor\servidor\servidor.c(367): warning C4101: 'y': unreferenced local variable
-c:\users\sergio\desktop\dungeonrpg\dungeonrpg\servidor\servidor\servidor.c(368): warning C4101: 'l': unreferenced local variable
-c:\users\sergio\desktop\dungeonrpg\dungeonrpg\servidor\servidor\servidor.c(485): warning C4002: too many actual parameters for macro 'TEXT'
-c:\users\sergio\desktop\dungeonrpg\dungeonrpg\servidor\servidor\servidor.c(485): warning C4473: 'wprintf' : not enough arguments passed for format string
-  c:\users\sergio\desktop\dungeonrpg\dungeonrpg\servidor\servidor\servidor.c(485): note: placeholders and their parameters expect 5 variadic arguments, but 0 were provided
-  c:\users\sergio\desktop\dungeonrpg\dungeonrpg\servidor\servidor\servidor.c(485): note: the missing variadic argument 1 is required by format string '%d'
-c:\users\sergio\desktop\dungeonrpg\dungeonrpg\servidor\servidor\servidor.c(544): warning C4047: 'function': 'COMANDO_DO_CLIENTE *' differs in levels of indirection from 'int'
-c:\users\sergio\desktop\dungeonrpg\dungeonrpg\servidor\servidor\servidor.c(544): warning C4024: 'Move': different types for formal and actual parameter 1
-c:\users\sergio\desktop\dungeonrpg\dungeonrpg\servidor\servidor\servidor.c(544): warning C4020: 'Move': too many actual parameters
-c:\users\sergio\desktop\dungeonrpg\dungeonrpg\servidor\servidor\servidor.c(565): warning C4133: 'function': incompatible types - from 'char [25]' to 'const wchar_t *'
-c:\users\sergio\desktop\dungeonrpg\dungeonrpg\servidor\servidor\servidor.c(576): warning C4133: 'function': incompatible types - from 'char [25]' to 'const wchar_t *'
-c:\users\sergio\desktop\dungeonrpg\dungeonrpg\servidor\servidor\servidor.c(581): warning C4133: 'function': incompatible types - from 'char [33]' to 'const wchar_t *'
-c:\users\sergio\desktop\dungeonrpg\dungeonrpg\servidor\servidor\servidor.c(588): warning C4028: formal parameter 1 different from declaration
-c:\users\sergio\desktop\dungeonrpg\dungeonrpg\servidor\servidor\servidor.c(588): warning C4029: declared formal parameter list different from definition
-c:\users\sergio\desktop\dungeonrpg\dungeonrpg\servidor\servidor\servidor.c(649): warning C4133: 'function': incompatible types - from 'char [24]' to 'const wchar_t *'
-c:\users\sergio\desktop\dungeonrpg\dungeonrpg\servidor\servidor\servidor.c(660): warning C4133: 'function': incompatible types - from 'char [22]' to 'const wchar_t *'
-c:\users\sergio\desktop\dungeonrpg\dungeonrpg\servidor\servidor\servidor.c(777): warning C4101: 'tipoDeResposta': unreferenced local variable
-c:\users\sergio\desktop\dungeonrpg\dungeonrpg\servidor\servidor\servidor.c(770): warning C4101: 'buf': unreferenced local variable
-c:\users\sergio\desktop\dungeonrpg\dungeonrpg\servidor\servidor\servidor.c(776): warning C4101: 'cmd_servidor': unreferenced local variable
-  Servidor.vcxproj -> C:\Users\Sergio\Desktop\DungeonRPG\DungeonRPG\Servidor\Debug\Servidor.exe
+c:\users\dmytro yaremyshyn\desktop\dungeonrpg\servidor\servidor\servidor.c(18): warning C4047: 'initializing': 'TCHAR' differs in levels of indirection from 'void *'
+c:\users\dmytro yaremyshyn\desktop\dungeonrpg\servidor\servidor\servidor.c(235): warning C4101: 'm': unreferenced local variable
+c:\users\dmytro yaremyshyn\desktop\dungeonrpg\servidor\servidor\servidor.c(300): warning C4013: 'time' undefined; assuming extern returning int
+c:\users\dmytro yaremyshyn\desktop\dungeonrpg\servidor\servidor\servidor.c(294): warning C4101: 'k': unreferenced local variable
+c:\users\dmytro yaremyshyn\desktop\dungeonrpg\servidor\servidor\servidor.c(296): warning C4101: 'p': unreferenced local variable
+c:\users\dmytro yaremyshyn\desktop\dungeonrpg\servidor\servidor\servidor.c(295): warning C4101: 'y': unreferenced local variable
+c:\users\dmytro yaremyshyn\desktop\dungeonrpg\servidor\servidor\servidor.c(296): warning C4101: 'l': unreferenced local variable
+c:\users\dmytro yaremyshyn\desktop\dungeonrpg\servidor\servidor\servidor.c(361): warning C4013: '_getpid' undefined; assuming extern returning int
+c:\users\dmytro yaremyshyn\desktop\dungeonrpg\servidor\servidor\servidor.c(416): warning C4002: too many actual parameters for macro 'TEXT'
+c:\users\dmytro yaremyshyn\desktop\dungeonrpg\servidor\servidor\servidor.c(416): warning C4473: 'wprintf' : not enough arguments passed for format string
+  c:\users\dmytro yaremyshyn\desktop\dungeonrpg\servidor\servidor\servidor.c(416): note: placeholders and their parameters expect 5 variadic arguments, but 0 were provided
+  c:\users\dmytro yaremyshyn\desktop\dungeonrpg\servidor\servidor\servidor.c(416): note: the missing variadic argument 1 is required by format string '%d'
+c:\users\dmytro yaremyshyn\desktop\dungeonrpg\servidor\servidor\servidor.c(475): warning C4047: 'function': 'COMANDO_DO_CLIENTE *' differs in levels of indirection from 'int'
+c:\users\dmytro yaremyshyn\desktop\dungeonrpg\servidor\servidor\servidor.c(475): warning C4024: 'Move': different types for formal and actual parameter 1
+c:\users\dmytro yaremyshyn\desktop\dungeonrpg\servidor\servidor\servidor.c(475): warning C4020: 'Move': too many actual parameters
+c:\users\dmytro yaremyshyn\desktop\dungeonrpg\servidor\servidor\servidor.c(496): warning C4133: 'function': incompatible types - from 'char [25]' to 'const wchar_t *'
+c:\users\dmytro yaremyshyn\desktop\dungeonrpg\servidor\servidor\servidor.c(507): warning C4133: 'function': incompatible types - from 'char [25]' to 'const wchar_t *'
+c:\users\dmytro yaremyshyn\desktop\dungeonrpg\servidor\servidor\servidor.c(512): warning C4133: 'function': incompatible types - from 'char [33]' to 'const wchar_t *'
+c:\users\dmytro yaremyshyn\desktop\dungeonrpg\servidor\servidor\servidor.c(519): warning C4028: formal parameter 1 different from declaration
+c:\users\dmytro yaremyshyn\desktop\dungeonrpg\servidor\servidor\servidor.c(519): warning C4029: declared formal parameter list different from definition
+c:\users\dmytro yaremyshyn\desktop\dungeonrpg\servidor\servidor\servidor.c(580): warning C4133: 'function': incompatible types - from 'char [24]' to 'const wchar_t *'
+c:\users\dmytro yaremyshyn\desktop\dungeonrpg\servidor\servidor\servidor.c(591): warning C4133: 'function': incompatible types - from 'char [22]' to 'const wchar_t *'
+c:\users\dmytro yaremyshyn\desktop\dungeonrpg\servidor\servidor\servidor.c(708): warning C4101: 'tipoDeResposta': unreferenced local variable
+c:\users\dmytro yaremyshyn\desktop\dungeonrpg\servidor\servidor\servidor.c(701): warning C4101: 'buf': unreferenced local variable
+c:\users\dmytro yaremyshyn\desktop\dungeonrpg\servidor\servidor\servidor.c(707): warning C4101: 'cmd_servidor': unreferenced local variable
+  LINK : C:\Users\Dmytro Yaremyshyn\Desktop\DungeonRPG\Servidor\Debug\Servidor.exe not found or not built by the last incremental link; performing full link
+  Servidor.vcxproj -> C:\Users\Dmytro Yaremyshyn\Desktop\DungeonRPG\Servidor\Debug\Servidor.exe

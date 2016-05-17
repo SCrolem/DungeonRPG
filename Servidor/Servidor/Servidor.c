@@ -237,7 +237,7 @@ void CriaMapaParaEnvio(COMANDO_DO_CLIENTE *cmd) {
 
 	int x = 0, y = 0;
 	for (i = (JogadoresOnline[cmd->ID].pos.x - 5); i < (JogadoresOnline[cmd->ID].pos.x + 5); i++) {
-		for (i = (JogadoresOnline[cmd->ID].pos.y - 5); i < (JogadoresOnline[cmd->ID].pos.y + 5); i++) {
+		for (j = (JogadoresOnline[cmd->ID].pos.y - 5); j < (JogadoresOnline[cmd->ID].pos.y + 5); j++) {
 			c.mapa[x][y] = mundo[i][j];
 			y++;
 		}
