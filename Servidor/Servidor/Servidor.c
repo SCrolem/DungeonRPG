@@ -350,13 +350,10 @@ void PreencheJogador(COMANDO_DO_CLIENTE *cmd)
 	//	JogadoresOnline[Indice]->mochila[0]->tipo = 1;
 	//	JogadoresOnline[Indice]->mochila[0]->raridade = 10;//inventei
 
-
-<<<<<<< HEAD
 	_tprintf(TEXT("[SERVIDOR] ID do jogador alterado %d...\n"), Indice);
-=======
-	_tprintf(TEXT("[SERVIDOR] ID do jogador alterado %d...\n"), cmd->ID);
 
->>>>>>> origin/master
+
+
 	JogadoresOnline[Indice].pontos = 0;
 	JogadoresOnline[Indice].lentidao = 5;
 	JogadoresOnline[Indice].saude = 10;
