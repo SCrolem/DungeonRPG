@@ -22,7 +22,7 @@ USER users[U_MAX] = { NULL };
 TCHAR NomeMemoria[] = TEXT("Mapa Partilhado");
 TCHAR NomeMutexMapa[] = TEXT("MapaMUTEX");
 
-HANDLE hMemoria, hMutexMapa, hMutexUsers;
+HANDLE hMemoria, hMutexMapa, hMutexUsers, hMutexEnviaID;
 
 #define N_MAX_CLIENTES 10
 #define TAM 256
@@ -83,7 +83,9 @@ void ApanhaObjecto(POSICAO p, COMANDO_DO_CLIENTE *c);
 
 int _tmain(int argc, LPTSTR argv[]) {
 	HANDLE hThread;	
-	iniciaOsemjogador();
+	//iniciaOsemjogador();
+
+	hMutexEnviaID = CreateMutex(NULL, FALSE, NULL);
 
 #ifdef UNICODE
 	_setmode(_fileno(stdin), _O_WTEXT);
@@ -585,31 +587,33 @@ void Move(int  indice_jogador, int accao) {
 
 
 
-void RegistaUtilizador(COMANDO_DO_CLIENTE *c) {
+/*void RegistaUtilizador(COMANDO_DO_CLIENTE *c) {
 	COMANDO_DO_SERVIDOR cmd;
 	int i;
+	DWORD n;
 	int conta = 0;
 	int flag = 0;
 	if (registados < N_MAX_CLIENTES) {
 		do {
 			for (i = 0; i < registados; i++) {
-				if (_tcscmp(c->user.login, JogadoresRegistados[i].username) == 0) {
+				if (_tcscmp_s(c->user.login, JogadoresRegistados[i].username) == 0) {
 					flag = 1;
-					_tcscpy(cmd.msg, "Tal username já existe!");
-					write
+					_tcscpy_s(cmd.msg, "Tal username já existe!");
 					break;
 				}
 			}
-			
+
 		} while (_tcscmp(c->user.login, JogadoresRegistados[i].username) != 0);
 		if (flag == 0) {
 			registados++;
 			_tcscpy(JogadoresRegistados[registados].username, c->user.login);
 		}
 	}
-	else
-		_tcscpy(cmd.msg, "Tal username já existe");
-	
+	else{
+		_tcscpy(cmd.msg, "registado com sucesso");
+	}
+	WriteFile(wPipeClientes[i], &cmd, sizeof(COMANDO_DO_SERVIDOR), &n, NULL);
+
 
 
 	//WaitForSingleObject(hMutexUsers, INFINITE);
@@ -645,7 +649,7 @@ void RegistaUtilizador(COMANDO_DO_CLIENTE *c) {
 	c->resposta = 0;
 	return;
 
-}
+}*/
 
 
 COMANDO_DO_SERVIDOR geraresposta(int cliente) //
@@ -734,12 +738,18 @@ DWORD WINAPI RecebeClientes(LPVOID param) {
 
 void enviaID(indice_deste_cliente) 
 {
+	WaitForSingleObject(hMutexEnviaID, INFINITE);
+	
 	COMANDO_DO_SERVIDOR cmd;
 	DWORD n;
 
 	cmd.jogador.ID = indice_deste_cliente;
+	cmd.resposta = 20;
+
 	WriteFile(wPipeClientes[indice_deste_cliente], &cmd, sizeof(COMANDO_DO_SERVIDOR), &n, NULL);
 	_tprintf(TEXT("[SERVIDOR] Mandei o ID %d...\n"), indice_deste_cliente);
+
+	ReleaseMutex(hMutexEnviaID);
 }
 
 
@@ -758,7 +768,7 @@ DWORD WINAPI AtendeCliente(LPVOID rparam)
 	//envia ID ao jogador
 
 	enviaID(indice_deste_cliente);
-
+	
 	do {
 		ret = ReadFile(rPipe, &cmd_cliente, sizeof(cmd_cliente), &n, NULL);
 

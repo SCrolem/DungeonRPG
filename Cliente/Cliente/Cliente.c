@@ -69,7 +69,7 @@ int _tmain(int argc, LPTSTR argv[]) {
 	while (1)
 	{
 		//Sleep(400); 
-		WaitForSingleObject(hMutexEspera, INFINITE);
+		//WaitForSingleObject(hMutexEspera, INFINITE);
 		if (emjogo == 0) 
 		{
 		_tprintf(TEXT("0 - criar jogo \n 1 - sair\n"));
@@ -104,7 +104,7 @@ int _tmain(int argc, LPTSTR argv[]) {
 			_tprintf(TEXT("0 - direita \n 1 - esquerda \n 2 - cima \n 3 - baixo\n"));
 			_tprintf(TEXT("[CLIENTE] comando: "));
 			
-			ReleaseMutex(hMutexEspera);
+			//ReleaseMutex(hMutexEspera);
 			_fgetts(buf, 256, stdin);
 
 			comando = _ttoi(buf);
@@ -158,23 +158,26 @@ DWORD WINAPI RecebeDoServidor(LPVOID param) { //recebe o pipe
 
 		while (1) 
 		{
-			WaitForSingleObject(hMutexEspera, INFINITE);
+			//WaitForSingleObject(hMutexEspera, INFINITE);
 			
 			if (emjogo == 0)
-			{
-			   
+			{		   
 				ret = ReadFile(rPipe, &cmd, sizeof(COMANDO_DO_SERVIDOR), &n, NULL);
 				if (!ret || !n)
 					break;
 
+				_tprintf(TEXT("[CLIENTE]Recebi %d bytes\n "), n );				
+			  
+				if (cmd.resposta == 20) 
+				{
+					indice = cmd.jogador.ID;
+					_tprintf(TEXT("[CLIENTE[%d]]Recebi o meu ID\n "), indice);
+				}
 
-				_tprintf(TEXT("[CLIENTE](ReadFile) Recebi %d bytes\n "), n);
-				_tprintf(TEXT("[CLIENTE](ReadFile) Resposta %d\n "), cmd.resposta);
-			
 				if (cmd.resposta == 1)  //entra em jogo
 				{
 					emjogo = 1;
-					indice = cmd.jogador.ID;
+					_tprintf(TEXT("[CLIENTE[%d]]Entrei em jogo\n "), indice);
 				}
 
 			}
@@ -198,7 +201,7 @@ DWORD WINAPI RecebeDoServidor(LPVOID param) { //recebe o pipe
 			
 			}
 
-			ReleaseMutex(hMutexEspera);
+			//ReleaseMutex(hMutexEspera);
 			
 		}
 		
