@@ -1,10 +1,10 @@
 ﻿  Cliente.c
-c:\users\sergio\desktop\dungeonrpg\dungeonrpg\cliente\cliente\cliente.c(172): warning C4002: too many actual parameters for macro 'TEXT'
-c:\users\sergio\desktop\dungeonrpg\dungeonrpg\cliente\cliente\cliente.c(172): warning C4473: 'wprintf' : not enough arguments passed for format string
-  c:\users\sergio\desktop\dungeonrpg\dungeonrpg\cliente\cliente\cliente.c(172): note: placeholders and their parameters expect 5 variadic arguments, but 0 were provided
-  c:\users\sergio\desktop\dungeonrpg\dungeonrpg\cliente\cliente\cliente.c(172): note: the missing variadic argument 1 is required by format string '%d'
-c:\users\sergio\desktop\dungeonrpg\dungeonrpg\cliente\cliente\cliente.c(206): warning C4101: 'cmd': unreferenced local variable
-c:\users\sergio\desktop\dungeonrpg\dungeonrpg\cliente\cliente\cliente.c(201): warning C4101: 'buf': unreferenced local variable
-c:\users\sergio\desktop\dungeonrpg\dungeonrpg\cliente\cliente\cliente.c(205): warning C4101: 'n': unreferenced local variable
-c:\users\sergio\desktop\dungeonrpg\dungeonrpg\cliente\cliente\cliente.c(204): warning C4101: 'ret': unreferenced local variable
+c:\users\sergio\desktop\dungeonrpg\dungeonrpg\cliente\cliente\cliente.c(173): warning C4002: too many actual parameters for macro 'TEXT'
+c:\users\sergio\desktop\dungeonrpg\dungeonrpg\cliente\cliente\cliente.c(173): warning C4473: 'wprintf' : not enough arguments passed for format string
+  c:\users\sergio\desktop\dungeonrpg\dungeonrpg\cliente\cliente\cliente.c(173): note: placeholders and their parameters expect 5 variadic arguments, but 0 were provided
+  c:\users\sergio\desktop\dungeonrpg\dungeonrpg\cliente\cliente\cliente.c(173): note: the missing variadic argument 1 is required by format string '%d'
+c:\users\sergio\desktop\dungeonrpg\dungeonrpg\cliente\cliente\cliente.c(207): warning C4101: 'cmd': unreferenced local variable
+c:\users\sergio\desktop\dungeonrpg\dungeonrpg\cliente\cliente\cliente.c(202): warning C4101: 'buf': unreferenced local variable
+c:\users\sergio\desktop\dungeonrpg\dungeonrpg\cliente\cliente\cliente.c(206): warning C4101: 'n': unreferenced local variable
+c:\users\sergio\desktop\dungeonrpg\dungeonrpg\cliente\cliente\cliente.c(205): warning C4101: 'ret': unreferenced local variable
   Cliente.vcxproj -> C:\Users\Sergio\Desktop\DungeonRPG\DungeonRPG\Cliente\Debug\Cliente.exe
