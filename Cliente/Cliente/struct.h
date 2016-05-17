@@ -21,6 +21,7 @@ typedef struct {
 typedef struct {
 	int tipo;
 	int raridade;
+	int presente;
 }OBJETO;
 
 typedef struct {
@@ -78,7 +79,9 @@ typedef struct {
 	int resposta;
 	TCHAR msg[TAM_MSG];
 	JOGADOR jogador;
-	CELULA mapa[L][C];
+	CELULA mapa[10][10];
+	POSICAO p1;
+	POSICAO p2;
 }COMANDO_DO_SERVIDOR;
 
 typedef struct {
