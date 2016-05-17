@@ -506,11 +506,12 @@ void TrataComando(COMANDO_DO_CLIENTE *cmd) {
 
 void LoginUser(COMANDO_DO_CLIENTE *c) {
 	int i,flag=0;
+	DWORD n;
 	COMANDO_DO_SERVIDOR cmd;
 	if (logados == 0) {
 		_tcscpy_s(JogadoresOnline[logados].username, TAM_LOG,c->user.login);
 		_tcscpy_s(cmd.msg,TAM_MSG, "Login feito com sucesso!");
-		//ESCREVE PARA O PIPE QUE CORREU BEM
+		
 	}
 	else if (logados > 0 && logados < N_MAX_CLIENTES) {
 		for (i = 0; i < logados; i++)
@@ -521,12 +522,14 @@ void LoginUser(COMANDO_DO_CLIENTE *c) {
 		if (flag == 0) {
 			_tcscpy_s(JogadoresOnline[logados].username, TAM_LOG, c->user.login);
 			_tcscpy_s(cmd.msg, TAM_MSG, "Login feito com sucesso!");
-			//ESCREVE PARA O PIPE QUE CORREU BEM
+			
 		}
 	}
 	else {
-		// ESCREVE PARA O PIPE QUE EXCEDEU NUM MAX DE USERS
+		_tcscpy_s(cmd.msg, TAM_MSG, "Excedeu o numero de utilizadores");
+		
 	}
+	WriteFile(wPipeClientes[i], &cmd, sizeof(COMANDO_DO_SERVIDOR), &n, NULL);
 	
 }
 
@@ -579,7 +582,7 @@ void Move(int  indice_jogador, int accao) {
 
 
 
-/*void RegistaUtilizador(COMANDO_DO_CLIENTE *c) {
+void RegistaUtilizador(COMANDO_DO_CLIENTE *c) {
 	COMANDO_DO_SERVIDOR cmd;
 	int i;
 	DWORD n;
@@ -587,70 +590,27 @@ void Move(int  indice_jogador, int accao) {
 	int flag = 0;
 	if (total < N_MAX_CLIENTES) {
 		do {
-<<<<<<< HEAD
-			for (i = 0; i < registados; i++) {
-				if (_tcscmp_s(c->user.login, JogadoresRegistados[i].username) == 0) {
-=======
+
 			for (i = 0; i < total; i++) {
 				if (_tcscmp(c->user.login, JogadoresRegistados[i].username) == 0) {
->>>>>>> origin/master
+
 					flag = 1;
-					_tcscpy_s(cmd.msg, "Tal username já existe!");
+					_tcscpy_s(cmd.msg,TAM_MSG, "Tal username já existe!");
 					break;
 				}
 			}
 
 		} while (_tcscmp(c->user.login, JogadoresRegistados[i].username) != 0);
 		if (flag == 0) {
-			_tcscpy(JogadoresRegistados[total].username, c->user.login);
+			_tcscpy_s(JogadoresRegistados[total].username,TAM_LOG, c->user.login);
 		}
 	}
-<<<<<<< HEAD
 	else{
-		_tcscpy(cmd.msg, "registado com sucesso");
+		_tcscpy_s(cmd.msg,TAM_MSG, "Registado com sucesso");
 	}
 	WriteFile(wPipeClientes[i], &cmd, sizeof(COMANDO_DO_SERVIDOR), &n, NULL);
 
-
-
-	//WaitForSingleObject(hMutexUsers, INFINITE);
-
-	if (registados < U_MAX) {
-		for (i = 0; i<U_MAX; i++) { // verifica se está vazio ou quantos campos tem
-			if (_tcslen(users[i].login)>0)
-				conta++;
-		}
-	}
-	for (i = 0; i<U_MAX; i++) { // verifica se está vazio ou quantos campos tem
-		if (_tcslen(users[i].login)>0)
-			conta++;
-	}
-
-	for (i = 0; i<conta; i++) {  // Para os campos preenchidos verifica se o login ja foi registado
-		if (_tcscmp(users[i].login, c->user.login) == 0) {
-			c->resposta = 1; //
-			return;
-		}
-	}
-	conta++;
-	//se nao estiver ja registado, regista e adiciona à chave de registo
-	if (conta < U_MAX) {
-		_stprintf_s(users[conta].login, 15, c->user.login);
-		//_stprintf_s(users[conta].pass, 15, c->user.pass);
-	}
-	else
-		; //envia mensagem de que excedeu o numero de users 
-
-	//RegSetValueEx(regKey, TEXT("LOGINS"), 0, REG_BINARY, (LPBYTE)users, U_MAX * sizeof(UTILIZADOR));
-	//ReleaseMutex(hMutexUsers);
-	c->resposta = 0;
-	return;
-=======
-	else
-		_tcscpy(cmd.msg, "Tal username já existe");
->>>>>>> origin/master
-
-}*/
+}
 
 
 COMANDO_DO_SERVIDOR geraresposta(int cliente) //
