@@ -1,4 +1,5 @@
 ﻿  Servidor.c
+<<<<<<< HEAD
 c:\users\sergio\desktop\dungeonrpg\dungeonrpg\servidor\servidor\servidor.c(17): warning C4047: 'initializing': 'TCHAR' differs in levels of indirection from 'void *'
 c:\users\sergio\desktop\dungeonrpg\dungeonrpg\servidor\servidor\servidor.c(372): warning C4013: 'time' undefined; assuming extern returning int
 c:\users\sergio\desktop\dungeonrpg\dungeonrpg\servidor\servidor\servidor.c(366): warning C4101: 'k': unreferenced local variable
@@ -15,3 +16,29 @@ c:\users\sergio\desktop\dungeonrpg\dungeonrpg\servidor\servidor\servidor.c(765):
 c:\users\sergio\desktop\dungeonrpg\dungeonrpg\servidor\servidor\servidor.c(758): warning C4101: 'buf': unreferenced local variable
 c:\users\sergio\desktop\dungeonrpg\dungeonrpg\servidor\servidor\servidor.c(764): warning C4101: 'cmd_servidor': unreferenced local variable
   Servidor.vcxproj -> C:\Users\Sergio\Desktop\DungeonRPG\DungeonRPG\Servidor\Debug\Servidor.exe
+=======
+c:\users\dmytro yaremyshyn\desktop\dungeonrpg\servidor\servidor\servidor.c(17): warning C4047: 'initializing': 'TCHAR' differs in levels of indirection from 'void *'
+c:\users\dmytro yaremyshyn\desktop\dungeonrpg\servidor\servidor\servidor.c(370): warning C4013: 'time' undefined; assuming extern returning int
+c:\users\dmytro yaremyshyn\desktop\dungeonrpg\servidor\servidor\servidor.c(364): warning C4101: 'k': unreferenced local variable
+c:\users\dmytro yaremyshyn\desktop\dungeonrpg\servidor\servidor\servidor.c(366): warning C4101: 'p': unreferenced local variable
+c:\users\dmytro yaremyshyn\desktop\dungeonrpg\servidor\servidor\servidor.c(365): warning C4101: 'y': unreferenced local variable
+c:\users\dmytro yaremyshyn\desktop\dungeonrpg\servidor\servidor\servidor.c(366): warning C4101: 'l': unreferenced local variable
+c:\users\dmytro yaremyshyn\desktop\dungeonrpg\servidor\servidor\servidor.c(411): warning C4028: formal parameter 1 different from declaration
+c:\users\dmytro yaremyshyn\desktop\dungeonrpg\servidor\servidor\servidor.c(491): warning C4047: 'function': 'COMANDO_DO_CLIENTE *' differs in levels of indirection from 'int'
+c:\users\dmytro yaremyshyn\desktop\dungeonrpg\servidor\servidor\servidor.c(491): warning C4024: 'Move': different types for formal and actual parameter 1
+c:\users\dmytro yaremyshyn\desktop\dungeonrpg\servidor\servidor\servidor.c(491): warning C4020: 'Move': too many actual parameters
+c:\users\dmytro yaremyshyn\desktop\dungeonrpg\servidor\servidor\servidor.c(539): warning C4028: formal parameter 1 different from declaration
+c:\users\dmytro yaremyshyn\desktop\dungeonrpg\servidor\servidor\servidor.c(539): warning C4029: declared formal parameter list different from definition
+c:\users\dmytro yaremyshyn\desktop\dungeonrpg\servidor\servidor\servidor.c(598): warning C4133: 'function': incompatible types - from 'char [24]' to 'const wchar_t *'
+c:\users\dmytro yaremyshyn\desktop\dungeonrpg\servidor\servidor\servidor.c(600): error C2143: syntax error: missing ';' before 'break'
+c:\users\dmytro yaremyshyn\desktop\dungeonrpg\servidor\servidor\servidor.c(599): warning C4550: expression evaluates to a function which is missing an argument list
+c:\users\dmytro yaremyshyn\desktop\dungeonrpg\servidor\servidor\servidor.c(611): warning C4133: 'function': incompatible types - from 'char [23]' to 'const wchar_t *'
+c:\users\dmytro yaremyshyn\desktop\dungeonrpg\servidor\servidor\servidor.c(598): error C4996: 'wcscpy': This function or variable may be unsafe. Consider using wcscpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.10240.0\ucrt\corecrt_wstring.h(121): note: see declaration of 'wcscpy'
+c:\users\dmytro yaremyshyn\desktop\dungeonrpg\servidor\servidor\servidor.c(599): error C4996: 'write': The POSIX name for this item is deprecated. Instead, use the ISO C and C++ conformant name: _write. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.10240.0\ucrt\corecrt_io.h(556): note: see declaration of 'write'
+c:\users\dmytro yaremyshyn\desktop\dungeonrpg\servidor\servidor\servidor.c(607): error C4996: 'wcscpy': This function or variable may be unsafe. Consider using wcscpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.10240.0\ucrt\corecrt_wstring.h(121): note: see declaration of 'wcscpy'
+c:\users\dmytro yaremyshyn\desktop\dungeonrpg\servidor\servidor\servidor.c(611): error C4996: 'wcscpy': This function or variable may be unsafe. Consider using wcscpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.10240.0\ucrt\corecrt_wstring.h(121): note: see declaration of 'wcscpy'
+>>>>>>> origin/master

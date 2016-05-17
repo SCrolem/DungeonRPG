@@ -37,7 +37,7 @@ HANDLE wPipeClientes[N_MAX_CLIENTES];
 HANDLE rPipeClientes[N_MAX_CLIENTES];
 int total = 0;
 int obrigatorios = 10;
-int registados = 0;
+int logados = 0;
 BOOL sair = FALSE;
 CELULA mundo[L][C];
 
@@ -504,40 +504,32 @@ void TrataComando(COMANDO_DO_CLIENTE *cmd) {
 	return;
 }
 
-/*void LoginUser(COMANDO_DO_CLIENTE *c) {
-	int i;
-	int conta = 0;
-
-	for (i = 0; i<U_MAX; i++) {
-		if (_tcscmp(users[i].login, c->user.login) == 0) {
-			if (_tcscmp(users[i].pass, c->user.pass) == 0) {
-				//
-				for (i = 0; i<U_MAX; i++) {
-					if (_tcscmp(usersOnline[i].login, c->user.login) == 0) {
-						c->resposta = 3;
-						return; //já esta logado
-					}
-					if (_tcslen(usersOnline[i].login)>0)
-						conta++;
-				}
-				_stprintf_s(usersOnline[conta].login, 15, c->user.login);
-				_stprintf_s(usersOnline[conta].pass, 15, c->user.pass);
-				_stprintf_s(c->jogador.nome, 15, c->user.login);
-				c->jogador.pontos = 0;
-				c->jogador.saude = 100;
-				c->resposta = 0;
-				return; // login com sucesso
+void LoginUser(COMANDO_DO_CLIENTE *c) {
+	int i,flag=0;
+	COMANDO_DO_SERVIDOR cmd;
+	if (logados == 0) {
+		_tcscpy_s(JogadoresOnline[logados].username, TAM_LOG,c->user.login);
+		_tcscpy_s(cmd.msg,TAM_MSG, "Login feito com sucesso!");
+		//ESCREVE PARA O PIPE QUE CORREU BEM
+	}
+	else if (logados > 0 && logados < N_MAX_CLIENTES) {
+		for (i = 0; i < logados; i++)
+			if (_tcscmp(JogadoresOnline[i].username, c->user.login) == 0) {
+				break;
+				flag = 1;
 			}
-			else {
-				c->resposta = 2;
-				return; // password errada
-			}
+		if (flag == 0) {
+			_tcscpy_s(JogadoresOnline[logados].username, TAM_LOG, c->user.login);
+			_tcscpy_s(cmd.msg, TAM_MSG, "Login feito com sucesso!");
+			//ESCREVE PARA O PIPE QUE CORREU BEM
 		}
 	}
-	c->resposta = 1;
-	return; // User não existe
+	else {
+		// ESCREVE PARA O PIPE QUE EXCEDEU NUM MAX DE USERS
+	}
+	
 }
-*/
+
 void Move(int  indice_jogador, int accao) {
 	int res;
 	POSICAO posInicial;
@@ -593,10 +585,15 @@ void Move(int  indice_jogador, int accao) {
 	DWORD n;
 	int conta = 0;
 	int flag = 0;
-	if (registados < N_MAX_CLIENTES) {
+	if (total < N_MAX_CLIENTES) {
 		do {
+<<<<<<< HEAD
 			for (i = 0; i < registados; i++) {
 				if (_tcscmp_s(c->user.login, JogadoresRegistados[i].username) == 0) {
+=======
+			for (i = 0; i < total; i++) {
+				if (_tcscmp(c->user.login, JogadoresRegistados[i].username) == 0) {
+>>>>>>> origin/master
 					flag = 1;
 					_tcscpy_s(cmd.msg, "Tal username já existe!");
 					break;
@@ -605,10 +602,10 @@ void Move(int  indice_jogador, int accao) {
 
 		} while (_tcscmp(c->user.login, JogadoresRegistados[i].username) != 0);
 		if (flag == 0) {
-			registados++;
-			_tcscpy(JogadoresRegistados[registados].username, c->user.login);
+			_tcscpy(JogadoresRegistados[total].username, c->user.login);
 		}
 	}
+<<<<<<< HEAD
 	else{
 		_tcscpy(cmd.msg, "registado com sucesso");
 	}
@@ -648,6 +645,10 @@ void Move(int  indice_jogador, int accao) {
 	//ReleaseMutex(hMutexUsers);
 	c->resposta = 0;
 	return;
+=======
+	else
+		_tcscpy(cmd.msg, "Tal username já existe");
+>>>>>>> origin/master
 
 }*/
 
