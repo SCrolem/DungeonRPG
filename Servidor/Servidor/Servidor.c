@@ -28,12 +28,16 @@ HANDLE hMemoria, hMutexMapa, hMutexUsers;
 #define TAM 256
 
 JOGADOR semjogador;
+
 JOGADOR JogadoresOnline[N_MAX_CLIENTES];
+JOGADOR JogadoresRegistados[N_MAX_CLIENTES];
+
 
 HANDLE wPipeClientes[N_MAX_CLIENTES];
 HANDLE rPipeClientes[N_MAX_CLIENTES];
 int total = 0;
 int obrigatorios = 10;
+int registados = 0;
 BOOL sair = FALSE;
 CELULA mundo[L][C];
 
@@ -582,13 +586,41 @@ void Move(int  indice_jogador, int accao) {
 
 
 void RegistaUtilizador(COMANDO_DO_CLIENTE *c) {
+	COMANDO_DO_SERVIDOR cmd;
 	int i;
 	int conta = 0;
+	int flag = 0;
+	if (registados < N_MAX_CLIENTES) {
+		do {
+			for (i = 0; i < registados; i++) {
+				if (_tcscmp(c->user.login, JogadoresRegistados[i].username) == 0) {
+					flag = 1;
+					_tcscpy(cmd.msg, "Tal username já existe!");
+					write
+					break;
+				}
+			}
+			
+		} while (_tcscmp(c->user.login, JogadoresRegistados[i].username) != 0);
+		if (flag == 0) {
+			registados++;
+			_tcscpy(JogadoresRegistados[registados].username, c->user.login);
+		}
+	}
+	else
+		_tcscpy(cmd.msg, "Tal username já existe");
+	
+
 
 	//WaitForSingleObject(hMutexUsers, INFINITE);
 
+	if (registados < U_MAX) {
+		for (i = 0; i<U_MAX; i++) { // verifica se está vazio ou quantos campos tem
+			if (_tcslen(users[i].login)>0)
+				conta++;
+		}
+	}
 	for (i = 0; i<U_MAX; i++) { // verifica se está vazio ou quantos campos tem
-
 		if (_tcslen(users[i].login)>0)
 			conta++;
 	}
@@ -603,7 +635,7 @@ void RegistaUtilizador(COMANDO_DO_CLIENTE *c) {
 	//se nao estiver ja registado, regista e adiciona à chave de registo
 	if (conta < U_MAX) {
 		_stprintf_s(users[conta].login, 15, c->user.login);
-		_stprintf_s(users[conta].pass, 15, c->user.pass);
+		//_stprintf_s(users[conta].pass, 15, c->user.pass);
 	}
 	else
 		; //envia mensagem de que excedeu o numero de users 
