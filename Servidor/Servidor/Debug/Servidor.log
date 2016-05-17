@@ -1,4 +1,5 @@
 ﻿  Servidor.c
+<<<<<<< HEAD
 c:\users\sergio\desktop\dungeonrpg\dungeonrpg\servidor\servidor\servidor.c(17): warning C4047: 'initializing': 'TCHAR' differs in levels of indirection from 'void *'
 c:\users\sergio\desktop\dungeonrpg\dungeonrpg\servidor\servidor\servidor.c(372): warning C4013: 'time' undefined; assuming extern returning int
 c:\users\sergio\desktop\dungeonrpg\dungeonrpg\servidor\servidor\servidor.c(366): warning C4101: 'k': unreferenced local variable
@@ -17,3 +18,26 @@ c:\users\sergio\desktop\dungeonrpg\dungeonrpg\servidor\servidor\servidor.c(797):
 c:\users\sergio\desktop\dungeonrpg\dungeonrpg\servidor\servidor\servidor.c(790): warning C4101: 'buf': unreferenced local variable
 c:\users\sergio\desktop\dungeonrpg\dungeonrpg\servidor\servidor\servidor.c(796): warning C4101: 'cmd_servidor': unreferenced local variable
   Servidor.vcxproj -> C:\Users\Sergio\Desktop\DungeonRPG\DungeonRPG\Servidor\Debug\Servidor.exe
+=======
+c:\users\dmytro yaremyshyn\desktop\dungeonrpg\servidor\servidor\servidor.c(17): warning C4047: 'initializing': 'TCHAR' differs in levels of indirection from 'void *'
+c:\users\dmytro yaremyshyn\desktop\dungeonrpg\servidor\servidor\servidor.c(372): warning C4013: 'time' undefined; assuming extern returning int
+c:\users\dmytro yaremyshyn\desktop\dungeonrpg\servidor\servidor\servidor.c(366): warning C4101: 'k': unreferenced local variable
+c:\users\dmytro yaremyshyn\desktop\dungeonrpg\servidor\servidor\servidor.c(368): warning C4101: 'p': unreferenced local variable
+c:\users\dmytro yaremyshyn\desktop\dungeonrpg\servidor\servidor\servidor.c(367): warning C4101: 'y': unreferenced local variable
+c:\users\dmytro yaremyshyn\desktop\dungeonrpg\servidor\servidor\servidor.c(368): warning C4101: 'l': unreferenced local variable
+c:\users\dmytro yaremyshyn\desktop\dungeonrpg\servidor\servidor\servidor.c(413): warning C4028: formal parameter 1 different from declaration
+c:\users\dmytro yaremyshyn\desktop\dungeonrpg\servidor\servidor\servidor.c(493): warning C4047: 'function': 'COMANDO_DO_CLIENTE *' differs in levels of indirection from 'int'
+c:\users\dmytro yaremyshyn\desktop\dungeonrpg\servidor\servidor\servidor.c(493): warning C4024: 'Move': different types for formal and actual parameter 1
+c:\users\dmytro yaremyshyn\desktop\dungeonrpg\servidor\servidor\servidor.c(493): warning C4020: 'Move': too many actual parameters
+c:\users\dmytro yaremyshyn\desktop\dungeonrpg\servidor\servidor\servidor.c(512): warning C4133: 'function': incompatible types - from 'char [25]' to 'const wchar_t *'
+c:\users\dmytro yaremyshyn\desktop\dungeonrpg\servidor\servidor\servidor.c(523): warning C4133: 'function': incompatible types - from 'char [25]' to 'const wchar_t *'
+c:\users\dmytro yaremyshyn\desktop\dungeonrpg\servidor\servidor\servidor.c(528): warning C4133: 'function': incompatible types - from 'char [33]' to 'const wchar_t *'
+c:\users\dmytro yaremyshyn\desktop\dungeonrpg\servidor\servidor\servidor.c(534): warning C4028: formal parameter 1 different from declaration
+c:\users\dmytro yaremyshyn\desktop\dungeonrpg\servidor\servidor\servidor.c(534): warning C4029: declared formal parameter list different from definition
+c:\users\dmytro yaremyshyn\desktop\dungeonrpg\servidor\servidor\servidor.c(596): warning C4133: 'function': incompatible types - from 'char [24]' to 'const wchar_t *'
+c:\users\dmytro yaremyshyn\desktop\dungeonrpg\servidor\servidor\servidor.c(607): warning C4133: 'function': incompatible types - from 'char [22]' to 'const wchar_t *'
+c:\users\dmytro yaremyshyn\desktop\dungeonrpg\servidor\servidor\servidor.c(724): warning C4101: 'tipoDeResposta': unreferenced local variable
+c:\users\dmytro yaremyshyn\desktop\dungeonrpg\servidor\servidor\servidor.c(717): warning C4101: 'buf': unreferenced local variable
+c:\users\dmytro yaremyshyn\desktop\dungeonrpg\servidor\servidor\servidor.c(723): warning C4101: 'cmd_servidor': unreferenced local variable
+  Servidor.vcxproj -> C:\Users\Dmytro Yaremyshyn\Desktop\DungeonRPG\Servidor\Debug\Servidor.exe
+>>>>>>> origin/master
