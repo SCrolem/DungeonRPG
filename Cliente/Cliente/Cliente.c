@@ -134,8 +134,8 @@ int _tmain(int argc, LPTSTR argv[]) {
 			_fgetts(buf, 256, stdin);
 
 			comando = _ttoi(buf);
-			cmd1.tipoComando = comando;
-			cmd1.ID = indice;
+			
+			
 
 			if (comando >=0 && comando <= 3)
 			{
@@ -149,6 +149,7 @@ int _tmain(int argc, LPTSTR argv[]) {
 				comando = 8;
 
 				cmd1.tipoComando = comando;
+				cmd1.ID = indice;
 
 				ret = WriteFile(wPipe, &cmd1, sizeof(COMANDO_DO_CLIENTE), &n, NULL);
 

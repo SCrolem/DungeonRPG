@@ -337,14 +337,24 @@ void CriaMundo(COMANDO_DO_CLIENTE *c) {
 	}
 }
 
-void PreencheJogador(int Indice) 
+void PreencheJogador(COMANDO_DO_CLIENTE *cmd)
 {
 	int x = 0; 
 	int y = 0;
+	int Indice = cmd->ID;
+	COMANDO_DO_SERVIDOR c;
+
 
 	//c->jogador.nome=            //entao e o nome? nao te esqueças que tens funçoes que usam esta var... (VerificaExisteAlgoPosicao) prefiro a ideia de nessa funçao em vez de verificar pelo nome, seria melhor pela var presente
+<<<<<<< HEAD
 	//	JogadoresOnline[Indice]->mochila[0]->tipo = 1;
 	//	JogadoresOnline[Indice]->mochila[0]->raridade = 10;//inventei
+=======
+//	JogadoresOnline[Indice]->mochila[0]->tipo = 1;
+//	JogadoresOnline[Indice]->mochila[0]->raridade = 10;//inventei
+
+	_tprintf(TEXT("[SERVIDOR] ID do jogador alterado %d...\n"), cmd->ID);
+>>>>>>> origin/master
 	JogadoresOnline[Indice].pontos = 0;
 	JogadoresOnline[Indice].lentidao = 5;
 	JogadoresOnline[Indice].saude = 10;
@@ -364,6 +374,7 @@ void PreencheJogador(int Indice)
 			mundo[x][y].jogador = JogadoresOnline[Indice];
 		}
 	} while (mundo[x][y].bloco.tipo != 0);
+	c.jogador = JogadoresOnline[Indice];
 
 }
 
@@ -390,15 +401,21 @@ void enviaRestposta(COMANDO_DO_CLIENTE *cmd,int  tipo) {
 void enviaRestpostamovimento(COMANDO_DO_CLIENTE *cmd, int tipo)
 {
 	DWORD n;
+	int indice = cmd->ID;
 	COMANDO_DO_SERVIDOR msg_a_enviar;
 
-	JOGADOR j = JogadoresOnline[cmd->ID];
-	
-	msg_a_enviar.jogador = j;
+
+	msg_a_enviar.jogador =  JogadoresOnline[indice];
+
+	_tprintf(TEXT("Jogador[%d] : saude : %d \n lentidao : %d \n x = %d y = %d\n", msg_a_enviar.jogador.ID, msg_a_enviar.jogador.saude, msg_a_enviar.jogador.lentidao, msg_a_enviar.jogador.pos.x, msg_a_enviar.jogador.pos.y));
+
+
+
+
 	msg_a_enviar.resposta = 1;
 
-	WriteFile(wPipeClientes[cmd->ID], &msg_a_enviar, sizeof(COMANDO_DO_SERVIDOR), &n, NULL);
-	_tprintf(TEXT("[SERVIDOR] Enviei %d bytes ao cliente [%d]...\n"), n,cmd->ID);
+	WriteFile(wPipeClientes[indice], &msg_a_enviar, sizeof(COMANDO_DO_SERVIDOR), &n, NULL);
+	_tprintf(TEXT("[SERVIDOR] Enviei %d bytes ao cliente [%d]...\n"), n, indice);
 
 }
 
@@ -419,11 +436,11 @@ void TrataComando(COMANDO_DO_CLIENTE *cmd) {
 
 	case 2:  // Criar Jogo
 		//CriarJogo(cmd);
-
-		//_tprintf(TEXT("[Servidor]ACTUALIZEI MAPAS \n"));
-		//Sleep(400);
-	//	WaitForSingleObject(hMutexUsers, INFINITE);
 		CriaMundo(cmd); //so para teste
+		//_tprintf(TEXT("[Servidor]ACTUALIZEI MAPAS \n"));
+		PreencheJogador(cmd);
+	//	WaitForSingleObject(hMutexUsers, INFINITE);
+		
 		_tprintf(TEXT("[Servidor]CrieiMUNDO \n"));
 	//	PreencheJogador(cmd->ID);    //aqui ele ainda nao tem o ID
 		_tprintf(TEXT("[Servidor]CrieioJogador \n"));
@@ -445,10 +462,12 @@ void TrataComando(COMANDO_DO_CLIENTE *cmd) {
 	case 7:
 	case 8:
 		_tprintf(TEXT("[Servidor]MOVER \n"));
-		PreencheJogador(cmd->ID);
-		WaitForSingleObject(hMutexUsers, INFINITE);
+	
+
+		//PreencheJogador(cmd);
+		
 		Move(cmd->ID, cmd->tipoComando);
-		ReleaseMutex(hMutexUsers);
+		
 		enviaRestpostamovimento(cmd, 1);
 		break;
 
@@ -520,7 +539,6 @@ void Move(int  indice_jogador, int accao) {
 		break;
 	}
 
-	WaitForSingleObject(hMutexMapa, INFINITE);
 
 	res = VerificaExisteAlgoPosicao(&posFinal);
 
