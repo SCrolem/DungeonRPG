@@ -13,7 +13,9 @@ HANDLE  hMutexEspera;
 
 DWORD WINAPI RecebeDoServidor(LPVOID param);
 int emjogo = 0;
+int fezlogin = 0;
 int indice = 0;
+int pid = 0;
 
 int _tmain(int argc, LPTSTR argv[]) {
 	TCHAR buf[256];
@@ -56,7 +58,7 @@ int _tmain(int argc, LPTSTR argv[]) {
 	_tprintf(TEXT("[CLIENTE] Pipe para leitura estabelecido...\n"));
 
 
-	//Inicia_comunicacao();
+	//Inicia_comunicacao(); //dll
 
 	//Invocar a thread que recebe info do servidor
 	hThread = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)RecebeDoServidor, (LPVOID)rPipe, 0, NULL);	
@@ -75,67 +77,109 @@ int _tmain(int argc, LPTSTR argv[]) {
 	if (cmd.resposta == 20)
 	{
 		indice = cmd.jogador.ID;
-		_tprintf(TEXT("[CLIENTE[%d]]Recebi o meu ID\n "), indice);
+		pid = cmd.jogador.pid;
+		_tprintf(TEXT("[CLIENTE[%d]]Recebi o meu ID e o meu pid %d\n "), indice,pid);
 	}
+
+	
 
 	while (1)
 	{
-		//Sleep(400); 
-		//WaitForSingleObject(hMutexEspera, INFINITE);
+		
 		if (emjogo == 0) 
 		{
-		_tprintf(TEXT("0 - criar jogo \n 1 - sair\n"));
-		_tprintf(TEXT("[CLIENTE] comando: "));
-		_fgetts(buf, 256, stdin);
-		 
-		comando = _ttoi(buf);
-	
 		
-
-		if (comando == 0) //porque la no server o 2 é que cria jogo
-			comando = 2;
-		
-				if(comando >=1 && comando <= 2)
-				{
-				cmd1.tipoComando = comando;
-				cmd1.ID = indice;
-
-				ret = WriteFile(wPipe, &cmd1, sizeof(COMANDO_DO_CLIENTE), &n, NULL);
-		
-		
-				if (!ret || !n)
-					break;
-
-
-				
-					ret = ReadFile(rPipe, &cmd, sizeof(COMANDO_DO_SERVIDOR), &n, NULL);
-					if (!ret || !n)
-						break;
-
-					_tprintf(TEXT("[CLIENTE]Recebi %d bytes\n "), n);
-
-
-
-					if (cmd.resposta == 1)  //entra em jogo
+					if (fezlogin == 0) 
 					{
-						emjogo = 1;
-						_tprintf(TEXT("[CLIENTE[%d]]Entrei em jogo\n "), indice);
+						_tprintf(TEXT("0 - login \n 1 - registar\n"));
+						_tprintf(TEXT("[CLIENTE] comando: "));
+						_fgetts(buf, 256, stdin);
+
+						comando = _ttoi(buf);
+			
+						if (comando == 0 || comando == 1) 
+						{
+							_tprintf(TEXT("Utilizador: "));
+							_fgetts(buf, 15, stdin);
+							 
+							 _tcscpy_s(cmd1.user.login, TAM_LOG, buf);
+							
+							// _tprintf(TEXT("o nome foi : %s "), cmd1.user.login);
+
+							cmd1.tipoComando = comando;
+							cmd1.ID = indice;
+
+							ret = WriteFile(wPipe, &cmd1, sizeof(COMANDO_DO_CLIENTE), &n, NULL); //manda comando
+							if (!ret || !n)
+								break;
+
+							ret = ReadFile(rPipe, &cmd, sizeof(COMANDO_DO_SERVIDOR), &n, NULL);//recebe resposta
+							if (!ret || !n)
+								break;
+
+							_tprintf(TEXT("[CLIENTE]Recebi %d bytes\n "), n);
+
+							_tprintf(TEXT("msg : %s \n"),cmd.msg);
+
+							if (cmd.resposta == 1)  //entra em jogo
+							{
+								fezlogin = 1;
+								_tprintf(TEXT("[CLIENTE[%d] Fiz login!\n "), indice);
+							}
+						}
+
 					}
-				}				
+					else 
+					{
+			
+								_tprintf(TEXT("0 - criar jogo \n 1 - sair\n"));
+								_tprintf(TEXT("[CLIENTE] comando: "));
+								_fgetts(buf, 256, stdin);
+		 
+								comando = _ttoi(buf);
+	
+								if (comando == 0) //porque la no server o 2 é que cria jogo
+									comando = 2;
+								if (comando == 1)
+									comando = 10;
+		
+								if(comando == 10 || comando == 2)
+								{
+								cmd1.tipoComando = comando;
+								cmd1.ID = indice;
+
+								ret = WriteFile(wPipe, &cmd1, sizeof(COMANDO_DO_CLIENTE), &n, NULL);		
+		
+								if (!ret || !n)
+									break;
+
+									ret = ReadFile(rPipe, &cmd, sizeof(COMANDO_DO_SERVIDOR), &n, NULL);
+									if (!ret || !n)
+										break;
+
+									_tprintf(TEXT("[CLIENTE]Recebi %d bytes\n "), n);
+
+
+
+									if (cmd.resposta == 1)  //entra em jogo
+									{
+										emjogo = 1;
+										_tprintf(TEXT("[CLIENTE[%d]]Entrei em jogo\n "), indice);
+									}
+								}	
+					}			
 		}
 		else 
 		{   
 			_tprintf(TEXT("[CLIENTE] cliente indice [%d]  \n"), indice);
 
-			_tprintf(TEXT("0 - direita \n 1 - esquerda \n 2 - cima \n 3 - baixo\n"));
+			_tprintf(TEXT("0 - esquerda \n 1 - direita \n 2 - cima \n 3 - baixo\n"));
 			_tprintf(TEXT("[CLIENTE] comando: "));
 			
 			//ReleaseMutex(hMutexEspera);
 			_fgetts(buf, 256, stdin);
 
 			comando = _ttoi(buf);
-			
-			
 
 			if (comando >=0 && comando <= 3)
 			{
@@ -170,9 +214,9 @@ int _tmain(int argc, LPTSTR argv[]) {
 				if (cmd.resposta == 2) {} //actualizaMapa
 				if (cmd.resposta == 1)
 				{
-					_tprintf(TEXT("Jogador[%d] : saude : %d \n lentidao : %d \n x = %d y = %d\n",cmd.jogador.ID, cmd.jogador.saude, cmd.jogador.lentidao, cmd.jogador.pos.x, cmd.jogador.pos.y));
+					_tprintf(TEXT("Jogador[%d] : saude : %d \n lentidao : %d \n x = %d y = %d\n"),cmd.jogador.ID, cmd.jogador.saude, cmd.jogador.lentidao, cmd.jogador.pos.x, cmd.jogador.pos.y);
 				}
-				//...
+			
 
 			}
 		}

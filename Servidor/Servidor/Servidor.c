@@ -37,6 +37,7 @@ HANDLE wPipeClientes[N_MAX_CLIENTES];
 HANDLE rPipeClientes[N_MAX_CLIENTES];
 int total = 0;
 int obrigatorios = 10;
+int registados = 0;
 int logados = 0;
 BOOL sair = FALSE;
 CELULA mundo[L][C];
@@ -56,7 +57,7 @@ JOGO game;
 
 void ActualizaOsMapas();
 void RegistaUtilizador(COMANDO_DO_CLIENTE *c);			//FEITO
-void LoginUser(COMANDO_DO_CLIENTE *c);					
+void LoginUtilizador(COMANDO_DO_CLIENTE *c);
 //void CriaJogo(COMANDO_DO_CLIENTE *c);
 void CriaMundo(COMANDO_DO_CLIENTE *c);
 void PreencheJogador(COMANDO_DO_CLIENTE *c);
@@ -132,8 +133,6 @@ void iniciaOsemjogador()
 	for (i = 0; i < N_MAX_CLIENTES; i++) 
 	{
 		JogadoresOnline[i] = j;
-		_tprintf(TEXT("Jogador[%d] : saude : %d \n lentidao : %d \n x = %d y = %d\n", JogadoresOnline[i].jogador.ID, JogadoresOnline[i].jogador.saude, JogadoresOnline[i].jogador.lentidao, JogadoresOnline[i].jogador.pos.x, JogadoresOnline[i].jogador.pos.y));
-
 	}
 
 	semjogador = j;
@@ -409,7 +408,7 @@ void enviaRestpostamovimento(COMANDO_DO_CLIENTE *cmd, int tipo)
 	msg_a_enviar.jogador.pos.y = JogadoresOnline[indice].pos.y;
 
 
-	_tprintf(TEXT("Jogador[%d] : saude : %d \n lentidao : %d \n x = %d y = %d\n", msg_a_enviar.jogador.ID, msg_a_enviar.jogador.saude, msg_a_enviar.jogador.lentidao, msg_a_enviar.jogador.pos.x, msg_a_enviar.jogador.pos.y));
+	
 
 
 
@@ -428,12 +427,11 @@ void TrataComando(COMANDO_DO_CLIENTE *cmd) {
 	switch (cmd->tipoComando)
 	{
 	case 0:  //AUTENTICAR
-		//LoginUtilizador(cmd);
-		
+		LoginUtilizador(cmd);		
 		break;
 
 	case 1: //REGISTAR 
-		//RegistaUtilizador(cmd);
+		RegistaUtilizador(cmd);
 		break;
 
 	case 2:  // Criar Jogo
@@ -483,33 +481,50 @@ void TrataComando(COMANDO_DO_CLIENTE *cmd) {
 	return;
 }
 
-void LoginUser(COMANDO_DO_CLIENTE *c) {
+void LoginUtilizador(COMANDO_DO_CLIENTE *c) {
 	int i,flag=0;
 	DWORD n;
 	COMANDO_DO_SERVIDOR cmd;
-	if (logados == 0) {
-		_tcscpy_s(JogadoresOnline[logados].username, TAM_LOG,c->user.login);
-		_tcscpy_s(cmd.msg,TAM_MSG, "Login feito com sucesso!");
-		
+
+	cmd.resposta = 0;
+
+	if (logados ==0) {
+		for (i = 0; i < registados; i++) {
+			if (_tcscmp(JogadoresRegistados[registados].username, c->user.login) == 0) {
+				_tcscpy_s(JogadoresOnline[logados].username, TAM_LOG, c->user.login);
+				_tcscpy_s(cmd.msg, TAM_MSG, TEXT("Login feito com sucesso!"));
+				logados++;
+				cmd.resposta = 1;
+			}
+		}
 	}
 	else if (logados > 0 && logados < N_MAX_CLIENTES) {
 		for (i = 0; i < logados; i++)
 			if (_tcscmp(JogadoresOnline[i].username, c->user.login) == 0) {
+				flag = 1; 
 				break;
-				flag = 1;
 			}
+
 		if (flag == 0) {
-			_tcscpy_s(JogadoresOnline[logados].username, TAM_LOG, c->user.login);
-			_tcscpy_s(cmd.msg, TAM_MSG, "Login feito com sucesso!");
-			
+			for (i = 0; i < registados; i++) {
+				if (_tcscmp(JogadoresRegistados[registados].username, c->user.login) == 0) {
+					_tcscpy_s(JogadoresOnline[logados].username, TAM_LOG, c->user.login);
+					_tcscpy_s(cmd.msg, TAM_MSG, TEXT("Login feito com sucesso!"));
+					logados++;
+					cmd.resposta = 1;
+				}
+			}
 		}
+		else
+			_tcscpy_s(cmd.msg, TAM_MSG, TEXT("Esse user já esta em jogo!"));
+
+
 	}
 	else {
-		_tcscpy_s(cmd.msg, TAM_MSG, "Excedeu o numero de utilizadores");
-		
+		_tcscpy_s(cmd.msg, TAM_MSG, TEXT("Excedeu o numero de utilizadores"));		
 	}
-	WriteFile(wPipeClientes[i], &cmd, sizeof(COMANDO_DO_SERVIDOR), &n, NULL);
-	
+
+	WriteFile(wPipeClientes[c->ID], &cmd, sizeof(COMANDO_DO_SERVIDOR), &n, NULL);	
 }
 
 void Move(int  indice_jogador, int accao) {
@@ -541,6 +556,10 @@ void Move(int  indice_jogador, int accao) {
 		break;
 	}
 
+	if (posFinal.x < 0)
+		posFinal.x = 0;
+	if (posFinal.y < 0)
+		posFinal.y = 0;
 
 	res = VerificaExisteAlgoPosicao(&posFinal);
 
@@ -563,30 +582,40 @@ void Move(int  indice_jogador, int accao) {
 void RegistaUtilizador(COMANDO_DO_CLIENTE *c) {
 	COMANDO_DO_SERVIDOR cmd;
 	int i;
+	int id;
 	DWORD n;
 	int conta = 0;
 	int flag = 0;
-	if (total < N_MAX_CLIENTES) {
-		do {
+	cmd.resposta = 0;
+	if (registados == 0) {
+		_tcscpy_s(JogadoresRegistados[registados].username, TAM_LOG, c->user.login);
+		_tcscpy_s(cmd.msg, TAM_MSG, TEXT("Registado com sucesso"));
+		registados++;
+	}
 
-			for (i = 0; i < total; i++) {
-				if (_tcscmp(c->user.login, JogadoresRegistados[i].username) == 0) {
+	else if (registados>0 && registados < N_MAX_CLIENTES)
+	{
+		for (i = 0; i < registados; i++)
+		{
+			if (_tcscmp(c->user.login, JogadoresRegistados[i].username) == 0) {
 
-					flag = 1;
-					_tcscpy_s(cmd.msg,TAM_MSG, "Tal username já existe!");
-					break;
-				}
+				flag = 1;
+				_tcscpy_s(cmd.msg, TAM_MSG, TEXT("Tal username já existe!"));
+
+				break;
 			}
-
-		} while (_tcscmp(c->user.login, JogadoresRegistados[i].username) != 0);
+		}
 		if (flag == 0) {
-			_tcscpy_s(JogadoresRegistados[total].username,TAM_LOG, c->user.login);
+			_tcscpy_s(JogadoresRegistados[registados].username, TAM_LOG, c->user.login);
+			_tcscpy_s(cmd.msg, TAM_MSG, TEXT("Registado com sucesso"));
+			registados++;
+
 		}
 	}
-	else{
-		_tcscpy_s(cmd.msg,TAM_MSG, "Registado com sucesso");
-	}
-	WriteFile(wPipeClientes[i], &cmd, sizeof(COMANDO_DO_SERVIDOR), &n, NULL);
+	else 
+		_tcscpy_s(cmd.msg, TAM_MSG, TEXT("Excedeu o numero de inscritos!"));
+	id = c->ID;
+	WriteFile(wPipeClientes[id], &cmd, sizeof(COMANDO_DO_SERVIDOR), &n, NULL);
 
 }
 
@@ -683,6 +712,7 @@ void enviaID(indice_deste_cliente)
 	DWORD n;
 
 	cmd.jogador.ID = indice_deste_cliente;
+	cmd.jogador.pid = _getpid();
 	cmd.resposta = 20;
 
 	WriteFile(wPipeClientes[indice_deste_cliente], &cmd, sizeof(COMANDO_DO_SERVIDOR), &n, NULL);
@@ -718,8 +748,6 @@ DWORD WINAPI AtendeCliente(LPVOID rparam)
 
 		//calcular
 		TrataComando(&cmd_cliente);
-		
-		//ActualizaOsMapas();
 		
 		_tprintf(TEXT("[SERVIDOR] o comando do cliente indice [%d] foi %d \n"),indice_deste_cliente, cmd_cliente.tipoComando);
 	} while (!(cmd_cliente.tipoComando == (-1)));
