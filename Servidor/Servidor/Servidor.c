@@ -10,10 +10,14 @@
 #define PIPE_N_READ TEXT("\\\\.\\pipe\\ParaServidor")
 #define PIPE_N_WRITE TEXT("\\\\.\\pipe\\ParaCliente")
 
-USER users[U_MAX] = { NULL };
-USER usersOnline[U_MAX] = { NULL };
 
-MEMORIA *ptrMapa;
+
+
+
+USER users[U_MAX] = { NULL };
+//USER usersOnline[U_MAX] = { NULL };
+
+//MEMORIA *ptrMapa;
 
 TCHAR NomeMemoria[] = TEXT("Mapa Partilhado");
 TCHAR NomeMutexMapa[] = TEXT("MapaMUTEX");
@@ -23,7 +27,11 @@ HANDLE hMemoria, hMutexMapa, hMutexUsers;
 #define N_MAX_CLIENTES 10
 #define TAM 256
 
+JOGADOR semjogador;
+JOGADOR *JogadoresOnline[N_MAX_CLIENTES];
+
 HANDLE wPipeClientes[N_MAX_CLIENTES];
+HANDLE rPipeClientes[N_MAX_CLIENTES];
 int total = 0;
 int obrigatorios = 10;
 BOOL sair = FALSE;
@@ -42,7 +50,7 @@ JOGO game;
 //OUTRAS COISAS
 
 
-
+void ActualizaOsMapas();
 void RegistaUtilizador(COMANDO_DO_CLIENTE *c);			//FEITO
 void LoginUser(COMANDO_DO_CLIENTE *c);					
 //void CriaJogo(COMANDO_DO_CLIENTE *c);
@@ -62,7 +70,7 @@ void TrataComando(COMANDO_DO_CLIENTE *c);
 
 
 
-
+void iniciaOsemjogador();
 void VerificaJogo(COMANDO_DO_CLIENTE *cmd);
 void Move(COMANDO_DO_CLIENTE *cmd);
 JOGADOR JogadorMorre(JOGADOR j);
@@ -71,6 +79,7 @@ void ApanhaObjecto(POSICAO p, COMANDO_DO_CLIENTE *c);
 
 int _tmain(int argc, LPTSTR argv[]) {
 	HANDLE hThread;	
+	iniciaOsemjogador();
 
 #ifdef UNICODE
 	_setmode(_fileno(stdin), _O_WTEXT);
@@ -94,7 +103,40 @@ int _tmain(int argc, LPTSTR argv[]) {
 
 
 
-void ApanhaObjecto(POSICAO p, COMANDO_DO_CLIENTE *c) {
+
+
+
+void iniciaOsemjogador() 
+{
+	JOGADOR j;
+	POSICAO p;
+	int i,o;
+	
+	//j.mochila[0]->tipo = 1;
+	//j.mochila[0]->raridade
+	j.pontos = 0;
+	j.lentidao = 0;
+	j.saude = 0;
+	j.presente = 0;  //a verificar
+	p.x = 0;
+	p.y = 0;
+	j.pos = p;
+
+	WaitForSingleObject(hMutexUsers, INFINITE);
+	for (i = 0; i <= N_MAX_CLIENTES; i++) 
+	{
+		JogadoresOnline[i] = malloc(sizeof(JOGADOR));
+		
+		for(o = 0; o<T_OBJ;o++)
+		JogadoresOnline[i]->mochila[o] = malloc(sizeof(OBJETO));
+	
+		*JogadoresOnline[i] = j;
+	}
+	semjogador = j;
+		ReleaseMutex(hMutexUsers);
+}
+
+/*void ApanhaObjecto(POSICAO p, COMANDO_DO_CLIENTE *c) {
 	int obj, i, j;
 	
 
@@ -127,7 +169,7 @@ void ApanhaObjecto(POSICAO p, COMANDO_DO_CLIENTE *c) {
 		break;
 	
 	case 5:
-		MandaDifusao(21, NULL);
+	//	MandaDifusao(21, NULL);
 		break;
 
 	default:
@@ -137,7 +179,7 @@ void ApanhaObjecto(POSICAO p, COMANDO_DO_CLIENTE *c) {
 
 	ptrMapa->mapa[p.x][p.y].jogador = c->jogador;
 	ReleaseMutex(hMutexMapa);
-}
+}*/
 
 JOGADOR JogadorMorre(JOGADOR j) {
 	int res;
@@ -149,7 +191,7 @@ JOGADOR JogadorMorre(JOGADOR j) {
 		j.saude = 100;
 
 
-		//j->pos=p;
+		//j.pos = p;
 
 	}
 	else {// senao morre
@@ -163,7 +205,7 @@ JOGADOR JogadorMorre(JOGADOR j) {
 		res = VerificaExisteAlgoPosicao(&p);
 	} while (res != 0);
 
-	j.pos = p;
+	//j.pos = p;
 
 	return j;
 
@@ -184,7 +226,7 @@ void VerificaJogo(COMANDO_DO_CLIENTE *cmd) {
 	}
 }
 
-void CriaMapaParaEnvio(MAPACLIENTE *mapa) {
+/*void CriaMapaParaEnvio(MAPACLIENTE *mapa) {
 	int i, j;
 	WaitForSingleObject(hMutexMapa, INFINITE);
 	for (i = 0; i < L; i++) {
@@ -203,7 +245,7 @@ void CriaMapaParaEnvio(MAPACLIENTE *mapa) {
 					mapa->mapa[i][j].parede = ptrMapa->mapa[i][j].bloco.tipo;
 
 				}
-				//	/*
+				//	
 				//	else {
 				//		if (ptrMapa->mapa[i][j].bloco.tipo == 1) {
 				//			if (ptrMapa->mapa[i][j].bloco. == 0)
@@ -217,13 +259,13 @@ void CriaMapaParaEnvio(MAPACLIENTE *mapa) {
 
 
 				//			//
-				//			/*if(ptrMapa->mapa[i][j].bloco.saude>0)
+				//			if(ptrMapa->mapa[i][j].bloco.saude>0)
 				//			mapa->mapa[i][j].bloco=ptrMapa->mapa[i][j].bloco.tipo;
 				//			else
-				//			mapa->mapa[i][j].bloco=ptrMapa->mapa[i][j].bloco.tipo=0;*/
+				//			mapa->mapa[i][j].bloco=ptrMapa->mapa[i][j].bloco.tipo=0;
 				//			
 				//		}
-				//*/
+				//
 
 
 			}
@@ -231,24 +273,24 @@ void CriaMapaParaEnvio(MAPACLIENTE *mapa) {
 	
 	ReleaseMutex(hMutexMapa);
 	}
-}
+}*/
 
 int VerificaExisteAlgoPosicao(POSICAO *p) {
 
-	if (_tcscmp(ptrMapa->mapa[p->x][p->y].jogador.nome, TEXT("")) != 0) {
+	if (mundo[p->x][p->y].jogador.presente == 1) {
 		return 1;	//existe um jogador
 	}
 	else {
-		if (ptrMapa->mapa[p->x][p->y].monstro.presente == 1) {
+		if (mundo[p->x][p->y].monstro.presente == 1) {
 			//if (_tcscmp(ptrMapa->mapa[p->x][p->y].inimigo.nome,TEXT(""))!=0){
 			return 2; // existe um inimigo
 		}
 		else {
-			if (ptrMapa->mapa[p->x][p->y].bloco.tipo == 1) {
+			if (mundo[p->x][p->y].bloco.tipo == 1) {
 				return 3; // existe um bloco mole
 			}
 			else {
-				if (ptrMapa->mapa[p->x][p->y].bloco.tipo == 2) {
+				if (mundo[p->x][p->y].bloco.tipo == 2) {
 					return 4; // existe um bloco duro
 				}
 				else {
@@ -270,7 +312,7 @@ void CalculaPosicaoAleatoria(POSICAO *p) {
 	p->y = y;
 }
 
-void AdicionaJogadorAoJogo(COMANDO_DO_CLIENTE *c) {
+/*void AdicionaJogadorAoJogo(COMANDO_DO_CLIENTE *c) {
 	int resp = 0;
 	POSICAO p;
 
@@ -297,31 +339,31 @@ void AdicionaJogadorAoJogo(COMANDO_DO_CLIENTE *c) {
 
 	c->jogador.pos = p;
 	ptrMapa->mapa[p.x][p.y].jogador = c->jogador;
-	/*switch (game.dificuldade)
-	{
-	case 1:
-		c->jogador. = 20;
-		break;
-	case 2:
-		c->jogador. = 15;
-		break;
-	case 3:
-		c->jogador. = 10;
-		break;
-	default:
-		break;
-	}*/
+	//switch (game.dificuldade)
+	//{
+	//case 1:
+	//	c->jogador. = 20;
+	//	break;
+	//case 2:
+	//	c->jogador. = 15;
+	//	break;
+	//case 3:
+	//	c->jogador. = 10;
+	//	break;
+	//default:
+	//	break;
+	//}
 
 	ReleaseMutex(hMutexMapa);
 	c->resposta = 0;
-}
+}*/
 
 void CriaMundo(COMANDO_DO_CLIENTE *c) {
 
 	//float perc;
 	int i, j, k;
 	int x, y;
-	int g, l, c, p;
+	int g, l, p;
 
 	/* --------------------------------------------------------- CRIAÇAO DO MUNDO --------------------------------------------------------*/
 
@@ -365,30 +407,42 @@ void CriaMundo(COMANDO_DO_CLIENTE *c) {
 	}
 }
 
-void PreencheJogador(COMANDO_DO_CLIENTE * c)
+void PreencheJogador(int Indice) 
 {
-	int x = 0;
+	int x = 0; 
 	int y = 0;
-	c->jogador.mochila[0].tipo = 1;
-	c->jogador.pontos = 0;
-	c->jogador.lentidao = 5;
-	c->jogador.saude = 10;
+
+	//c->jogador.nome=            //entao e o nome? nao te esqueças que tens funçoes que usam esta var... (VerificaExisteAlgoPosicao) prefiro a ideia de nessa funçao em vez de verificar pelo nome, seria melhor pela var presente
+//	JogadoresOnline[Indice]->mochila[0]->tipo = 1;
+//	JogadoresOnline[Indice]->mochila[0]->raridade = 10;//inventei
+	JogadoresOnline[Indice]->pontos = 0;
+	JogadoresOnline[Indice]->lentidao = 5;
+	JogadoresOnline[Indice]->saude = 10;
+	JogadoresOnline[Indice]->presente = 1;  //a verificar
 
 	do {
 		srand((unsigned)time(NULL));
-		x = rand() % 10;
+		x = rand() % 10; 
 		y = rand() % 10;
 
-		if (mundo[x][y].bloco.tipo == 0) {
-			mundo[x][y].jogador = c->jogador;
+
+
+		if (mundo[x][y].bloco.tipo == 0) { //a verificar
+			POSICAO p; //
+			p.x = x;//
+			p.y = y;//
+			JogadoresOnline[Indice]->pos = p;//
+			mundo[x][y].jogador = *JogadoresOnline[Indice];
 		}
 	} while (mundo[x][y].bloco.tipo != 0);
 
-	c->resposta = 1;
 }
 
 
+void iniciajogo() 
+{
 
+}
 
 void TrataComando(COMANDO_DO_CLIENTE *cmd) {
 
@@ -397,35 +451,47 @@ void TrataComando(COMANDO_DO_CLIENTE *cmd) {
 	switch (cmd->tipoComando)
 	{
 	case 0:  //AUTENTICAR
-		LoginUtilizador(cmd);
+		//LoginUtilizador(cmd);
+		
 		break;
 
 	case 1: //REGISTAR 
-		RegistaUtilizador(cmd);
+		//RegistaUtilizador(cmd);
 		break;
 
 	case 2:  // Criar Jogo
-		CriarJogo(cmd);
+		//CriarJogo(cmd);
+
+		//_tprintf(TEXT("[Servidor]ACTUALIZEI MAPAS \n"));
+		Sleep(400);
+		WaitForSingleObject(hMutexUsers, INFINITE);
+		CriaMundo(cmd); //so para teste
+		_tprintf(TEXT("[Servidor]CrieiMUNDO \n"));
+	//	PreencheJogador(cmd->ID);    //aqui ele ainda nao tem o ID
+		_tprintf(TEXT("[Servidor]CrieioJogador \n"));
+		ActualizaOsMapas();
+		ReleaseMutex(hMutexUsers);
 		break;
 
 	case 3:  // Juntar Ao Jogo
-		JuntaJogadorAoJogo(cmd);
+		//PreencheJogador();
 		break;
 
 	case 4:  // Inicia o Jogo
-		IniciaJogo(cmd);
+		//IniciaJogo(cmd);
 		break;
 
 	case 5:  //move
 	case 6:
 	case 7:
 	case 8:
-		Move(cmd);
+		_tprintf(TEXT("[Servidor]MOVER \n"));
+		PreencheJogador(cmd->ID);
+		WaitForSingleObject(hMutexUsers, INFINITE);
+		Move(cmd->ID, cmd->tipoComando);
+		ReleaseMutex(hMutexUsers);
 		break;
 
-	case 9:  // Larga bomba
-		LargaBomba(cmd);
-		break;
 	case 10: // verifica jogo
 		VerificaJogo(cmd);
 		break;
@@ -436,7 +502,7 @@ void TrataComando(COMANDO_DO_CLIENTE *cmd) {
 	return;
 }
 
-void LoginUser(COMANDO_DO_CLIENTE *c) {
+/*void LoginUser(COMANDO_DO_CLIENTE *c) {
 	int i;
 	int conta = 0;
 
@@ -469,32 +535,30 @@ void LoginUser(COMANDO_DO_CLIENTE *c) {
 	c->resposta = 1;
 	return; // User não existe
 }
-
-void Move(COMANDO_DO_CLIENTE *cmd) {
+*/
+void Move(int  indice_jogador, int accao) {
 	int res;
 	POSICAO posInicial;
 	POSICAO posFinal;
 
-	//if (cmd->monstro.presente) //se for inimigo 
-	//	posInicial = cmd->monstro.pos; //assume posicao do inimigo
-	//else  //se for jogador
-	//	posInicial = cmd->monstro.pos;//assume posicao jogador
-
+	//WaitForSingleObject(hMutexUsers, INFINITE);
+	
+	posInicial = JogadoresOnline[indice_jogador]->pos;
 
 	posFinal = posInicial;
 
-	switch (cmd->tipoComando)
+	switch (accao)
 	{
-	case 5:
+	case 5:  //esquerda
 		posFinal.x = posInicial.x - 1;
 		break;
-	case 6:
+	case 6: //direita
 		posFinal.x = posInicial.x + 1;
 		break;
-	case 7:
+	case 7: //baixo
 		posFinal.y = posInicial.y - 1;
 		break;
-	case 8:
+	case 8: //cima
 		posFinal.y = posInicial.y + 1;
 		break;
 	default:
@@ -505,88 +569,17 @@ void Move(COMANDO_DO_CLIENTE *cmd) {
 
 	res = VerificaExisteAlgoPosicao(&posFinal);
 
-	if (cmd->monstro.presente) { // se comando vier de um inimigo
-
-
-		if (res != 0 && res != 1) {// se nao estiver vazio ou nao tenha um jogador
-								   //if(ptrMapa->mapa[posFinal.x][posFinal.y].inimigo.presente!=0 && res!=1){
-			cmd->resposta = 1; // não faz nada
-			ReleaseMutex(hMutexMapa);
-			return;
-			//}
-		}
-		else { //senao
-			if (ptrMapa->mapa[posFinal.x][posFinal.y].monstro.presente != 0) { // se estiver outro inimigo nao avanca
-				cmd->resposta = 1; // não faz nada
-				ReleaseMutex(hMutexMapa);
-				return;
-			}
-			//////////
-			else {
-				if (_tcscmp(ptrMapa->mapa[posFinal.x][posFinal.y].jogador.nome, TEXT("")) != 0) {
-					JOGADOR j;
-					POSICAO p;
-					j = JogadorMorre(ptrMapa->mapa[posFinal.x][posFinal.y].jogador);
-					p = j.pos;
-
-					if (j.vidas >= 0)
-						ptrMapa->mapa[p.x][p.y].jogador = j;
-					//cmd->Player=j;
-					_stprintf_s(ptrMapa->mapa[posFinal.x][posFinal.y].jogador.nome, 15, TEXT(""));
-					MandaDifusao(20, &j);
-
-				}
-
-				/////////////////
-				ptrMapa->mapa[posFinal.x][posFinal.y].monstro = ptrMapa->mapa[posInicial.x][posInicial.y].monstro;
-				ptrMapa->mapa[posFinal.x][posFinal.y].monstro.pos = posFinal;
-				cmd->monstro = ptrMapa->mapa[posFinal.x][posFinal.y].monstro;
-				ptrMapa->mapa[posInicial.x][posInicial.y].monstro.presente = 0;
-				cmd->resposta = 0;
-				ReleaseMutex(hMutexMapa);
-				return;
-
-			}
-		}
-
+	if (res == 0 || res == 3) 
+	{   
+		JogadoresOnline[indice_jogador]->pos = posFinal;
+		mundo[posFinal.x][posFinal.y].jogador = *JogadoresOnline[indice_jogador];
+		mundo[posInicial.x][posInicial.y].jogador = semjogador;
 	}
-	else { // se comando vier de um jogador
 
-		if (res != 0 && res != 2) {  // se nao estiver vazio ou nao tiver um inimigo
-			cmd->resposta = 1; // não faz nada
-			ReleaseMutex(hMutexMapa);
-			return;
-		}
-		else {
-			if (ptrMapa->mapa[posFinal.x][posFinal.y].monstro.presente == 1) {
-				JOGADOR j;
-				POSICAO p;
-				j = JogadorMorre(ptrMapa->mapa[posInicial.x][posInicial.y].jogador);
-				p = j.pos;
-
-				if (j.vidas >= 0)
-					ptrMapa->mapa[p.x][p.y].jogador = j;
-				cmd->jogador = j;
-				_stprintf_s(ptrMapa->mapa[posInicial.x][posInicial.y].jogador.nome, 15, TEXT(""));
-
-				ReleaseMutex(hMutexMapa);
-				return;
-
-			}
-			else {
-				ptrMapa->mapa[posFinal.x][posFinal.y].jogador = ptrMapa->mapa[posInicial.x][posInicial.y].jogador;
-				ptrMapa->mapa[posFinal.x][posFinal.y].jogador.pos = posFinal;
-				cmd->jogador.pos = posFinal;
-				_stprintf_s(ptrMapa->mapa[posInicial.x][posInicial.y].jogador.nome, 15, TEXT(""));
-
-				ApanhaObjecto(posFinal, cmd);
-
-				cmd->resposta = 0;
-			}
-		}
-	}
+	//caso seja um bloco que parte o que fazer?
 
 	ReleaseMutex(hMutexMapa);
+	//ReleaseMutex(hMutexUsers);
 	return;
 }
 
@@ -627,8 +620,34 @@ void RegistaUtilizador(COMANDO_DO_CLIENTE *c) {
 }
 
 
+COMANDO_DO_SERVIDOR geraresposta(int cliente) //
+{
+	COMANDO_DO_SERVIDOR cmd;
+
+	cmd.jogador = *JogadoresOnline[cliente];
+	cmd.resposta = 1;
+
+	return cmd;
+}
+
+void ActualizaOsMapas() //apenas actualiza os jogadores por enquanto
+{
+	int i;
+	COMANDO_DO_SERVIDOR cmd;
+	DWORD n;
+
+	for (i = 0; i < total; i++) 
+	{
+
+		cmd = geraresposta(i);
+
+		WriteFile(wPipeClientes[i], &cmd, sizeof(COMANDO_DO_SERVIDOR), &n, NULL);
+	}
+
+}
+
 DWORD WINAPI RecebeClientes(LPVOID param) {
-	HANDLE rPipe;
+	
 	int i;
 	HANDLE ThreadAtendeCli[N_MAX_CLIENTES];
 
@@ -637,17 +656,17 @@ DWORD WINAPI RecebeClientes(LPVOID param) {
 		_tprintf(TEXT("[Servidor](CreateNamedPipe) Copiar pipe '%s' \n"), PIPE_N_WRITE);
 
 		wPipeClientes[total] = CreateNamedPipe(PIPE_N_WRITE, PIPE_ACCESS_OUTBOUND, PIPE_WAIT | PIPE_TYPE_MESSAGE
-			| PIPE_READMODE_MESSAGE, N_MAX_CLIENTES, TAM * sizeof(TCHAR), TAM * sizeof(TCHAR),
+			| PIPE_READMODE_MESSAGE, N_MAX_CLIENTES,sizeof(COMANDO_DO_SERVIDOR), sizeof(COMANDO_DO_SERVIDOR),
 			1000, NULL);		
 
 		_tprintf(TEXT("[Servidor](CreateNamedPipe) Copiar pipe '%s' \n"), PIPE_N_READ);
 
-		rPipe = CreateNamedPipe(PIPE_N_READ, PIPE_ACCESS_INBOUND, PIPE_WAIT | PIPE_TYPE_MESSAGE
-			| PIPE_READMODE_MESSAGE, N_MAX_CLIENTES, TAM * sizeof(TCHAR), TAM * sizeof(TCHAR),
+		rPipeClientes[total] = CreateNamedPipe(PIPE_N_READ, PIPE_ACCESS_INBOUND, PIPE_WAIT | PIPE_TYPE_MESSAGE
+			| PIPE_READMODE_MESSAGE, N_MAX_CLIENTES,sizeof(COMANDO_DO_CLIENTE), sizeof(COMANDO_DO_CLIENTE),
 			1000, NULL);
 
 		//verifica pipes
-		if ((rPipe == INVALID_HANDLE_VALUE) && (wPipeClientes[total] == INVALID_HANDLE_VALUE)) {
+		if ((rPipeClientes[total] == INVALID_HANDLE_VALUE) && (wPipeClientes[total] == INVALID_HANDLE_VALUE)) {
 			_tperror(TEXT("[ERRO] Não são permitidos mais clientes!"));
 			exit(-1);
 		}		
@@ -660,13 +679,13 @@ DWORD WINAPI RecebeClientes(LPVOID param) {
 		}
 		
 
-		ThreadAtendeCli[total++] = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)AtendeCliente, (LPVOID)rPipe, 0, NULL);
+		ThreadAtendeCli[total] = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)AtendeCliente, (LPVOID)rPipeClientes[total], 0, NULL);
 		if (ThreadAtendeCli == NULL) {
 			_tprintf(TEXT("[ERRO] ThreadAtendeCli não foi lançada\n"));
 			exit(-1);
 		}
-
-		//total++;
+		Sleep(200);
+		total++;
 	}
 
 	/*
@@ -685,28 +704,41 @@ DWORD WINAPI RecebeClientes(LPVOID param) {
 	return 0;
 }
 
-DWORD WINAPI AtendeCliente(LPVOID param)
+DWORD WINAPI AtendeCliente(LPVOID rparam)
 {
 	TCHAR buf[TAM];
 	DWORD n;
 	BOOL ret;
-	HANDLE rPipe = (HANDLE)param;
+	int indice_deste_cliente = total;
+	HANDLE rPipe = (HANDLE)rparam;	
+	COMANDO_DO_CLIENTE cmd_cliente;
+	COMANDO_DO_SERVIDOR cmd_servidor;
+	int tipoDeResposta;
+	_tprintf(TEXT("[SERVIDOR-%d] Um cliente ligou-se...\n"), GetCurrentThreadId());
 
-	while (1)
-	{    
-		_tprintf(TEXT("[Servidor] a espera de resposta de cliente...\n"));
-		//ler do pipe do seu cliente
-		ret = ReadFile(rPipe, buf, TAM, &n, NULL);
-		buf[n / sizeof(TCHAR)] = '\0';
+	do {
+		ret = ReadFile(rPipe, &cmd_cliente, sizeof(cmd_cliente), &n, NULL);
 
 		if (!ret || !n)
 			break;
-		_tprintf(TEXT("[Servidor](ReadFile) recebi %d bytes: %s \n"), n, buf);
 
-		//escrever para todos
-		for (int i = 0; i < total; i++)
-			WriteFile(wPipeClientes[i], buf, _tcslen(buf) * sizeof(TCHAR), &n, NULL);
+		_tprintf(TEXT("[SERVIDOR-%d] Sou cliente... (ReadFile)\n"), GetCurrentThreadId());
 
+		//calcular
+		TrataComando(&cmd_cliente);
+		//RespodeAoCliente();
+		ActualizaOsMapas();
+		
+		_tprintf(TEXT("[SERVIDOR] o comando do cliente indice [%d] foi %d \n"),indice_deste_cliente, cmd_cliente.tipoComando);
+	} while (!(cmd_cliente.tipoComando == (-1)));
+
+
+	_tprintf(TEXT("[SERVIDOR-%d] Vou desligar o pipe... (DisconnectNamedPipe/CloseHandle)\n"), GetCurrentThreadId());
+	if (!DisconnectNamedPipe(rPipe)) {
+		_tperror(TEXT("Erro ao desligar o pipe!"));
+		ExitThread(-1);
 	}
+
+	CloseHandle(rPipe);
 	return 0;
 }

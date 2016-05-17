@@ -10,6 +10,8 @@
 #define T_OBJ 5
 #define U_MAX 30
 
+
+
 typedef struct {
 	int x, y;
 }POSICAO;
@@ -20,10 +22,14 @@ typedef struct {
 }OBJETO;
 
 typedef struct {
+	int tipo;
+}BLOCO;
+
+typedef struct {
 	int presente;
-	TCHAR nome[TAM_LOG];
+//	TCHAR nome[TAM_LOG];
 	POSICAO pos;
-	OBJETO mochila[T_OBJ];
+	OBJETO *mochila[T_OBJ];
 	int lentidao;
 	int saude;
 	int vidas;
@@ -48,9 +54,18 @@ typedef struct {
 }MONSTRO;
 
 typedef struct {
+	JOGADOR jogador;
+	MONSTRO monstro;
+	OBJETO objeto;
+	BLOCO bloco;
+	int parede;
+	int obj;
+}CELULA;
+
+typedef struct {
+	int ID;
 	int tipoComando;
 	int resposta;
-	JOGADOR jogador;
 	USER user;
 }COMANDO_DO_CLIENTE;
 
@@ -67,18 +82,9 @@ typedef struct {
 }ATACAR;
 
 
-typedef struct {
-	int tipo;
-}BLOCO;
 
-typedef struct {
-	JOGADOR jogador;
-	MONSTRO monstro;
-	OBJETO objeto;
-	BLOCO bloco;
-	int parede;
-	int obj;
-}CELULA;
+
+
 
 typedef struct {
 	CELULA mapa[L][C];

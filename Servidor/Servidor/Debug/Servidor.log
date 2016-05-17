@@ -1,18 +1,17 @@
 ﻿  Servidor.c
-c:\users\dmytro yaremyshyn\desktop\dungeonrpg\servidor\servidor\servidor.c(13): warning C4047: 'initializing': 'TCHAR' differs in levels of indirection from 'void *'
-c:\users\dmytro yaremyshyn\desktop\dungeonrpg\servidor\servidor\servidor.c(14): warning C4047: 'initializing': 'TCHAR' differs in levels of indirection from 'void *'
-c:\users\dmytro yaremyshyn\desktop\dungeonrpg\servidor\servidor\servidor.c(118): warning C4013: 'MandaDifusao' undefined; assuming extern returning int
-c:\users\dmytro yaremyshyn\desktop\dungeonrpg\servidor\servidor\servidor.c(309): warning C4101: 'mole': unreferenced local variable
-c:\users\dmytro yaremyshyn\desktop\dungeonrpg\servidor\servidor\servidor.c(433): warning C4101: 'k': unreferenced local variable
-c:\users\dmytro yaremyshyn\desktop\dungeonrpg\servidor\servidor\servidor.c(433): warning C4101: 'count': unreferenced local variable
-c:\users\dmytro yaremyshyn\desktop\dungeonrpg\servidor\servidor\servidor.c(697): warning C4013: 'LoginUtilizador' undefined; assuming extern returning int
-c:\users\dmytro yaremyshyn\desktop\dungeonrpg\servidor\servidor\servidor.c(705): warning C4013: 'CriarJogo' undefined; assuming extern returning int
-c:\users\dmytro yaremyshyn\desktop\dungeonrpg\servidor\servidor\servidor.c(709): warning C4013: 'JuntaJogadorAoJogo' undefined; assuming extern returning int
-c:\users\dmytro yaremyshyn\desktop\dungeonrpg\servidor\servidor\servidor.c(724): warning C4013: 'LargaBomba' undefined; assuming extern returning int
-  LINK : C:\Users\Dmytro Yaremyshyn\Desktop\DungeonRPG\Servidor\Debug\Servidor.exe not found or not built by the last incremental link; performing full link
-Servidor.obj : error LNK2019: unresolved external symbol _MandaDifusao referenced in function _ApanhaObjecto
-Servidor.obj : error LNK2019: unresolved external symbol _LoginUtilizador referenced in function _TrataComando
-Servidor.obj : error LNK2019: unresolved external symbol _CriarJogo referenced in function _TrataComando
-Servidor.obj : error LNK2019: unresolved external symbol _JuntaJogadorAoJogo referenced in function _TrataComando
-Servidor.obj : error LNK2019: unresolved external symbol _LargaBomba referenced in function _TrataComando
-C:\Users\Dmytro Yaremyshyn\Desktop\DungeonRPG\Servidor\Debug\Servidor.exe : fatal error LNK1120: 5 unresolved externals
+c:\users\sergio\desktop\dungeonrpg\dungeonrpg\servidor\servidor\servidor.c(17): warning C4047: 'initializing': 'TCHAR' differs in levels of indirection from 'void *'
+c:\users\sergio\desktop\dungeonrpg\dungeonrpg\servidor\servidor\servidor.c(370): warning C4013: 'time' undefined; assuming extern returning int
+c:\users\sergio\desktop\dungeonrpg\dungeonrpg\servidor\servidor\servidor.c(364): warning C4101: 'k': unreferenced local variable
+c:\users\sergio\desktop\dungeonrpg\dungeonrpg\servidor\servidor\servidor.c(366): warning C4101: 'p': unreferenced local variable
+c:\users\sergio\desktop\dungeonrpg\dungeonrpg\servidor\servidor\servidor.c(365): warning C4101: 'y': unreferenced local variable
+c:\users\sergio\desktop\dungeonrpg\dungeonrpg\servidor\servidor\servidor.c(366): warning C4101: 'l': unreferenced local variable
+c:\users\sergio\desktop\dungeonrpg\dungeonrpg\servidor\servidor\servidor.c(411): warning C4028: formal parameter 1 different from declaration
+c:\users\sergio\desktop\dungeonrpg\dungeonrpg\servidor\servidor\servidor.c(490): warning C4047: 'function': 'COMANDO_DO_CLIENTE *' differs in levels of indirection from 'int'
+c:\users\sergio\desktop\dungeonrpg\dungeonrpg\servidor\servidor\servidor.c(490): warning C4024: 'Move': different types for formal and actual parameter 1
+c:\users\sergio\desktop\dungeonrpg\dungeonrpg\servidor\servidor\servidor.c(490): warning C4020: 'Move': too many actual parameters
+c:\users\sergio\desktop\dungeonrpg\dungeonrpg\servidor\servidor\servidor.c(538): warning C4028: formal parameter 1 different from declaration
+c:\users\sergio\desktop\dungeonrpg\dungeonrpg\servidor\servidor\servidor.c(538): warning C4029: declared formal parameter list different from definition
+c:\users\sergio\desktop\dungeonrpg\dungeonrpg\servidor\servidor\servidor.c(715): warning C4101: 'tipoDeResposta': unreferenced local variable
+c:\users\sergio\desktop\dungeonrpg\dungeonrpg\servidor\servidor\servidor.c(708): warning C4101: 'buf': unreferenced local variable
+c:\users\sergio\desktop\dungeonrpg\dungeonrpg\servidor\servidor\servidor.c(714): warning C4101: 'cmd_servidor': unreferenced local variable
+  Servidor.vcxproj -> C:\Users\Sergio\Desktop\DungeonRPG\DungeonRPG\Servidor\Debug\Servidor.exe

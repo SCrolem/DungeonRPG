@@ -3,28 +3,33 @@
 #include <io.h>
 #include <fcntl.h>
 #include <stdio.h>
-#include "dll.h"
+//#include "dll.h"
 #include "struct.h"
 
 
 #define PIPE_N_WRITE TEXT("\\\\.\\pipe\\ParaServidor")
 #define PIPE_N_READ TEXT("\\\\.\\pipe\\ParaCliente")
+HANDLE  hMutexEspera;
 
 DWORD WINAPI RecebeDoServidor(LPVOID param);
+int emjogo = 0;
 
 int _tmain(int argc, LPTSTR argv[]) {
 	TCHAR buf[256];
 	HANDLE wPipe, rPipe;
 	int i = 0;
+	int comando;
 	BOOL ret;
 	DWORD n;
 	HANDLE hThread;
-	
+	COMANDO_DO_CLIENTE cmd;
+    
+
 #ifdef UNICODE 
 	_setmode(_fileno(stdin), _O_WTEXT);
 	_setmode(_fileno(stdout), _O_WTEXT);
 #endif
-	/*
+	
 	_tprintf(TEXT("[CLIENTE]Esperar pelo pipe '%s'(WaitNamedPipe)\n"), PIPE_N_WRITE);
 
 	if (!WaitNamedPipe(PIPE_N_WRITE, NMPWAIT_WAIT_FOREVER)) {
@@ -47,9 +52,9 @@ int _tmain(int argc, LPTSTR argv[]) {
 		exit(-1);
 	}
 	_tprintf(TEXT("[CLIENTE] Pipe para leitura estabelecido...\n"));
-*/
 
-	Inicia_comunicacao();
+
+	//Inicia_comunicacao();
 
 	//Invocar a thread que recebe info do servidor
 	hThread = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)RecebeDoServidor, (LPVOID)rPipe, 0, NULL);	
@@ -61,21 +66,70 @@ int _tmain(int argc, LPTSTR argv[]) {
 
 	while (1)
 	{
-		Sleep(200); 
-		_tprintf(TEXT("[CLIENTE] Frase: "));
+		Sleep(400); 
+		WaitForSingleObject(hMutexEspera, INFINITE);
+		if (emjogo == 0) 
+		{
+		_tprintf(TEXT("0 - criar jogo \n 1 - sair\n"));
+		_tprintf(TEXT("[CLIENTE] comando: "));
 		_fgetts(buf, 256, stdin);
-
-		ret = WriteFile(wPipe, buf, _tcslen(buf) * sizeof(TCHAR), &n, NULL);
-		buf[n / sizeof(TCHAR)] = '\0';
+		 
+		comando = _ttoi(buf);
+	
 		
-		if (!ret || !n)
-			break;
-		_tprintf(TEXT("[CLIENTE](ReadFile) enviei %d bytes: %s "), n, buf);
 
-		if (!_tcsncmp(buf, TEXT("fim"), 3)) 
+		if (comando == 0) //porque la no server o 2 é que cria jogo
+			comando = 2;
+		
+				if(comando >=1 && comando <= 2)
+				{
+				cmd.tipoComando = comando;
+
+				ret = WriteFile(wPipe, &cmd, sizeof(COMANDO_DO_CLIENTE), &n, NULL);
+		
+		
+				if (!ret || !n)
+					break;
+				_tprintf(TEXT("[CLIENTE](ReadFile) enviei %d bytes \n"), n);
+				}
+		}
+		else 
+		{
+			_tprintf(TEXT("0 - direita \n 1 - esquerda \n 2 - cima \n 3 - baixo\n"));
+			_tprintf(TEXT("[CLIENTE] comando: "));
+			_fgetts(buf, 256, stdin);
+
+			comando = _ttoi(buf);
+			cmd.tipoComando = comando;
+			
+
+			if (comando >=0 && comando <= 3)
+			{
+			if (comando == 0)
+				comando = 5;
+			if (comando == 1)
+				comando = 6;
+			if (comando == 2)
+				comando = 7;
+			if (comando == 3)
+				comando = 8;
+				cmd.tipoComando = comando;
+
+				ret = WriteFile(wPipe, &cmd, sizeof(COMANDO_DO_CLIENTE), &n, NULL);
+
+
+				if (!ret || !n)
+					break;
+				_tprintf(TEXT("[CLIENTE](ReadFile) enviei %d bytes"), n);
+			}
+		}
+		
+
+		if (comando == -1) 
 		{
 			break;
 		}
+		ReleaseMutex(hMutexEspera);
 	}
 
 	//CloseHandle(wPipe);
@@ -88,19 +142,53 @@ int _tmain(int argc, LPTSTR argv[]) {
 DWORD WINAPI RecebeDoServidor(LPVOID param) { //recebe o pipe 
 	HANDLE rPipe = (HANDLE)param; //atribui o pipe que recebe (pipe )
 	TCHAR buf[256];
-	COMANDO resposta;
+	//COMANDO resposta;
 	int i = 0;
 	BOOL ret;
 	DWORD n;
+	COMANDO_DO_SERVIDOR cmd;
 
 		while (1) 
 		{
-			ret = ReadFile(rPipe, buf, sizeof(buf), &n, NULL);
-			buf[n / sizeof(TCHAR)] = '\0';
+			WaitForSingleObject(hMutexEspera, INFINITE);
+			if (emjogo == 0) {
+			   
+			ret = ReadFile(rPipe, &cmd, sizeof(COMANDO_DO_SERVIDOR), &n, NULL);
 			if (!ret || !n)
 				break;
 
-			_tprintf(TEXT("[CLIENTE](ReadFile) Recebi %d bytes: %s "), n, buf);
+
+			_tprintf(TEXT("[CLIENTE](ReadFile) Recebi %d bytes\n "), n);
+			_tprintf(TEXT("[CLIENTE](ReadFile) Resposta %d\n "), cmd.resposta);
+			
+			if (cmd.resposta == 1) 
+			{
+				emjogo = 1;			
+			}
+
+			}
+			else 
+			{
+			
+				ret = ReadFile(rPipe, &cmd, sizeof(COMANDO_DO_SERVIDOR), &n, NULL);
+
+				if (!ret || !n)
+					break;
+
+
+				_tprintf(TEXT("[CLIENTE](ReadFile) Recebi %d bytes\n "), n);
+
+				if (cmd.resposta == 2) {} //actualizaMapa
+				if (cmd.resposta == 1) 
+				{
+					_tprintf(TEXT("Jogador : saude : %d \n lentidao : %d \n x = %d y = %d",cmd.jogador.saude,cmd.jogador.lentidao,cmd.jogador.pos.x,cmd.jogador.pos.y));				
+				}
+				//...
+			
+			}
+
+			ReleaseMutex(hMutexEspera);
+			
 		}
 		
 	return 0;

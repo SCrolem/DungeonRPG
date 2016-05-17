@@ -1,3 +1,7 @@
 ﻿  Cliente.c
-c:\users\sergio\desktop\dungeonrpg\dungeonrpg\dll\dll\dll.h(25): error C2059: syntax error: 'string'
-c:\users\sergio\desktop\dungeonrpg\dungeonrpg\cliente\cliente\cliente.c(51): warning C4013: 'Inicia_comunicacao' undefined; assuming extern returning int
+c:\users\sergio\desktop\dungeonrpg\dungeonrpg\cliente\cliente\cliente.c(184): warning C4002: too many actual parameters for macro 'TEXT'
+c:\users\sergio\desktop\dungeonrpg\dungeonrpg\cliente\cliente\cliente.c(184): warning C4473: 'wprintf' : not enough arguments passed for format string
+  c:\users\sergio\desktop\dungeonrpg\dungeonrpg\cliente\cliente\cliente.c(184): note: placeholders and their parameters expect 4 variadic arguments, but 0 were provided
+  c:\users\sergio\desktop\dungeonrpg\dungeonrpg\cliente\cliente\cliente.c(184): note: the missing variadic argument 1 is required by format string '%d'
+c:\users\sergio\desktop\dungeonrpg\dungeonrpg\cliente\cliente\cliente.c(144): warning C4101: 'buf': unreferenced local variable
+  Cliente.vcxproj -> C:\Users\Sergio\Desktop\DungeonRPG\DungeonRPG\Cliente\Debug\Cliente.exe
