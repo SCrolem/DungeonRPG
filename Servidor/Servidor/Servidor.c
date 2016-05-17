@@ -10,7 +10,8 @@
 #define PIPE_N_READ TEXT("\\\\.\\pipe\\ParaServidor")
 #define PIPE_N_WRITE TEXT("\\\\.\\pipe\\ParaCliente")
 
-
+#define N_MAX_CLIENTES 10
+#define TAM 256
 
 
 
@@ -24,8 +25,7 @@ TCHAR NomeMutexMapa[] = TEXT("MapaMUTEX");
 
 HANDLE hMemoria, hMutexMapa, hMutexUsers, hMutexEnviaID;
 
-#define N_MAX_CLIENTES 10
-#define TAM 256
+
 
 JOGADOR semjogador;
 
@@ -118,7 +118,7 @@ void iniciaOsemjogador()
 	POSICAO p;
 	int i;
 	
-
+	j.ID = 0;
 	j.nPedras = 0;
 	j.pontos = 0;
 	j.lentidao = 0;
@@ -128,14 +128,14 @@ void iniciaOsemjogador()
 	p.y = 0;
 	j.pos = p;
 
-	WaitForSingleObject(hMutexUsers, INFINITE);
-	for (i = 0; i <= N_MAX_CLIENTES; i++) 
+	//WaitForSingleObject(hMutexUsers, INFINITE);
+	for (i = 0; i < N_MAX_CLIENTES; i++) 
 	{
 		JogadoresOnline[i] = j;
 	}
 
 	semjogador = j;
-		ReleaseMutex(hMutexUsers);
+		//ReleaseMutex(hMutexUsers);
 }
 
 /*void ApanhaObjecto(POSICAO p, COMANDO_DO_CLIENTE *c) {
@@ -350,8 +350,9 @@ void PreencheJogador(COMANDO_DO_CLIENTE *cmd)
 	//	JogadoresOnline[Indice]->mochila[0]->tipo = 1;
 	//	JogadoresOnline[Indice]->mochila[0]->raridade = 10;//inventei
 
+	_tprintf(TEXT("[SERVIDOR] ID do jogador alterado %d...\n"), Indice);
 
-	_tprintf(TEXT("[SERVIDOR] ID do jogador alterado %d...\n"), cmd->ID);
+
 
 	JogadoresOnline[Indice].pontos = 0;
 	JogadoresOnline[Indice].lentidao = 5;
@@ -402,8 +403,15 @@ void enviaRestpostamovimento(COMANDO_DO_CLIENTE *cmd, int tipo)
 	int indice = cmd->ID;
 	COMANDO_DO_SERVIDOR msg_a_enviar;
 
+	_tprintf(TEXT("[SERVIDOR]VOU enviar ao cliente [%d]...\n"), indice);
 
-	msg_a_enviar.jogador =  JogadoresOnline[indice];
+	msg_a_enviar.jogador.ID =  JogadoresOnline[indice].ID;
+	msg_a_enviar.jogador.lentidao = JogadoresOnline[indice].lentidao;
+	msg_a_enviar.jogador.nPedras = JogadoresOnline[indice].nPedras;
+	msg_a_enviar.jogador.saude = JogadoresOnline[indice].saude;
+	msg_a_enviar.jogador.pos.x = JogadoresOnline[indice].pos.x;
+	msg_a_enviar.jogador.pos.y = JogadoresOnline[indice].pos.y;
+
 
 	_tprintf(TEXT("Jogador[%d] : saude : %d \n lentidao : %d \n x = %d y = %d\n", msg_a_enviar.jogador.ID, msg_a_enviar.jogador.saude, msg_a_enviar.jogador.lentidao, msg_a_enviar.jogador.pos.x, msg_a_enviar.jogador.pos.y));
 
