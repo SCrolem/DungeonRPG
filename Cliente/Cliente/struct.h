@@ -29,6 +29,7 @@ typedef struct {
 
 typedef struct {
 	int ID;
+	int pid;
 	TCHAR username[TAM_LOG];
 	int presente;
 	POSICAO pos;
