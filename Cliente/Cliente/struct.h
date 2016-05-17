@@ -10,6 +10,7 @@
 #define T_OBJ 5
 #define U_MAX 30
 #define MAX_SAUDE 20
+#define TAM_MSG 200
 
 
 
@@ -68,15 +69,15 @@ typedef struct {
 	int tipoComando;
 	int resposta;
 	USER user;
-	TCHAR msg[200];
+	TCHAR msg[TAM_MSG];
 }COMANDO_DO_CLIENTE;
 
 typedef struct {
 	int tipoComando;
 	int resposta;
-	TCHAR msg[200];
+	TCHAR msg[TAM_MSG];
 	JOGADOR jogador;
-	CELULA mapa[10][10];
+	CELULA mapa[L][C];
 }COMANDO_DO_SERVIDOR;
 
 typedef struct {
