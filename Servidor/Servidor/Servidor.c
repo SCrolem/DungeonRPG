@@ -67,7 +67,7 @@ void IniciaJogo(COMANDO_DO_CLIENTE *c);
 void CalculaPosicaoAleatoria(POSICAO *p);
 int VerificaExisteAlgoPosicao(POSICAO *p);
 int VerificaJogadorNoMapa(TCHAR *nome);
-void CriaMapaParaEnvio(MAPACLIENTE *mapa);
+void CriaMapaParaEnvio(/*MAPACLIENTE *mapa*/);
 
 
 void TrataComando(COMANDO_DO_CLIENTE *c);
@@ -228,54 +228,27 @@ void VerificaJogo(COMANDO_DO_CLIENTE *cmd) {
 	}
 }
 
-/*void CriaMapaParaEnvio(MAPACLIENTE *mapa) {
+
+
+void CriaMapaParaEnvio(COMANDO_DO_CLIENTE *cmd) {
 	int i, j;
-	WaitForSingleObject(hMutexMapa, INFINITE);
-	for (i = 0; i < L; i++) {
-		for (j = 0; j < C; j++) {//para cada posicao
-			mapa->mapa[i][j].jogador = ptrMapa->mapa[i][j].jogador;
-			mapa->mapa[i][j].monstro = FALSE;
-			mapa->mapa[i][j].objecto = 0;
+	CELULA m[5][5];
+	COMANDO_DO_SERVIDOR c;
 
-
-			if (ptrMapa->mapa[i][j].monstro.presente == 1) {
-				mapa->mapa[i][j].monstro = TRUE;
-
-			}
-			else {
-				if (ptrMapa->mapa[i][j].bloco.tipo == 2) {
-					mapa->mapa[i][j].parede = ptrMapa->mapa[i][j].bloco.tipo;
-
-				}
-				//	
-				//	else {
-				//		if (ptrMapa->mapa[i][j].bloco.tipo == 1) {
-				//			if (ptrMapa->mapa[i][j].bloco. == 0)
-				//				mapa->mapa[i][j].bloco = ptrMapa->mapa[i][j].bloco.tipo = 0;
-				//			else {
-				//				if (ptrMapa->mapa[i][j].bloco.saude == 10)
-				//					mapa->mapa[i][j].bloco = ptrMapa->mapa[i][j].bloco.tipo;
-				//				else
-				//					mapa->mapa[i][j].bloco = 3;
-				//			}
-
-
-				//			//
-				//			if(ptrMapa->mapa[i][j].bloco.saude>0)
-				//			mapa->mapa[i][j].bloco=ptrMapa->mapa[i][j].bloco.tipo;
-				//			else
-				//			mapa->mapa[i][j].bloco=ptrMapa->mapa[i][j].bloco.tipo=0;
-				//			
-				//		}
-				//
-
-
-			}
+	int x = 0, y = 0;
+	for (i = (JogadoresOnline[cmd->ID].pos.x - 5); i < (JogadoresOnline[cmd->ID].pos.x + 5); i++) {
+		for (i = (JogadoresOnline[cmd->ID].pos.y - 5); i < (JogadoresOnline[cmd->ID].pos.y + 5); i++) {
+			c.mapa[x][y] = mundo[i][j];
+			y++;
 		}
-	
-	ReleaseMutex(hMutexMapa);
+		x++;
 	}
-}*/
+
+
+	// FALTAM AS VERIFICAÇÕES PARA SABER ONDE ESTA E SE NÃO ULTRAPASSA OS LIMITES
+
+
+}
 
 int VerificaExisteAlgoPosicao(POSICAO *p) {
 
@@ -314,51 +287,6 @@ void CalculaPosicaoAleatoria(POSICAO *p) {
 	p->y = y;
 }
 
-/*void AdicionaJogadorAoJogo(COMANDO_DO_CLIENTE *c) {
-	int resp = 0;
-	POSICAO p;
-
-
-	WaitForSingleObject(hMutexMapa, INFINITE);
-
-	if (!game.criado) {
-		c->resposta = 1;
-		ReleaseMutex(hMutexMapa);
-		return;
-	}
-
-	if (game.iniciado) {
-		c->resposta = 2;
-		ReleaseMutex(hMutexMapa);
-		return;
-	}
-
-	do {
-		CalculaPosicaoAleatoria(&p);
-		resp = VerificaExisteAlgoPosicao(&p);
-
-	} while (resp != 0);
-
-	c->jogador.pos = p;
-	ptrMapa->mapa[p.x][p.y].jogador = c->jogador;
-	//switch (game.dificuldade)
-	//{
-	//case 1:
-	//	c->jogador. = 20;
-	//	break;
-	//case 2:
-	//	c->jogador. = 15;
-	//	break;
-	//case 3:
-	//	c->jogador. = 10;
-	//	break;
-	//default:
-	//	break;
-	//}
-
-	ReleaseMutex(hMutexMapa);
-	c->resposta = 0;
-}*/
 
 void CriaMundo(COMANDO_DO_CLIENTE *c) {
 
@@ -418,21 +346,27 @@ void PreencheJogador(COMANDO_DO_CLIENTE *cmd)
 
 
 	//c->jogador.nome=            //entao e o nome? nao te esqueças que tens funçoes que usam esta var... (VerificaExisteAlgoPosicao) prefiro a ideia de nessa funçao em vez de verificar pelo nome, seria melhor pela var presente
-//	JogadoresOnline[Indice]->mochila[0]->tipo = 1;
-//	JogadoresOnline[Indice]->mochila[0]->raridade = 10;//inventei
 
+	//	JogadoresOnline[Indice]->mochila[0]->tipo = 1;
+	//	JogadoresOnline[Indice]->mochila[0]->raridade = 10;//inventei
+
+
+<<<<<<< HEAD
 	_tprintf(TEXT("[SERVIDOR] ID do jogador alterado %d...\n"), Indice);
+=======
+	_tprintf(TEXT("[SERVIDOR] ID do jogador alterado %d...\n"), cmd->ID);
+
+>>>>>>> origin/master
 	JogadoresOnline[Indice].pontos = 0;
 	JogadoresOnline[Indice].lentidao = 5;
 	JogadoresOnline[Indice].saude = 10;
 	JogadoresOnline[Indice].presente = 1;  //a verificar
+	JogadoresOnline[Indice].pid = _getpid();
 
 	do {
 		srand((unsigned)time(NULL));
 		x = rand() % 10; 
 		y = rand() % 10;
-
-
 
 		if (mundo[x][y].bloco.tipo == 0) { 
 			POSICAO p; //
