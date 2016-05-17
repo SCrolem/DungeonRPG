@@ -27,9 +27,8 @@ typedef struct {
 
 typedef struct {
 	int presente;
-//	TCHAR nome[TAM_LOG];
 	POSICAO pos;
-	OBJETO *mochila[T_OBJ];
+	int nPedras;
 	int lentidao;
 	int saude;
 	int vidas;
