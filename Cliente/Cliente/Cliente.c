@@ -13,17 +13,19 @@ HANDLE  hMutexEspera;
 
 DWORD WINAPI RecebeDoServidor(LPVOID param);
 int emjogo = 0;
+int indice = 0;
 
 int _tmain(int argc, LPTSTR argv[]) {
 	TCHAR buf[256];
 	HANDLE wPipe, rPipe;
-	int i = 0;
+	//int i = 0;
 	int comando;
 	BOOL ret;
 	DWORD n;
 	HANDLE hThread;
 	COMANDO_DO_CLIENTE cmd;
     
+	hMutexEspera = CreateMutex(NULL, TRUE, NULL);
 
 #ifdef UNICODE 
 	_setmode(_fileno(stdin), _O_WTEXT);
@@ -66,7 +68,7 @@ int _tmain(int argc, LPTSTR argv[]) {
 
 	while (1)
 	{
-		Sleep(400); 
+		//Sleep(400); 
 		WaitForSingleObject(hMutexEspera, INFINITE);
 		if (emjogo == 0) 
 		{
@@ -90,13 +92,19 @@ int _tmain(int argc, LPTSTR argv[]) {
 		
 				if (!ret || !n)
 					break;
-				_tprintf(TEXT("[CLIENTE](ReadFile) enviei %d bytes \n"), n);
+
+				_tprintf(TEXT("[CLIENTE]em jogo = 0 \n"));
 				}
+				
 		}
 		else 
-		{
+		{   
+			_tprintf(TEXT("[CLIENTE] cliente indice [%d]  \n"), cmd.ID);
+
 			_tprintf(TEXT("0 - direita \n 1 - esquerda \n 2 - cima \n 3 - baixo\n"));
 			_tprintf(TEXT("[CLIENTE] comando: "));
+			
+			ReleaseMutex(hMutexEspera);
 			_fgetts(buf, 256, stdin);
 
 			comando = _ttoi(buf);
@@ -129,7 +137,7 @@ int _tmain(int argc, LPTSTR argv[]) {
 		{
 			break;
 		}
-		ReleaseMutex(hMutexEspera);
+		
 	}
 
 	//CloseHandle(wPipe);
@@ -151,20 +159,23 @@ DWORD WINAPI RecebeDoServidor(LPVOID param) { //recebe o pipe
 		while (1) 
 		{
 			WaitForSingleObject(hMutexEspera, INFINITE);
-			if (emjogo == 0) {
-			   
-			ret = ReadFile(rPipe, &cmd, sizeof(COMANDO_DO_SERVIDOR), &n, NULL);
-			if (!ret || !n)
-				break;
-
-
-			_tprintf(TEXT("[CLIENTE](ReadFile) Recebi %d bytes\n "), n);
-			_tprintf(TEXT("[CLIENTE](ReadFile) Resposta %d\n "), cmd.resposta);
 			
-			if (cmd.resposta == 1) 
+			if (emjogo == 0)
 			{
-				emjogo = 1;			
-			}
+			   
+				ret = ReadFile(rPipe, &cmd, sizeof(COMANDO_DO_SERVIDOR), &n, NULL);
+				if (!ret || !n)
+					break;
+
+
+				_tprintf(TEXT("[CLIENTE](ReadFile) Recebi %d bytes\n "), n);
+				_tprintf(TEXT("[CLIENTE](ReadFile) Resposta %d\n "), cmd.resposta);
+			
+				if (cmd.resposta == 1)  //entra em jogo
+				{
+					emjogo = 1;
+					indice = cmd.jogador.ID;
+				}
 
 			}
 			else 

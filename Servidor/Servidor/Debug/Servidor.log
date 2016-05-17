@@ -1,17 +1,17 @@
 ﻿  Servidor.c
 c:\users\sergio\desktop\dungeonrpg\dungeonrpg\servidor\servidor\servidor.c(17): warning C4047: 'initializing': 'TCHAR' differs in levels of indirection from 'void *'
-c:\users\sergio\desktop\dungeonrpg\dungeonrpg\servidor\servidor\servidor.c(370): warning C4013: 'time' undefined; assuming extern returning int
-c:\users\sergio\desktop\dungeonrpg\dungeonrpg\servidor\servidor\servidor.c(364): warning C4101: 'k': unreferenced local variable
-c:\users\sergio\desktop\dungeonrpg\dungeonrpg\servidor\servidor\servidor.c(366): warning C4101: 'p': unreferenced local variable
-c:\users\sergio\desktop\dungeonrpg\dungeonrpg\servidor\servidor\servidor.c(365): warning C4101: 'y': unreferenced local variable
-c:\users\sergio\desktop\dungeonrpg\dungeonrpg\servidor\servidor\servidor.c(366): warning C4101: 'l': unreferenced local variable
-c:\users\sergio\desktop\dungeonrpg\dungeonrpg\servidor\servidor\servidor.c(411): warning C4028: formal parameter 1 different from declaration
-c:\users\sergio\desktop\dungeonrpg\dungeonrpg\servidor\servidor\servidor.c(490): warning C4047: 'function': 'COMANDO_DO_CLIENTE *' differs in levels of indirection from 'int'
-c:\users\sergio\desktop\dungeonrpg\dungeonrpg\servidor\servidor\servidor.c(490): warning C4024: 'Move': different types for formal and actual parameter 1
-c:\users\sergio\desktop\dungeonrpg\dungeonrpg\servidor\servidor\servidor.c(490): warning C4020: 'Move': too many actual parameters
-c:\users\sergio\desktop\dungeonrpg\dungeonrpg\servidor\servidor\servidor.c(538): warning C4028: formal parameter 1 different from declaration
-c:\users\sergio\desktop\dungeonrpg\dungeonrpg\servidor\servidor\servidor.c(538): warning C4029: declared formal parameter list different from definition
-c:\users\sergio\desktop\dungeonrpg\dungeonrpg\servidor\servidor\servidor.c(715): warning C4101: 'tipoDeResposta': unreferenced local variable
-c:\users\sergio\desktop\dungeonrpg\dungeonrpg\servidor\servidor\servidor.c(708): warning C4101: 'buf': unreferenced local variable
-c:\users\sergio\desktop\dungeonrpg\dungeonrpg\servidor\servidor\servidor.c(714): warning C4101: 'cmd_servidor': unreferenced local variable
+c:\users\sergio\desktop\dungeonrpg\dungeonrpg\servidor\servidor\servidor.c(366): warning C4013: 'time' undefined; assuming extern returning int
+c:\users\sergio\desktop\dungeonrpg\dungeonrpg\servidor\servidor\servidor.c(360): warning C4101: 'k': unreferenced local variable
+c:\users\sergio\desktop\dungeonrpg\dungeonrpg\servidor\servidor\servidor.c(362): warning C4101: 'p': unreferenced local variable
+c:\users\sergio\desktop\dungeonrpg\dungeonrpg\servidor\servidor\servidor.c(361): warning C4101: 'y': unreferenced local variable
+c:\users\sergio\desktop\dungeonrpg\dungeonrpg\servidor\servidor\servidor.c(362): warning C4101: 'l': unreferenced local variable
+c:\users\sergio\desktop\dungeonrpg\dungeonrpg\servidor\servidor\servidor.c(407): warning C4028: formal parameter 1 different from declaration
+c:\users\sergio\desktop\dungeonrpg\dungeonrpg\servidor\servidor\servidor.c(487): warning C4047: 'function': 'COMANDO_DO_CLIENTE *' differs in levels of indirection from 'int'
+c:\users\sergio\desktop\dungeonrpg\dungeonrpg\servidor\servidor\servidor.c(487): warning C4024: 'Move': different types for formal and actual parameter 1
+c:\users\sergio\desktop\dungeonrpg\dungeonrpg\servidor\servidor\servidor.c(487): warning C4020: 'Move': too many actual parameters
+c:\users\sergio\desktop\dungeonrpg\dungeonrpg\servidor\servidor\servidor.c(535): warning C4028: formal parameter 1 different from declaration
+c:\users\sergio\desktop\dungeonrpg\dungeonrpg\servidor\servidor\servidor.c(535): warning C4029: declared formal parameter list different from definition
+c:\users\sergio\desktop\dungeonrpg\dungeonrpg\servidor\servidor\servidor.c(723): warning C4101: 'tipoDeResposta': unreferenced local variable
+c:\users\sergio\desktop\dungeonrpg\dungeonrpg\servidor\servidor\servidor.c(716): warning C4101: 'buf': unreferenced local variable
+c:\users\sergio\desktop\dungeonrpg\dungeonrpg\servidor\servidor\servidor.c(722): warning C4101: 'cmd_servidor': unreferenced local variable
   Servidor.vcxproj -> C:\Users\Sergio\Desktop\DungeonRPG\DungeonRPG\Servidor\Debug\Servidor.exe

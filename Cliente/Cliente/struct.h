@@ -26,6 +26,7 @@ typedef struct {
 }BLOCO;
 
 typedef struct {
+	int ID;
 	int presente;
 	POSICAO pos;
 	int nPedras;

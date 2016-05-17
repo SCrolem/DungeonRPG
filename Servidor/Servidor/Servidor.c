@@ -28,7 +28,7 @@ HANDLE hMemoria, hMutexMapa, hMutexUsers;
 #define TAM 256
 
 JOGADOR semjogador;
-JOGADOR *JogadoresOnline[N_MAX_CLIENTES];
+JOGADOR JogadoresOnline[N_MAX_CLIENTES];
 
 HANDLE wPipeClientes[N_MAX_CLIENTES];
 HANDLE rPipeClientes[N_MAX_CLIENTES];
@@ -110,10 +110,10 @@ void iniciaOsemjogador()
 {
 	JOGADOR j;
 	POSICAO p;
-	int i,o;
+	int i;
 	
-	//j.mochila[0]->tipo = 1;
-	//j.mochila[0]->raridade
+
+	j.nPedras = 0;
 	j.pontos = 0;
 	j.lentidao = 0;
 	j.saude = 0;
@@ -125,13 +125,9 @@ void iniciaOsemjogador()
 	WaitForSingleObject(hMutexUsers, INFINITE);
 	for (i = 0; i <= N_MAX_CLIENTES; i++) 
 	{
-		JogadoresOnline[i] = malloc(sizeof(JOGADOR));
-		
-		for(o = 0; o<T_OBJ;o++)
-		JogadoresOnline[i]->mochila[o] = malloc(sizeof(OBJETO));
-	
-		*JogadoresOnline[i] = j;
+		JogadoresOnline[i] = j;
 	}
+
 	semjogador = j;
 		ReleaseMutex(hMutexUsers);
 }
@@ -415,10 +411,10 @@ void PreencheJogador(int Indice)
 	//c->jogador.nome=            //entao e o nome? nao te esqueças que tens funçoes que usam esta var... (VerificaExisteAlgoPosicao) prefiro a ideia de nessa funçao em vez de verificar pelo nome, seria melhor pela var presente
 //	JogadoresOnline[Indice]->mochila[0]->tipo = 1;
 //	JogadoresOnline[Indice]->mochila[0]->raridade = 10;//inventei
-	JogadoresOnline[Indice]->pontos = 0;
-	JogadoresOnline[Indice]->lentidao = 5;
-	JogadoresOnline[Indice]->saude = 10;
-	JogadoresOnline[Indice]->presente = 1;  //a verificar
+	JogadoresOnline[Indice].pontos = 0;
+	JogadoresOnline[Indice].lentidao = 5;
+	JogadoresOnline[Indice].saude = 10;
+	JogadoresOnline[Indice].presente = 1;  //a verificar
 
 	do {
 		srand((unsigned)time(NULL));
@@ -427,12 +423,12 @@ void PreencheJogador(int Indice)
 
 
 
-		if (mundo[x][y].bloco.tipo == 0) { //a verificar
+		if (mundo[x][y].bloco.tipo == 0) { 
 			POSICAO p; //
 			p.x = x;//
 			p.y = y;//
-			JogadoresOnline[Indice]->pos = p;//
-			mundo[x][y].jogador = *JogadoresOnline[Indice];
+			JogadoresOnline[Indice].pos = p;//
+			mundo[x][y].jogador = JogadoresOnline[Indice];
 		}
 	} while (mundo[x][y].bloco.tipo != 0);
 
@@ -543,7 +539,7 @@ void Move(int  indice_jogador, int accao) {
 
 	//WaitForSingleObject(hMutexUsers, INFINITE);
 	
-	posInicial = JogadoresOnline[indice_jogador]->pos;
+	posInicial = JogadoresOnline[indice_jogador].pos;
 
 	posFinal = posInicial;
 
@@ -571,8 +567,8 @@ void Move(int  indice_jogador, int accao) {
 
 	if (res == 0 || res == 3) 
 	{   
-		JogadoresOnline[indice_jogador]->pos = posFinal;
-		mundo[posFinal.x][posFinal.y].jogador = *JogadoresOnline[indice_jogador];
+		JogadoresOnline[indice_jogador].pos = posFinal;
+		mundo[posFinal.x][posFinal.y].jogador = JogadoresOnline[indice_jogador];
 		mundo[posInicial.x][posInicial.y].jogador = semjogador;
 	}
 
@@ -624,7 +620,7 @@ COMANDO_DO_SERVIDOR geraresposta(int cliente) //
 {
 	COMANDO_DO_SERVIDOR cmd;
 
-	cmd.jogador = *JogadoresOnline[cliente];
+	cmd.jogador = JogadoresOnline[cliente];
 	cmd.resposta = 1;
 
 	return cmd;
@@ -704,6 +700,17 @@ DWORD WINAPI RecebeClientes(LPVOID param) {
 	return 0;
 }
 
+void enviaID(indice_deste_cliente) 
+{
+	COMANDO_DO_SERVIDOR cmd;
+	DWORD n;
+
+	cmd.jogador.ID = indice_deste_cliente;
+	WriteFile(wPipeClientes[indice_deste_cliente], &cmd, sizeof(COMANDO_DO_SERVIDOR), &n, NULL);
+	_tprintf(TEXT("[SERVIDOR] Mandei o ID %d...\n"), indice_deste_cliente);
+}
+
+
 DWORD WINAPI AtendeCliente(LPVOID rparam)
 {
 	TCHAR buf[TAM];
@@ -715,6 +722,10 @@ DWORD WINAPI AtendeCliente(LPVOID rparam)
 	COMANDO_DO_SERVIDOR cmd_servidor;
 	int tipoDeResposta;
 	_tprintf(TEXT("[SERVIDOR-%d] Um cliente ligou-se...\n"), GetCurrentThreadId());
+
+	//envia ID ao jogador
+
+	enviaID(indice_deste_cliente);
 
 	do {
 		ret = ReadFile(rPipe, &cmd_cliente, sizeof(cmd_cliente), &n, NULL);
