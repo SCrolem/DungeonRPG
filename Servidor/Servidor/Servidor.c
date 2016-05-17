@@ -13,12 +13,7 @@
 #define N_MAX_CLIENTES 10
 #define TAM 256
 
-
-
 USER users[U_MAX] = { NULL };
-//USER usersOnline[U_MAX] = { NULL };
-
-//MEMORIA *ptrMapa;
 
 TCHAR NomeMemoria[] = TEXT("Mapa Partilhado");
 TCHAR NomeMutexMapa[] = TEXT("MapaMUTEX");
@@ -63,11 +58,11 @@ void PreencheJogador(COMANDO_DO_CLIENTE *c);
 
 
 void AdicionaJogadorAoJogo(COMANDO_DO_CLIENTE*c);
-void IniciaJogo(COMANDO_DO_CLIENTE *c);
+//void IniciaJogo(COMANDO_DO_CLIENTE *c);
 void CalculaPosicaoAleatoria(POSICAO *p);
 int VerificaExisteAlgoPosicao(POSICAO *p);
 int VerificaJogadorNoMapa(TCHAR *nome);
-void CriaMapaParaEnvio(/*MAPACLIENTE *mapa*/);
+void CriaMapaParaEnvio(COMANDO_DO_CLIENTE *cmd);
 
 
 void TrataComando(COMANDO_DO_CLIENTE *c);
@@ -233,22 +228,41 @@ void VerificaJogo(COMANDO_DO_CLIENTE *cmd) {
 
 
 void CriaMapaParaEnvio(COMANDO_DO_CLIENTE *cmd) {
-	int i, j;
-	CELULA m[5][5];
+	int i=0, j=0;
+	int x = 0, y = 0;
+	POSICAO p1, p2;
 	COMANDO_DO_SERVIDOR c;
+	DWORD n;
 
 	int x = 0, y = 0;
-	for (i = (JogadoresOnline[cmd->ID].pos.x - 5); i < (JogadoresOnline[cmd->ID].pos.x + 5); i++) {
-		for (j = (JogadoresOnline[cmd->ID].pos.y - 5); j < (JogadoresOnline[cmd->ID].pos.y + 5); j++) {
+	if ((JogadoresOnline[cmd->ID].pos.x - 5) >= 0) 
+		c.p1.x = (JogadoresOnline[cmd->ID].pos.x - 5);
+	else 
+		c.p1.x = 0;
+	if ((JogadoresOnline[cmd->ID].pos.y - 5) >= 0)
+		c.p1.y = (JogadoresOnline[cmd->ID].pos.y - 5);
+	else c.p1.y = 0;
+
+	if((JogadoresOnline[cmd->ID].pos.x + 5) >= 0)
+		c.p2.x = (JogadoresOnline[cmd->ID].pos.x + 5);
+	else
+		c.p2.x = L;
+	if ((JogadoresOnline[cmd->ID].pos.y + 5) >= 0)
+		c.p2.y = (JogadoresOnline[cmd->ID].pos.y + 5);
+	else c.p2.y = C;
+
+	for (i = p1.x; i < p2.x; i++) {
+		for (j = p1.y; j < p2.y; j++) {
 			c.mapa[x][y] = mundo[i][j];
 			y++;
 		}
 		x++;
 	}
+	
+	WriteFile(wPipeClientes[cmd->ID], &c, sizeof(COMANDO_DO_SERVIDOR), &n, NULL);
 
 
-	// FALTAM AS VERIFICAÇÕES PARA SABER ONDE ESTA E SE NÃO ULTRAPASSA OS LIMITES
-
+	//FALTA ENVIAR PARA CADA USER
 
 }
 
@@ -332,6 +346,9 @@ void CriaMundo(COMANDO_DO_CLIENTE *c) {
 					else if (x >= 34 && x < 39) {
 						mundo[i][j].obj=4;
 					}
+					else if (x >= 39 && x < 99) {
+						mundo[i][j].obj = 0;
+					}
 					
 				}
 			}
@@ -372,13 +389,6 @@ void PreencheJogador(COMANDO_DO_CLIENTE *cmd)
 	c.jogador = JogadoresOnline[Indice];
 
 }
-
-
-void iniciajogo() 
-{
-
-}
-
 
 
 void enviaRestposta(COMANDO_DO_CLIENTE *cmd,int  tipo) {
