@@ -132,6 +132,8 @@ void iniciaOsemjogador()
 	for (i = 0; i < N_MAX_CLIENTES; i++) 
 	{
 		JogadoresOnline[i] = j;
+		_tprintf(TEXT("Jogador[%d] : saude : %d \n lentidao : %d \n x = %d y = %d\n", JogadoresOnline[i].jogador.ID, JogadoresOnline[i].jogador.saude, JogadoresOnline[i].jogador.lentidao, JogadoresOnline[i].jogador.pos.x, JogadoresOnline[i].jogador.pos.y));
+
 	}
 
 	semjogador = j;
@@ -345,13 +347,7 @@ void PreencheJogador(COMANDO_DO_CLIENTE *cmd)
 	COMANDO_DO_SERVIDOR c;
 
 
-	//c->jogador.nome=            //entao e o nome? nao te esqueças que tens funçoes que usam esta var... (VerificaExisteAlgoPosicao) prefiro a ideia de nessa funçao em vez de verificar pelo nome, seria melhor pela var presente
-
-	//	JogadoresOnline[Indice]->mochila[0]->tipo = 1;
-	//	JogadoresOnline[Indice]->mochila[0]->raridade = 10;//inventei
-
 	_tprintf(TEXT("[SERVIDOR] ID do jogador alterado %d...\n"), Indice);
-
 
 
 	JogadoresOnline[Indice].pontos = 0;
