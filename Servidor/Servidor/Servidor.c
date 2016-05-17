@@ -346,15 +346,13 @@ void PreencheJogador(COMANDO_DO_CLIENTE *cmd)
 
 
 	//c->jogador.nome=            //entao e o nome? nao te esqueças que tens funçoes que usam esta var... (VerificaExisteAlgoPosicao) prefiro a ideia de nessa funçao em vez de verificar pelo nome, seria melhor pela var presente
-<<<<<<< HEAD
+
 	//	JogadoresOnline[Indice]->mochila[0]->tipo = 1;
 	//	JogadoresOnline[Indice]->mochila[0]->raridade = 10;//inventei
-=======
-//	JogadoresOnline[Indice]->mochila[0]->tipo = 1;
-//	JogadoresOnline[Indice]->mochila[0]->raridade = 10;//inventei
+
 
 	_tprintf(TEXT("[SERVIDOR] ID do jogador alterado %d...\n"), cmd->ID);
->>>>>>> origin/master
+
 	JogadoresOnline[Indice].pontos = 0;
 	JogadoresOnline[Indice].lentidao = 5;
 	JogadoresOnline[Indice].saude = 10;
