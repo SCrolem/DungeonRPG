@@ -1,6 +1,6 @@
 ﻿  Cliente.c
-c:\users\sergio\desktop\dungeonrpg\dungeonrpg\cliente\cliente\cliente.c(251): warning C4101: 'cmd': unreferenced local variable
-c:\users\sergio\desktop\dungeonrpg\dungeonrpg\cliente\cliente\cliente.c(246): warning C4101: 'buf': unreferenced local variable
-c:\users\sergio\desktop\dungeonrpg\dungeonrpg\cliente\cliente\cliente.c(250): warning C4101: 'n': unreferenced local variable
-c:\users\sergio\desktop\dungeonrpg\dungeonrpg\cliente\cliente\cliente.c(249): warning C4101: 'ret': unreferenced local variable
+c:\users\sergio\desktop\dungeonrpg\dungeonrpg\cliente\cliente\cliente.c(264): warning C4101: 'cmd': unreferenced local variable
+c:\users\sergio\desktop\dungeonrpg\dungeonrpg\cliente\cliente\cliente.c(259): warning C4101: 'buf': unreferenced local variable
+c:\users\sergio\desktop\dungeonrpg\dungeonrpg\cliente\cliente\cliente.c(263): warning C4101: 'n': unreferenced local variable
+c:\users\sergio\desktop\dungeonrpg\dungeonrpg\cliente\cliente\cliente.c(262): warning C4101: 'ret': unreferenced local variable
   Cliente.vcxproj -> C:\Users\Sergio\Desktop\DungeonRPG\DungeonRPG\Cliente\Debug\Cliente.exe

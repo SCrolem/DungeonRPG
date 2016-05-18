@@ -233,7 +233,6 @@ void CriaMapaParaEnvio(COMANDO_DO_CLIENTE *cmd) {
 	COMANDO_DO_SERVIDOR c;
 	DWORD n;
 
-	int x = 0, y = 0;
 	if ((JogadoresOnline[cmd->ID].pos.x - 5) >= 0) 
 		c.p1.x = (JogadoresOnline[cmd->ID].pos.x - 5);
 	else 
@@ -250,8 +249,8 @@ void CriaMapaParaEnvio(COMANDO_DO_CLIENTE *cmd) {
 		c.p2.y = (JogadoresOnline[cmd->ID].pos.y + 5);
 	else c.p2.y = C;
 
-	for (i = p1.x; i < p2.x; i++) {
-		for (j = p1.y; j < p2.y; j++) {
+	for (i = c.p1.x; i < c.p2.x; i++) {
+		for (j = c.p1.y; j <c.p2.y; j++) {
 			c.mapa[x][y] = mundo[i][j];
 			y++;
 		}
@@ -498,42 +497,52 @@ void LoginUtilizador(COMANDO_DO_CLIENTE *c) {
 
 	cmd.resposta = 0;
 
-	if (logados ==0) {
+	if (logados == 0) {
 		for (i = 0; i < registados; i++) {
-			if (_tcscmp(JogadoresRegistados[registados].username, c->user.login) == 0) {
+			if (_tcscmp(JogadoresRegistados[registados].username, c->user.login) != 0) {
 				_tcscpy_s(JogadoresOnline[logados].username, TAM_LOG, c->user.login);
 				_tcscpy_s(cmd.msg, TAM_MSG, TEXT("Login feito com sucesso!"));
 				logados++;
 				cmd.resposta = 1;
+				flag = 1;
+				break;
 			}
 		}
+		if (flag == 0) {
+			_tcscpy_s(cmd.msg, TAM_MSG, TEXT("Login nao efectuado!"));
+		}
+
+
 	}
-	else if (logados > 0 && logados < N_MAX_CLIENTES) {
+	else
+	if (logados >= 0 && logados < N_MAX_CLIENTES) {
 		for (i = 0; i < logados; i++)
-			if (_tcscmp(JogadoresOnline[i].username, c->user.login) == 0) {
+			if (_tcscmp(JogadoresOnline[i].username, c->user.login) != 0) {
 				flag = 1; 
 				break;
 			}
 
 		if (flag == 0) {
 			for (i = 0; i < registados; i++) {
-				if (_tcscmp(JogadoresRegistados[registados].username, c->user.login) == 0) {
+				if (_tcscmp(JogadoresRegistados[registados].username, c->user.login) != 0) {
 					_tcscpy_s(JogadoresOnline[logados].username, TAM_LOG, c->user.login);
 					_tcscpy_s(cmd.msg, TAM_MSG, TEXT("Login feito com sucesso!"));
 					logados++;
 					cmd.resposta = 1;
+					break;
 				}
 			}
 		}
-		else
+		else{
 			_tcscpy_s(cmd.msg, TAM_MSG, TEXT("Esse user já esta em jogo!"));
-
+			}
 
 	}
 	else {
 		_tcscpy_s(cmd.msg, TAM_MSG, TEXT("Excedeu o numero de utilizadores"));		
 	}
 
+	//cmd.resposta = 1;
 	WriteFile(wPipeClientes[c->ID], &cmd, sizeof(COMANDO_DO_SERVIDOR), &n, NULL);	
 }
 

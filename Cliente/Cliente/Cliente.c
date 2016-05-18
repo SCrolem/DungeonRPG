@@ -90,7 +90,7 @@ int _tmain(int argc, LPTSTR argv[]) {
 
 	while (1)
 	{
-<<<<<<< HEAD
+
 		
 		if (emjogo == 0) 
 		{
@@ -110,43 +110,16 @@ int _tmain(int argc, LPTSTR argv[]) {
 							 
 							 _tcscpy_s(cmd1.user.login, TAM_LOG, buf);
 							
-							// _tprintf(TEXT("o nome foi : %s "), cmd1.user.login);
+							 _tprintf(TEXT("o nome foi : %s "), cmd1.user.login);
 
 							cmd1.tipoComando = comando;
 							cmd1.ID = indice;
-=======
-		//Sleep(400); 
-		//WaitForSingleObject(hMutexEspera, INFINITE);
-		if (emjogo == 0)
-		{
-			_tprintf(TEXT("0 - criar jogo \n 1 - sair\n"));
-			_tprintf(TEXT("[CLIENTE] comando: "));
-			_fgetts(buf, 256, stdin);
 
-			comando = _ttoi(buf);
-
-
-
-			if (comando == 0) //porque la no server o 2 é que cria jogo
-				comando = 2;
-
-			if (comando >= 1 && comando <= 2)
-			{
-				cmd1.tipoComando = comando;
-				cmd1.ID = indice;
-
-				ret = WriteFile(wPipe, &cmd1, sizeof(COMANDO_DO_CLIENTE), &n, NULL);
-
-
-				if (!ret || !n)
-					break;
->>>>>>> origin/master
 
 							ret = WriteFile(wPipe, &cmd1, sizeof(COMANDO_DO_CLIENTE), &n, NULL); //manda comando
 							if (!ret || !n)
 								break;
 
-<<<<<<< HEAD
 							ret = ReadFile(rPipe, &cmd, sizeof(COMANDO_DO_SERVIDOR), &n, NULL);//recebe resposta
 							if (!ret || !n)
 								break;
@@ -154,14 +127,7 @@ int _tmain(int argc, LPTSTR argv[]) {
 							_tprintf(TEXT("[CLIENTE]Recebi %d bytes\n "), n);
 
 							_tprintf(TEXT("msg : %s \n"),cmd.msg);
-=======
 
-				ret = ReadFile(rPipe, &cmd, sizeof(COMANDO_DO_SERVIDOR), &n, NULL);
-				if (!ret || !n)
-					break;
-
-				_tprintf(TEXT("[CLIENTE]Recebi %d bytes\n "), n);
->>>>>>> origin/master
 
 							if (cmd.resposta == 1)  //entra em jogo
 							{
@@ -170,7 +136,6 @@ int _tmain(int argc, LPTSTR argv[]) {
 							}
 						}
 
-<<<<<<< HEAD
 					}
 					else 
 					{
@@ -211,15 +176,7 @@ int _tmain(int argc, LPTSTR argv[]) {
 									}
 								}	
 					}			
-=======
 
-				if (cmd.resposta == 1)  //entra em jogo
-				{
-					emjogo = 1;
-					_tprintf(TEXT("[CLIENTE[%d]]Entrei em jogo\n "), indice);
-				}
-			}
->>>>>>> origin/master
 		}
 		else
 		{
@@ -246,7 +203,6 @@ int _tmain(int argc, LPTSTR argv[]) {
 				if (comando == 3)
 					comando = 8;
 
-				imprimeMundo(cmd);
 				cmd1.tipoComando = comando;
 				cmd1.ID = indice;
 
@@ -270,11 +226,8 @@ int _tmain(int argc, LPTSTR argv[]) {
 				if (cmd.resposta == 2) {} //actualizaMapa
 				if (cmd.resposta == 1)
 				{
-<<<<<<< HEAD
+
 					_tprintf(TEXT("Jogador[%d] : saude : %d \n lentidao : %d \n x = %d y = %d\n"),cmd.jogador.ID, cmd.jogador.saude, cmd.jogador.lentidao, cmd.jogador.pos.x, cmd.jogador.pos.y);
-=======
-					_tprintf(TEXT("Jogador[%d] : saude : %d \n lentidao : %d \n x = %d y = %d\n", cmd.jogador.ID, cmd.jogador.saude, cmd.jogador.lentidao, cmd.jogador.pos.x, cmd.jogador.pos.y));
->>>>>>> origin/master
 				}
 			
 
