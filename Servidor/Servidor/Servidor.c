@@ -32,8 +32,8 @@ HANDLE wPipeClientes[N_MAX_CLIENTES];
 HANDLE rPipeClientes[N_MAX_CLIENTES];
 int total = 0;
 int obrigatorios = 10;
-int registados = 0;
-int logados = 0;
+int registados = -1;
+int logados = -1;
 BOOL sair = FALSE;
 CELULA mundo[L][C];
 
@@ -491,12 +491,76 @@ void TrataComando(COMANDO_DO_CLIENTE *cmd) {
 }
 
 void LoginUtilizador(COMANDO_DO_CLIENTE *c) {
-	int i,flag=0;
+	int i=0,flag=0;
 	DWORD n;
 	COMANDO_DO_SERVIDOR cmd;
+	
 
 	cmd.resposta = 0;
 
+	if (logados == -1 && registados != (-1)) 
+	{
+
+
+		for (i = 0; i <= registados; i++) {
+			
+			if (_tcscmp(JogadoresRegistados[i].username, c->user.login) == 0)
+			{				
+				_tcscpy_s(cmd.msg, TAM_MSG, TEXT("Login feito com sucesso!"));
+				logados++;
+				cmd.resposta = 1;
+				flag = 1;
+				break;
+			}
+		}
+		if (flag == 0) {
+			_tcscpy_s(cmd.msg, TAM_MSG, TEXT("Utilizador nao registado!"));
+		}
+
+		//_tprintf(TEXT("[Servidor]valor de comparasao %d, valor %d entre %s e %s\n"),_tcscmp(JogadoresRegistados[registados].username,c->user.login), JogadoresRegistados[registados].username, c->user.login);
+	}
+	else
+	{
+		if (logados >= 0 && logados < N_MAX_CLIENTES && registados != (-1))
+		{
+			for (i = 0; i < N_MAX_CLIENTES; i++)
+			{
+				if (_tcscmp(JogadoresOnline[i].username, c->user.login) == 0) {
+					flag = 1;
+					_tcscpy_s(cmd.msg, TAM_MSG, TEXT("Esse user já esta em jogo!"));
+					break;
+				}
+			}
+
+			if (flag == 0)
+			{
+				_tprintf(TEXT("[Servidor]ENTREI AQUI\n"));
+				for (i = 0; i <= registados; i++)
+				{
+					if (_tcscmp(JogadoresRegistados[i].username, c->user.login) == 0)
+					{
+						_tcscpy_s(JogadoresOnline[c->ID].username, TAM_LOG, c->user.login);
+						_tcscpy_s(cmd.msg, TAM_MSG, TEXT("Login feito com sucesso!"));
+						_tprintf(TEXT("[Servidor]CLIENTE FEZ LOGIN log > 0 \n"));
+						flag = 1;
+						logados++;
+						cmd.resposta = 1;
+						break;
+					}
+				}
+
+				if(flag == 0){
+				_tcscpy_s(cmd.msg, TAM_MSG, TEXT("Utilizador nao registado!wwww"));
+				}
+			}
+
+		}else
+		{
+			_tcscpy_s(cmd.msg, TAM_MSG, TEXT("tem de se registar primeiro!"));
+		}
+	}
+
+	/*
 	if (logados == 0) {
 		for (i = 0; i < registados; i++) {
 			if (_tcscmp(JogadoresRegistados[registados].username, c->user.login) != 0) {
@@ -540,7 +604,7 @@ void LoginUtilizador(COMANDO_DO_CLIENTE *c) {
 	}
 	else {
 		_tcscpy_s(cmd.msg, TAM_MSG, TEXT("Excedeu o numero de utilizadores"));		
-	}
+	}*/
 
 	//cmd.resposta = 1;
 	WriteFile(wPipeClientes[c->ID], &cmd, sizeof(COMANDO_DO_SERVIDOR), &n, NULL);	
@@ -606,33 +670,34 @@ void RegistaUtilizador(COMANDO_DO_CLIENTE *c) {
 	int conta = 0;
 	int flag = 0;
 	cmd.resposta = 0;
-	if (registados == 0) {
+	if (registados == -1) {
+		registados+=1;
 		_tcscpy_s(JogadoresRegistados[registados].username, TAM_LOG, c->user.login);
+		
 		_tcscpy_s(cmd.msg, TAM_MSG, TEXT("Registado com sucesso"));
-		registados++;
+		
 	}
 
-	else if (registados>0 && registados < N_MAX_CLIENTES)
+	else if (registados>=0 && registados < N_MAX_CLIENTES)
 	{
-		for (i = 0; i < registados; i++)
+		for (i = 0; i <= registados; i++)
 		{
 			if (_tcscmp(c->user.login, JogadoresRegistados[i].username) == 0) {
 
 				flag = 1;
 				_tcscpy_s(cmd.msg, TAM_MSG, TEXT("Tal username já existe!"));
-
 				break;
 			}
 		}
 		if (flag == 0) {
+			registados+=1;
 			_tcscpy_s(JogadoresRegistados[registados].username, TAM_LOG, c->user.login);
 			_tcscpy_s(cmd.msg, TAM_MSG, TEXT("Registado com sucesso"));
-			registados++;
-
 		}
 	}
 	else 
 		_tcscpy_s(cmd.msg, TAM_MSG, TEXT("Excedeu o numero de inscritos!"));
+	
 	id = c->ID;
 	WriteFile(wPipeClientes[id], &cmd, sizeof(COMANDO_DO_SERVIDOR), &n, NULL);
 
