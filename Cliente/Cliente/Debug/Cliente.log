@@ -1,6 +1,7 @@
-﻿  Cliente.c
-c:\users\sergio\desktop\dungeonrpg\dungeonrpg\cliente\cliente\cliente.c(264): warning C4101: 'cmd': unreferenced local variable
-c:\users\sergio\desktop\dungeonrpg\dungeonrpg\cliente\cliente\cliente.c(259): warning C4101: 'buf': unreferenced local variable
-c:\users\sergio\desktop\dungeonrpg\dungeonrpg\cliente\cliente\cliente.c(263): warning C4101: 'n': unreferenced local variable
-c:\users\sergio\desktop\dungeonrpg\dungeonrpg\cliente\cliente\cliente.c(262): warning C4101: 'ret': unreferenced local variable
-  Cliente.vcxproj -> C:\Users\Sergio\Desktop\DungeonRPG\DungeonRPG\Cliente\Debug\Cliente.exe
+﻿cl : Command line warning D9028: minimal rebuild failure, reverting to normal build
+  Cliente.c
+c:\users\dmytro yaremyshyn\desktop\dungeonrpg\cliente\cliente\cliente.c(262): warning C4101: 'cmd': unreferenced local variable
+c:\users\dmytro yaremyshyn\desktop\dungeonrpg\cliente\cliente\cliente.c(257): warning C4101: 'buf': unreferenced local variable
+c:\users\dmytro yaremyshyn\desktop\dungeonrpg\cliente\cliente\cliente.c(261): warning C4101: 'n': unreferenced local variable
+c:\users\dmytro yaremyshyn\desktop\dungeonrpg\cliente\cliente\cliente.c(260): warning C4101: 'ret': unreferenced local variable
+  Cliente.vcxproj -> C:\Users\Dmytro Yaremyshyn\Desktop\DungeonRPG\Cliente\Debug\Cliente.exe

@@ -20,8 +20,6 @@ int pid = 0;
 void imprimeMundo(COMANDO_DO_SERVIDOR c);
 
 
-
-
 int _tmain(int argc, LPTSTR argv[]) {
 	TCHAR buf[256];
 	HANDLE wPipe, rPipe;
@@ -323,13 +321,13 @@ void imprimeMundo(COMANDO_DO_SERVIDOR c)
 	for (i = c.p1.x; i < c.p2.x; i++) {
 		for (j = c.p1.y; j < c.p2.y; j++) {
 			if (c.mapa[i][j].bloco.tipo == 0)
-				_tprintf(TEXT(" _ "));
+				_tprintf(TEXT("_   "));
 			else if (c.mapa[i][j].bloco.tipo != 0)
-				_tprintf(TEXT(" # "));
-			else if (c.mapa[i][j].jogador.presente == 1)
-				_tprintf(TEXT(" X "));
+				_tprintf(TEXT("B   "));
 			else if (c.mapa[i][j].objeto.tipo != 0)
-				_tprintf(TEXT(" o "));
+				_tprintf(TEXT("o   "));
+			else if (c.mapa[i][j].jogador.presente == 1)
+				_tprintf(TEXT("X   "));
 
 		}
 		_tprintf(TEXT("\n"));
