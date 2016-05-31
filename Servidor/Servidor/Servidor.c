@@ -226,42 +226,39 @@ void VerificaJogo(COMANDO_DO_CLIENTE *cmd) {
 
 
 
-void CriaMapaParaEnvio(COMANDO_DO_CLIENTE *cmd) {
+void CriaMapaParaEnvio(COMANDO_DO_SERVIDOR *cmd) {
 	int i=0, j=0;
 	int x = 0, y = 0;
 	POSICAO p1, p2;
-	COMANDO_DO_SERVIDOR c;
+	//COMANDO_DO_SERVIDOR c;
 	DWORD n;
 
-	if ((JogadoresOnline[cmd->ID].pos.x - 5) >= 0) 
-		c.p1.x = (JogadoresOnline[cmd->ID].pos.x - 5);
+	//    cmd->p1.x
+
+	if ((cmd->jogador.pos.x - 5) >= 0)
+		cmd->p1.x = (cmd->jogador.pos.x - 5);
 	else 
-		c.p1.x = 0;
-	if ((JogadoresOnline[cmd->ID].pos.y - 5) >= 0)
-		c.p1.y = (JogadoresOnline[cmd->ID].pos.y - 5);
-	else c.p1.y = 0;
+		cmd->p1.x = 0;
+	if ((cmd->jogador.pos.y - 5) >= 0)
+		cmd->p1.y= (cmd->jogador.pos.y - 5);
+	else cmd->p1.y = 0;
 
-	if((JogadoresOnline[cmd->ID].pos.x + 5) >= 0)
-		c.p2.x = (JogadoresOnline[cmd->ID].pos.x + 5);
+	if((cmd->jogador.pos.x + 5) >= 0)
+		cmd->p2.x = (cmd->jogador.pos.x + 5);
 	else
-		c.p2.x = L;
-	if ((JogadoresOnline[cmd->ID].pos.y + 5) >= 0)
-		c.p2.y = (JogadoresOnline[cmd->ID].pos.y + 5);
-	else c.p2.y = C;
+		cmd->p2.x = L;
+	if ((cmd->jogador.pos.y + 5) >= 0)
+		cmd->p2.y = (cmd->jogador.pos.y + 5);
+	else cmd->p2.y = C;
 
-	for (i = c.p1.x; i < c.p2.x; i++) {
-		for (j = c.p1.y; j <c.p2.y; j++) {
-			c.mapa[x][y] = mundo[i][j];
+	for (i = cmd->p1.x; i < cmd->p2.x; i++) {
+		for (j = cmd->p1.y; j <cmd->p2.y; j++) {
+			cmd->mapa[x][y] = mundo[i][j];
 			y++;
 		}
 		x++;
 	}
 	
-	WriteFile(wPipeClientes[cmd->ID], &c, sizeof(COMANDO_DO_SERVIDOR), &n, NULL);
-
-
-	//FALTA ENVIAR PARA CADA USER
-
 }
 
 int VerificaExisteAlgoPosicao(POSICAO *p) {
@@ -408,7 +405,7 @@ void enviaRestpostamovimento(COMANDO_DO_CLIENTE *cmd, int tipo)
 	COMANDO_DO_SERVIDOR msg_a_enviar;
 
 	_tprintf(TEXT("[SERVIDOR]VOU enviar ao cliente [%d]...\n"), indice);
-
+	int i, j;
 	msg_a_enviar.jogador.ID =  JogadoresOnline[indice].ID;
 	msg_a_enviar.jogador.lentidao = JogadoresOnline[indice].lentidao;
 	msg_a_enviar.jogador.nPedras = JogadoresOnline[indice].nPedras;
@@ -416,13 +413,9 @@ void enviaRestpostamovimento(COMANDO_DO_CLIENTE *cmd, int tipo)
 	msg_a_enviar.jogador.pos.x = JogadoresOnline[indice].pos.x;
 	msg_a_enviar.jogador.pos.y = JogadoresOnline[indice].pos.y;
 
-
-	
-
-
-
-
 	msg_a_enviar.resposta = 1;
+
+	CriaMapaParaEnvio(&msg_a_enviar);
 
 	WriteFile(wPipeClientes[indice], &msg_a_enviar, sizeof(COMANDO_DO_SERVIDOR), &n, NULL);
 	_tprintf(TEXT("[SERVIDOR] Enviei %d bytes ao cliente [%d]...\n"), n, indice);
