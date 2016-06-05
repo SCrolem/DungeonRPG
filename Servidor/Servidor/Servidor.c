@@ -9,6 +9,7 @@
 
 #define PIPE_N_READ TEXT("\\\\.\\pipe\\ParaServidor")
 #define PIPE_N_WRITE TEXT("\\\\.\\pipe\\ParaCliente")
+#define PIPE_N_WRITET TEXT("\\\\.\\pipe\\ParaCLienteMsgInstant")
 
 #define N_MAX_CLIENTES 10
 #define TAM 256
@@ -17,71 +18,90 @@ USER users[U_MAX] = { NULL };
 
 TCHAR NomeMemoria[] = TEXT("Mapa Partilhado");
 TCHAR NomeMutexMapa[] = TEXT("MapaMUTEX");
-
-HANDLE hMemoria, hMutexMapa, hMutexUsers, hMutexEnviaID;
-
-
-
 JOGADOR semjogador;
 
+
+//MUTEXS
+HANDLE hMemoria, hMutexMapa, hMutexUsers, hMutexEnviaID;
+
+//DADOS DOS JOGADORES
 JOGADOR JogadoresOnline[N_MAX_CLIENTES];
 JOGADOR JogadoresRegistados[N_MAX_CLIENTES];
 
-
+//PIPES
 HANDLE wPipeClientes[N_MAX_CLIENTES];
 HANDLE rPipeClientes[N_MAX_CLIENTES];
+HANDLE wSemEsperarPipeClientes[N_MAX_CLIENTES];
+
 int total = 0;
 int obrigatorios = 10;
 int registados = -1;
 int logados = -1;
+int jogadoresEmJogo = 0;
+
+int jogoEmEspera = 1;
 BOOL sair = FALSE;
 CELULA mundo[L][C];
 
-DWORD WINAPI RecebeClientes(LPVOID param);
-DWORD WINAPI AtendeCliente(LPVOID param);
-
 BOOL encerrar = FALSE;
-
 JOGO game;
 
 // THREADS
+DWORD WINAPI RecebeClientes(LPVOID param);
+DWORD WINAPI AtendeCliente(LPVOID param);
 
 
-//OUTRAS COISAS
+//atribui uma identidade ao cliente
+void enviaID(int indice_deste_cliente);
 
-
-void ActualizaOsMapas();
-void RegistaUtilizador(COMANDO_DO_CLIENTE *c);			//FEITO
+//parte do login e registar
+void RegistaUtilizador(COMANDO_DO_CLIENTE *c);			
 void LoginUtilizador(COMANDO_DO_CLIENTE *c);
-//void CriaJogo(COMANDO_DO_CLIENTE *c);
-void CriaMundo(COMANDO_DO_CLIENTE *c);
+
+//criação do jogo e entrada no jogo
+void CriaMundo();
+void CriaJogo(COMANDO_DO_CLIENTE *c);
+void ComecaJogo(COMANDO_DO_CLIENTE *c);
+
+
+//adição do jogador ao jogo
+void AdicionaJogadorAoJogo(COMANDO_DO_CLIENTE *c);
 void PreencheJogador(COMANDO_DO_CLIENTE *c);
-
-
-void AdicionaJogadorAoJogo(COMANDO_DO_CLIENTE*c);
-//void IniciaJogo(COMANDO_DO_CLIENTE *c);
 void CalculaPosicaoAleatoria(POSICAO *p);
+
+//verificações
 int VerificaExisteAlgoPosicao(POSICAO *p);
-int VerificaJogadorNoMapa(TCHAR *nome);
+int VerificaJogadorNoMapa(TCHAR *nome); //?????????
+void VerificaJogo(COMANDO_DO_CLIENTE *cmd); //??????
+
+//cria info para envio coletivo
+void ActualizaOsMapas();
 void CriaMapaParaEnvio(COMANDO_DO_CLIENTE *cmd);
+void MandarMensagens(COMANDO_DO_CLIENTE *c, int tipo_mensagem);
+void AbrirJogoATodosClientesEmJogo();
 
 
+//trata do comandos
 void TrataComando(COMANDO_DO_CLIENTE *c);
 
-
-
-void iniciaOsemjogador();
-void VerificaJogo(COMANDO_DO_CLIENTE *cmd);
+//comandos de ação
 void Move(COMANDO_DO_CLIENTE *cmd);
+
+
+//consequencias
 JOGADOR JogadorMorre(JOGADOR j);
 void ApanhaObjecto(POSICAO p, COMANDO_DO_CLIENTE *c);
-
+void iniciaOsemjogador();
 
 int _tmain(int argc, LPTSTR argv[]) {
 	HANDLE hThread;	
 	//iniciaOsemjogador();
+	game.iniciado = 0;
+	game.criado = 0;
 
+	//criação dos mutexes
 	hMutexEnviaID = CreateMutex(NULL, FALSE, NULL);
+
 
 #ifdef UNICODE
 	_setmode(_fileno(stdin), _O_WTEXT);
@@ -96,17 +116,11 @@ int _tmain(int argc, LPTSTR argv[]) {
 		exit(-1);
 	}
 
-
 	//Esperar a thread recebeLeitores terminar
 	WaitForSingleObject(hThread, INFINITE);
 	CloseHandle(hThread);
 	exit(0);
 }
-
-
-
-
-
 
 void iniciaOsemjogador() 
 {
@@ -224,8 +238,6 @@ void VerificaJogo(COMANDO_DO_CLIENTE *cmd) {
 	}
 }
 
-
-
 void CriaMapaParaEnvio(COMANDO_DO_SERVIDOR *cmd) {
 	int i=0, j=0;
 	int x = 0, y = 0;
@@ -298,8 +310,7 @@ void CalculaPosicaoAleatoria(POSICAO *p) {
 	p->y = y;
 }
 
-
-void CriaMundo(COMANDO_DO_CLIENTE *c) {
+void CriaMundo() {
 
 	//float perc;
 	int i, j, k;
@@ -359,9 +370,9 @@ void PreencheJogador(COMANDO_DO_CLIENTE *cmd)
 	COMANDO_DO_SERVIDOR c;
 
 
-	_tprintf(TEXT("[SERVIDOR] ID do jogador alterado %d...\n"), Indice);
+	_tprintf(TEXT("[SERVIDOR] Jogador [%d] preenchido...\n"), Indice);
 
-
+	JogadoresOnline[Indice].Ajogar = 1;
 	JogadoresOnline[Indice].pontos = 0;
 	JogadoresOnline[Indice].lentidao = 5;
 	JogadoresOnline[Indice].saude = 10;
@@ -381,21 +392,7 @@ void PreencheJogador(COMANDO_DO_CLIENTE *cmd)
 			mundo[x][y].jogador = JogadoresOnline[Indice];
 		}
 	} while (mundo[x][y].bloco.tipo != 0);
-	c.jogador = JogadoresOnline[Indice];
-
-}
-
-
-void enviaRestposta(COMANDO_DO_CLIENTE *cmd,int  tipo) {
-	DWORD n;
-	COMANDO_DO_SERVIDOR msg_a_enviar;
-
-	msg_a_enviar.resposta = tipo;
-
-	WriteFile(wPipeClientes[cmd->ID], &msg_a_enviar, sizeof(COMANDO_DO_SERVIDOR), &n, NULL);
-	_tprintf(TEXT("[SERVIDOR] Enviei %d bytes ao cliente [%d]...\n"), n, cmd->ID);
-
-
+	//c.jogador = JogadoresOnline[Indice];
 }
 
 void enviaRestpostamovimento(COMANDO_DO_CLIENTE *cmd, int tipo)
@@ -424,8 +421,6 @@ void enviaRestpostamovimento(COMANDO_DO_CLIENTE *cmd, int tipo)
 
 void TrataComando(COMANDO_DO_CLIENTE *cmd) {
 
-	//if(!game.criado){//JOGO NÃO CRIADO E NÃO INICIADO
-
 	switch (cmd->tipoComando)
 	{
 	case 0:  //AUTENTICAR
@@ -437,39 +432,23 @@ void TrataComando(COMANDO_DO_CLIENTE *cmd) {
 		break;
 
 	case 2:  // Criar Jogo
-		//CriarJogo(cmd);
-		CriaMundo(cmd); //so para teste
-		//_tprintf(TEXT("[Servidor]ACTUALIZEI MAPAS \n"));
-		PreencheJogador(cmd);
-	//	WaitForSingleObject(hMutexUsers, INFINITE);
-		
-		_tprintf(TEXT("[Servidor]CrieiMUNDO \n"));
-	//	PreencheJogador(cmd->ID);    //aqui ele ainda nao tem o ID
-		_tprintf(TEXT("[Servidor]CrieioJogador \n"));
-		//ActualizaOsMapas();
-	//	ReleaseMutex(hMutexUsers);
-		enviaRestposta(cmd, 1);
+		CriaJogo(cmd);
 		break;
 
 	case 3:  // Juntar Ao Jogo
-		//PreencheJogador();
+		AdicionaJogadorAoJogo(cmd);
 		break;
 
 	case 4:  // Inicia o Jogo
-		//IniciaJogo(cmd);
+		ComecaJogo(cmd);
 		break;
 
 	case 5:  //move
 	case 6:
 	case 7:
 	case 8:
-		_tprintf(TEXT("[Servidor]MOVER \n"));
-	
 
-		//PreencheJogador(cmd);
-		
-		Move(cmd->ID, cmd->tipoComando);
-		
+		Move(cmd->ID, cmd->tipoComando);		
 		enviaRestpostamovimento(cmd, 1);
 		break;
 
@@ -500,6 +479,7 @@ void LoginUtilizador(COMANDO_DO_CLIENTE *c) {
 			if (_tcscmp(JogadoresRegistados[i].username, c->user.login) == 0)
 			{				
 				_tcscpy_s(cmd.msg, TAM_MSG, TEXT("Login feito com sucesso!"));
+				_tcscpy_s(JogadoresOnline[c->ID].username, TAM_LOG, c->user.login);
 				logados++;
 				cmd.resposta = 1;
 				flag = 1;
@@ -509,12 +489,10 @@ void LoginUtilizador(COMANDO_DO_CLIENTE *c) {
 		if (flag == 0) {
 			_tcscpy_s(cmd.msg, TAM_MSG, TEXT("Utilizador nao registado!"));
 		}
-
-		//_tprintf(TEXT("[Servidor]valor de comparasao %d, valor %d entre %s e %s\n"),_tcscmp(JogadoresRegistados[registados].username,c->user.login), JogadoresRegistados[registados].username, c->user.login);
 	}
 	else
 	{
-		if (logados >= 0 && logados < N_MAX_CLIENTES && registados != (-1))
+		if (logados >= 0 && logados < (N_MAX_CLIENTES-1) && registados != (-1))
 		{
 			for (i = 0; i < N_MAX_CLIENTES; i++)
 			{
@@ -527,14 +505,12 @@ void LoginUtilizador(COMANDO_DO_CLIENTE *c) {
 
 			if (flag == 0)
 			{
-				_tprintf(TEXT("[Servidor]ENTREI AQUI\n"));
 				for (i = 0; i <= registados; i++)
 				{
 					if (_tcscmp(JogadoresRegistados[i].username, c->user.login) == 0)
 					{
 						_tcscpy_s(JogadoresOnline[c->ID].username, TAM_LOG, c->user.login);
 						_tcscpy_s(cmd.msg, TAM_MSG, TEXT("Login feito com sucesso!"));
-						_tprintf(TEXT("[Servidor]CLIENTE FEZ LOGIN log > 0 \n"));
 						flag = 1;
 						logados++;
 						cmd.resposta = 1;
@@ -543,63 +519,16 @@ void LoginUtilizador(COMANDO_DO_CLIENTE *c) {
 				}
 
 				if(flag == 0){
-				_tcscpy_s(cmd.msg, TAM_MSG, TEXT("Utilizador nao registado!wwww"));
+				_tcscpy_s(cmd.msg, TAM_MSG, TEXT("Utilizador nao registado!"));
 				}
 			}
 
 		}else
 		{
-			_tcscpy_s(cmd.msg, TAM_MSG, TEXT("tem de se registar primeiro!"));
+			_tcscpy_s(cmd.msg, TAM_MSG, TEXT("numero de logados atingiu o limite ou tem de se registar primeiro!"));
 		}
 	}
 
-	/*
-	if (logados == 0) {
-		for (i = 0; i < registados; i++) {
-			if (_tcscmp(JogadoresRegistados[registados].username, c->user.login) != 0) {
-				_tcscpy_s(JogadoresOnline[logados].username, TAM_LOG, c->user.login);
-				_tcscpy_s(cmd.msg, TAM_MSG, TEXT("Login feito com sucesso!"));
-				logados++;
-				cmd.resposta = 1;
-				flag = 1;
-				break;
-			}
-		}
-		if (flag == 0) {
-			_tcscpy_s(cmd.msg, TAM_MSG, TEXT("Login nao efectuado!"));
-		}
-
-
-	}
-	else
-	if (logados >= 0 && logados < N_MAX_CLIENTES) {
-		for (i = 0; i < logados; i++)
-			if (_tcscmp(JogadoresOnline[i].username, c->user.login) != 0) {
-				flag = 1; 
-				break;
-			}
-
-		if (flag == 0) {
-			for (i = 0; i < registados; i++) {
-				if (_tcscmp(JogadoresRegistados[registados].username, c->user.login) != 0) {
-					_tcscpy_s(JogadoresOnline[logados].username, TAM_LOG, c->user.login);
-					_tcscpy_s(cmd.msg, TAM_MSG, TEXT("Login feito com sucesso!"));
-					logados++;
-					cmd.resposta = 1;
-					break;
-				}
-			}
-		}
-		else{
-			_tcscpy_s(cmd.msg, TAM_MSG, TEXT("Esse user já esta em jogo!"));
-			}
-
-	}
-	else {
-		_tcscpy_s(cmd.msg, TAM_MSG, TEXT("Excedeu o numero de utilizadores"));		
-	}*/
-
-	//cmd.resposta = 1;
 	WriteFile(wPipeClientes[c->ID], &cmd, sizeof(COMANDO_DO_SERVIDOR), &n, NULL);	
 }
 
@@ -649,11 +578,9 @@ void Move(int  indice_jogador, int accao) {
 	//caso seja um bloco que parte o que fazer?
 
 	ReleaseMutex(hMutexMapa);
-	//ReleaseMutex(hMutexUsers);
+	
 	return;
 }
-
-
 
 void RegistaUtilizador(COMANDO_DO_CLIENTE *c) {
 	COMANDO_DO_SERVIDOR cmd;
@@ -670,8 +597,7 @@ void RegistaUtilizador(COMANDO_DO_CLIENTE *c) {
 		_tcscpy_s(cmd.msg, TAM_MSG, TEXT("Registado com sucesso"));
 		
 	}
-
-	else if (registados>=0 && registados < N_MAX_CLIENTES)
+	else if (registados>=0 && registados < (N_MAX_CLIENTES-1))
 	{
 		for (i = 0; i <= registados; i++)
 		{
@@ -696,7 +622,6 @@ void RegistaUtilizador(COMANDO_DO_CLIENTE *c) {
 
 }
 
-
 COMANDO_DO_SERVIDOR geraresposta(int cliente) //
 {
 	COMANDO_DO_SERVIDOR cmd;
@@ -713,50 +638,73 @@ void ActualizaOsMapas() //apenas actualiza os jogadores por enquanto
 	COMANDO_DO_SERVIDOR cmd;
 	DWORD n;
 
-	for (i = 0; i < total; i++) 
+	cmd.tipoResposta = 1;
+/*
+	for (i = 0; i < N_MAX_CLIENTES; i++)
 	{
-
-		cmd = geraresposta(i);
-
-		WriteFile(wPipeClientes[i], &cmd, sizeof(COMANDO_DO_SERVIDOR), &n, NULL);
-	}
-
+		if (wSemEsperarPipeClientes[i] != NULL && JogadoresOnline[i].Ajogar == 1){
+			//cmd.mapa = CriaMapaParaEnvio(JogadorOnline[i]);
+			WriteFile(wSemEsperarPipeClientes[i], &cmd, sizeof(COMANDO_DO_SERVIDOR), &n, NULL);
+		}
+	}*/
 }
 
 DWORD WINAPI RecebeClientes(LPVOID param) {
 	
-	int i;
+	int i = 0;
 	HANDLE ThreadAtendeCli[N_MAX_CLIENTES];
+   
 
 	while (!sair && total < N_MAX_CLIENTES)
 	{
-		_tprintf(TEXT("[Servidor](CreateNamedPipe) Copiar pipe '%s' \n"), PIPE_N_WRITE);
+		
+		_tprintf(TEXT("[Servidor](CreateNamedPipe)'%s' envia ao cliente \n"), PIPE_N_WRITE);
 
-		wPipeClientes[total] = CreateNamedPipe(PIPE_N_WRITE, PIPE_ACCESS_OUTBOUND, PIPE_WAIT | PIPE_TYPE_MESSAGE
+		for (i = 0; i < N_MAX_CLIENTES; i++) 
+		{
+			if (wPipeClientes[i] == 0)
+				break;
+		}
+        
+		wPipeClientes[i] = CreateNamedPipe(PIPE_N_WRITE, PIPE_ACCESS_OUTBOUND, PIPE_WAIT | PIPE_TYPE_MESSAGE
 			| PIPE_READMODE_MESSAGE, N_MAX_CLIENTES,sizeof(COMANDO_DO_SERVIDOR), sizeof(COMANDO_DO_SERVIDOR),
 			1000, NULL);		
 
-		_tprintf(TEXT("[Servidor](CreateNamedPipe) Copiar pipe '%s' \n"), PIPE_N_READ);
+		_tprintf(TEXT("[Servidor](CreateNamedPipe) '%s' recebe do cliente \n"), PIPE_N_READ);
 
-		rPipeClientes[total] = CreateNamedPipe(PIPE_N_READ, PIPE_ACCESS_INBOUND, PIPE_WAIT | PIPE_TYPE_MESSAGE
+		rPipeClientes[i] = CreateNamedPipe(PIPE_N_READ, PIPE_ACCESS_INBOUND, PIPE_WAIT | PIPE_TYPE_MESSAGE
 			| PIPE_READMODE_MESSAGE, N_MAX_CLIENTES,sizeof(COMANDO_DO_CLIENTE), sizeof(COMANDO_DO_CLIENTE),
 			1000, NULL);
 
+		_tprintf(TEXT("[Servidor](CreateNamedPipe) '%s' envia instantaneamente \n"), PIPE_N_WRITET);
+
+		wSemEsperarPipeClientes[i] = CreateNamedPipe(PIPE_N_WRITET, PIPE_ACCESS_OUTBOUND, PIPE_WAIT | PIPE_TYPE_MESSAGE
+			| PIPE_READMODE_MESSAGE, N_MAX_CLIENTES, sizeof(COMANDO_DO_SERVIDOR), sizeof(COMANDO_DO_SERVIDOR),
+			1000, NULL);
+
+
 		//verifica pipes
-		if ((rPipeClientes[total] == INVALID_HANDLE_VALUE) && (wPipeClientes[total] == INVALID_HANDLE_VALUE)) {
+		if ((rPipeClientes[i] == INVALID_HANDLE_VALUE) && (wPipeClientes[i] == INVALID_HANDLE_VALUE) && (wSemEsperarPipeClientes[i] == INVALID_HANDLE_VALUE)) {
 			_tperror(TEXT("[ERRO] Não são permitidos mais clientes!"));
 			exit(-1);
 		}		
 
-		_tprintf(TEXT("[Servidor] Esperar ligação de um cliente... (ConnectNamedPipe)\n"));
+		
+		_tprintf(TEXT("[Servidor](ConnectNamedPipe) Esperar ligação de um Cliente...\n"));
 
-		if (!ConnectNamedPipe(wPipeClientes[total], NULL)) {
+		if (!ConnectNamedPipe(wPipeClientes[i], NULL)) {
 			_tperror(TEXT("Erro na ligação ao Cliente!"));
 			exit(-1);
 		}
 		
+		if (!ConnectNamedPipe(wSemEsperarPipeClientes[i], NULL)) {
+			_tperror(TEXT("Erro na ligação do envio coletivo Cliente!"));
+			exit(-1);
+		}
 
-		ThreadAtendeCli[total] = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)AtendeCliente, (LPVOID)rPipeClientes[total], 0, NULL);
+		
+
+		ThreadAtendeCli[i] = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)AtendeCliente,(LPVOID)i, 0, NULL);
 		if (ThreadAtendeCli == NULL) {
 			_tprintf(TEXT("[ERRO] ThreadAtendeCli não foi lançada\n"));
 			exit(-1);
@@ -765,23 +713,21 @@ DWORD WINAPI RecebeClientes(LPVOID param) {
 		total++;
 	}
 
-	/*
-	//espera que todos os clientes saiam
-	for (i = 0; i < total; i++) {
-		WaitForSingleObject(ThreadAtendeCli[i], INFINITE);
-	}*/
 
 
 	for (i = 0; i < total; i++) {
+		if (!wPipeClientes[i] == NULL){
 		DisconnectNamedPipe(wPipeClientes[i]);
-		_tprintf(TEXT("[Servidor] Vou desligar o pipe... (CloseHandle)\n"));
+		DisconnectNamedPipe(wSemEsperarPipeClientes[i]);
+		_tprintf(TEXT("[Servidor] Vou desligar o pipe %d... (CloseHandle)\n"), i);
 		CloseHandle(wPipeClientes[i]);
-		CloseHandle(ThreadAtendeCli[i]);
+		CloseHandle(wSemEsperarPipeClientes[i]);
+		CloseHandle(ThreadAtendeCli[i]);}
 	}	
 	return 0;
 }
 
-void enviaID(indice_deste_cliente) 
+void enviaID(int indice_deste_cliente) 
 {
 	WaitForSingleObject(hMutexEnviaID, INFINITE);
 	
@@ -798,18 +744,20 @@ void enviaID(indice_deste_cliente)
 	ReleaseMutex(hMutexEnviaID);
 }
 
-
-DWORD WINAPI AtendeCliente(LPVOID rparam)
+DWORD WINAPI AtendeCliente(LPVOID indice)
 {
 	TCHAR buf[TAM];
 	DWORD n;
 	BOOL ret;
-	int indice_deste_cliente = total;
-	HANDLE rPipe = (HANDLE)rparam;	
+	int indice_deste_cliente = indice;
+
+	HANDLE rPipe = (HANDLE) rPipeClientes[indice_deste_cliente];	
 	COMANDO_DO_CLIENTE cmd_cliente;
 	COMANDO_DO_SERVIDOR cmd_servidor;
 	int tipoDeResposta;
-	_tprintf(TEXT("[SERVIDOR-%d] Um cliente ligou-se...\n"), GetCurrentThreadId());
+
+
+	_tprintf(TEXT("[SERVIDOR-%d] Um cliente ligou-se... iD %d\n"), GetCurrentThreadId(),indice_deste_cliente);
 
 	//envia ID ao jogador
 
@@ -830,12 +778,156 @@ DWORD WINAPI AtendeCliente(LPVOID rparam)
 	} while (!(cmd_cliente.tipoComando == (-1)));
 
 
-	_tprintf(TEXT("[SERVIDOR-%d] Vou desligar o pipe... (DisconnectNamedPipe/CloseHandle)\n"), GetCurrentThreadId());
-	if (!DisconnectNamedPipe(rPipe)) {
+	_tprintf(TEXT("[SERVIDOR-%d] Vou desligar os pipes do Cliente : %s ... \n"), GetCurrentThreadId(), JogadoresOnline[indice_deste_cliente].username);
+	if (!DisconnectNamedPipe(wPipeClientes[indice_deste_cliente])) {
+		_tperror(TEXT("Erro ao desligar o pipe!"));
+		ExitThread(-1);
+	}
+	if (!DisconnectNamedPipe(wSemEsperarPipeClientes[indice_deste_cliente])) {
 		_tperror(TEXT("Erro ao desligar o pipe!"));
 		ExitThread(-1);
 	}
 
-	CloseHandle(rPipe);
+	CloseHandle(wPipeClientes[indice_deste_cliente]);
+	CloseHandle(wSemEsperarPipeClientes[indice_deste_cliente]);
+	wPipeClientes[indice_deste_cliente] = NULL;
+	wSemEsperarPipeClientes[indice_deste_cliente] = NULL;
+	total -= 1;
+	//retiraJogadorOnline();
+	//retiraJogadorEmJogo();
 	return 0;
+}
+
+void AdicionaJogadorAoJogo(COMANDO_DO_CLIENTE * c) 
+{
+	COMANDO_DO_SERVIDOR cmd;
+	DWORD n;
+	cmd.tipoResposta = 2;
+	if(jogadoresEmJogo < (N_MAX_CLIENTES-1))
+	{
+		if (game.iniciado == 0 && game.criado == 1) //logo esta no estado de espera
+		{
+	  
+			PreencheJogador(c);
+			jogadoresEmJogo += 1; //adiciona o jogador			
+			cmd.resposta = 1;
+		
+		 _tcscpy_s(cmd.msg, TAM_MSG, TEXT("Jogador adicionado, favor esperar até o jogo começar"));
+		}
+		else {
+			if (game.iniciado == 1 && game.criado == 1)
+			{
+				_tcscpy_s(cmd.msg, TAM_MSG, TEXT("Jogo ja começou"));
+				cmd.resposta = 0;
+			}
+			else if (game.iniciado == 0 && game.criado == 0) 
+			{
+				cmd.resposta = 2;
+				_tcscpy_s(cmd.msg, TAM_MSG, TEXT("Nenhum jogo ainda criado"));
+			}
+		}
+	}else{
+		cmd.resposta = 2;
+		_tcscpy_s(cmd.msg, TAM_MSG, TEXT("Limite de jogadores ja atingido"));
+	}
+	
+	WriteFile(wPipeClientes[c->ID], &cmd, sizeof(COMANDO_DO_SERVIDOR), &n, NULL);
+
+}
+
+void CriaJogo(COMANDO_DO_CLIENTE *c) 
+{
+	COMANDO_DO_SERVIDOR cmd;
+	DWORD n;
+	cmd.tipoResposta = 1; //tipo para a resposta de jogo
+	if (game.criado == 0) 
+	{
+		game.criado = 1; //jogo criado
+		CriaMundo();
+
+		PreencheJogador(c); //adiciona o jogador, visto que é o primeiro a criar o jogo	
+		jogadoresEmJogo += 1;
+
+		cmd.resposta = 1;
+		_tcscpy_s(cmd.msg, TAM_MSG, TEXT("Jogo criado!"));
+	}
+	else 
+	{
+		if (game.criado == 1)
+		{			
+			cmd.resposta = 0;
+			_tcscpy_s(cmd.msg, TAM_MSG, TEXT("Jogo ja criado"));
+		}else 
+		{
+			cmd.resposta = 0;
+			_tcscpy_s(cmd.msg, TAM_MSG, TEXT("Manutenção aguarde por favor"));
+		}
+	}
+
+	WriteFile(wPipeClientes[c->ID], &cmd, sizeof(COMANDO_DO_SERVIDOR), &n, NULL);
+	_tprintf(TEXT("[SERVIDOR] Enviei %d bytes ao cliente [%d]...\n"), n, c->ID);
+}
+
+void ComecaJogo(COMANDO_DO_CLIENTE *c)
+{
+	int i;
+	COMANDO_DO_SERVIDOR cmd;
+	DWORD n;
+
+	cmd.tipoResposta = 1;
+
+	_tcscpy_s(cmd.msg, TAM_MSG, TEXT("Jogo começou"));
+	WriteFile(wPipeClientes[c->ID], &cmd, sizeof(COMANDO_DO_SERVIDOR), &n, NULL); //responde ao jogador que criou o jogo
+	
+	_tprintf(TEXT("[SERVIDOR] Enviei %d bytes ao cliente [%d]...\n"), n, c->ID);
+
+	MandarMensagens(c, 1);
+	AbrirJogoATodosClientesEmJogo();
+
+	//ActualizaOsMapas();
+}
+
+void MandarMensagens(COMANDO_DO_CLIENTE *c, int tipo_mensagem)
+{
+	int i;
+	COMANDO_DO_SERVIDOR cmd;
+	DWORD n;
+	cmd.tipoResposta = 0;
+
+	if(tipo_mensagem == 1) //mensagens ja pré definidas
+	{
+	_tcscpy_s(cmd.msg, TAM_MSG, TEXT("O %s iniciou o jogo"), JogadoresOnline[c->ID].username);
+
+	for (i = 0; i < N_MAX_CLIENTES; i++)
+	{
+		if (wSemEsperarPipeClientes[i] != NULL && i != c->ID)
+			WriteFile(wSemEsperarPipeClientes[i], &cmd, sizeof(COMANDO_DO_SERVIDOR), &n, NULL);
+	}
+
+	}
+	else if (tipo_mensagem == 2) //mensagens do utilizador
+	{
+		_tcscpy_s(cmd.msg, TAM_MSG, TEXT("%s disse: %s "),JogadoresOnline[c->ID].username, c->msg);
+
+		for (i = 0; i < N_MAX_CLIENTES; i++)
+		{
+			if (wSemEsperarPipeClientes[i] != NULL && i != c->ID)
+				WriteFile(wSemEsperarPipeClientes[i], &cmd, sizeof(COMANDO_DO_SERVIDOR), &n, NULL);
+		}
+	}
+}
+
+void AbrirJogoATodosClientesEmJogo() {
+	int i;
+	COMANDO_DO_SERVIDOR cmd;
+	DWORD n;
+
+	cmd.tipoResposta = 1;
+	cmd.resposta = 1;
+	for (i = 0; i < N_MAX_CLIENTES; i++)
+	{
+		if (wSemEsperarPipeClientes[i] != NULL && JogadoresOnline[i].Ajogar == 1) {
+			WriteFile(wSemEsperarPipeClientes[i], &cmd, sizeof(COMANDO_DO_SERVIDOR), &n, NULL);
+		}
+	}
 }

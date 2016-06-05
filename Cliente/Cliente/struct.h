@@ -31,6 +31,7 @@ typedef struct {
 typedef struct {
 	int ID;
 	int pid;
+	int Ajogar;
 	TCHAR username[TAM_LOG];
 	int presente;
 	POSICAO pos;
@@ -75,7 +76,7 @@ typedef struct {
 }COMANDO_DO_CLIENTE;
 
 typedef struct {
-	int tipoComando;
+	int tipoResposta;
 	int resposta;
 	TCHAR msg[TAM_MSG];
 	JOGADOR jogador;
