@@ -20,7 +20,8 @@ int fezlogin = 0;
 int indice = 0;
 int pid = 0;
 
-void imprimeMundo(COMANDO_DO_SERVIDOR c);
+void imprimeMundo(COMANDO_DO_SERVIDOR  c);
+void imprimeJogador(COMANDO_DO_SERVIDOR cmd);
 
 
 int _tmain(int argc, LPTSTR argv[]) {
@@ -287,27 +288,26 @@ int _tmain(int argc, LPTSTR argv[]) {
 
 				ret = WriteFile(wPipe, &cmd1, sizeof(COMANDO_DO_CLIENTE), &n, NULL);
 
-
 				if (!ret || !n)
 					break;
 				_tprintf(TEXT("[CLIENTE](ReadFile) enviei %d bytes\n"), n);
 
 
-				ret = ReadFile(rPipe, &cmd, sizeof(COMANDO_DO_SERVIDOR), &n, NULL);
-				imprimeMundo(cmd);
+				//ret = ReadFile(rPipe, &cmd, sizeof(COMANDO_DO_SERVIDOR), &n, NULL);
+				//imprimeMundo(cmd);
 
-				if (!ret || !n)
-					break;
+				//if (!ret || !n)
+				//	break;
 
 
-				_tprintf(TEXT("[CLIENTE](ReadFile) Recebi %d bytes\n "), n);
+				//_tprintf(TEXT("[CLIENTE](ReadFile) Recebi %d bytes\n "), n);
 
 				
-				if (cmd.resposta == 1)
-				{
+			//	if (cmd.resposta == 1)
+			//	{
 
-					_tprintf(TEXT("Jogador[%d] : saude : %d \n lentidao : %d \n x = %d y = %d\n"),cmd.jogador.ID, cmd.jogador.saude, cmd.jogador.lentidao, cmd.jogador.pos.x, cmd.jogador.pos.y);
-				}
+			//		_tprintf(TEXT("Jogador[%d] : saude : %d \n lentidao : %d \n x = %d y = %d\n"),cmd.jogador.ID, cmd.jogador.saude, cmd.jogador.lentidao, cmd.jogador.pos.x, cmd.jogador.pos.y);
+			//	}
 			
 
 			}
@@ -341,7 +341,9 @@ DWORD WINAPI RecebeDoServidor(LPVOID param) { //recebe o pipe
 	{
 
 		ret = ReadFile(rPipe, &cmd, sizeof(COMANDO_DO_SERVIDOR), &n, NULL);
-		_tprintf(TEXT("[CLIENTE]Recebi %d bytes\n "), n);
+		if (!ret || !n)
+			break;
+		//_tprintf(TEXT("[CLIENTE]Recebi %d bytes\n "), n);
 
 		if (cmd.tipoResposta == 0)//mensagem
 		{
@@ -349,19 +351,35 @@ DWORD WINAPI RecebeDoServidor(LPVOID param) { //recebe o pipe
 		}
 		else if (cmd.tipoResposta == 1) //actualizações 
 		{
+			
+
 			if (cmd.resposta == 1) 
 			{
 			emjogo = 1;
 			}
+			else if (cmd.resposta == 2) 
+			{
+				_tprintf(TEXT("\n\nIMPRIMIR:\n"));
+			imprimeJogador(cmd);
+			//imprimeMundo(cmd);	
+			}
 
-			//actualizaJogador(cmd);
-			//imprimeMundo(cmd);			
-			//_tprintf(TEXT("ACTUALIZEI"));
+					
+			
 		}
 
 	}
 
 	return 0;
+}
+
+
+void imprimeJogador(COMANDO_DO_SERVIDOR cmd)
+{
+
+	_tprintf(TEXT("\n\nJogador:\n"));
+	_tprintf(TEXT("nome: %s  \nid:%d\nsaude: %d \nx=%d, y=%d\n  "),cmd.jogador.username ,cmd.jogador.ID, cmd.jogador.saude, cmd.jogador.pos.x, cmd.jogador.pos.y);
+
 }
 
 void imprimeMundo(COMANDO_DO_SERVIDOR c)
@@ -371,14 +389,18 @@ void imprimeMundo(COMANDO_DO_SERVIDOR c)
 	_tprintf(TEXT("\n\n\tMundo:\n"));
 	for (i = c.p1.x; i < c.p2.x; i++) {
 		for (j = c.p1.y; j < c.p2.y; j++) {
-			if (c.mapa[i][j].bloco.tipo == 0)
-				_tprintf(TEXT("_   "));
-			else if (c.mapa[i][j].bloco.tipo != 0)
-				_tprintf(TEXT("B   "));
+			
+			if (c.mapa[i][j].jogador.presente == 1)
+				_tprintf(TEXT(" X "));
 			else if (c.mapa[i][j].objeto.tipo != 0)
-				_tprintf(TEXT("o   "));
-			else if (c.mapa[i][j].jogador.presente == 1)
-				_tprintf(TEXT("X   "));
+				_tprintf(TEXT(" Z "));
+			else if (c.mapa[i][j].bloco.tipo == 0)
+				_tprintf(TEXT(" O "));
+			else if (c.mapa[i][j].bloco.tipo != 0)
+				_tprintf(TEXT(" # "));
+			
+
+		
 
 		}
 		_tprintf(TEXT("\n"));
