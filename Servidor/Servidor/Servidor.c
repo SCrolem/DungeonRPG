@@ -3,9 +3,7 @@
 #include <io.h>
 #include <fcntl.h>
 #include <stdio.h>
-
 #include "struct.h"
-
 
 #define PIPE_N_READ TEXT("\\\\.\\pipe\\ParaServidor")
 #define PIPE_N_WRITE TEXT("\\\\.\\pipe\\ParaCliente")
@@ -41,7 +39,7 @@ int jogadoresEmJogo = 0;
 
 int jogoEmEspera = 1;
 BOOL sair = FALSE;
-CELULA mundo[L][C];
+CELULA mundo[LT][CT];
 
 BOOL encerrar = FALSE;
 JOGO game;
@@ -76,7 +74,7 @@ void VerificaJogo(COMANDO_DO_CLIENTE *cmd); //??????
 //cria info para envio coletivo
 
 void EnviaJogadorEMapaActual(COMANDO_DO_CLIENTE *cmd);
-void CriaMapaParaEnvio(COMANDO_DO_SERVIDOR *cmd, int indice);
+void CriaMapaParaEnvio(COMANDO_DO_SERVIDOR *cmd);
 void MandarMensagens(COMANDO_DO_CLIENTE *c, int tipo_mensagem);
 void AbrirJogoATodosClientesEmJogo();
 void CriaInfoSobreOJogador(COMANDO_DO_SERVIDOR *cmd, int indice);
@@ -241,18 +239,19 @@ void VerificaJogo(COMANDO_DO_CLIENTE *cmd) {
 	}
 }
 
-void CriaMapaParaEnvio(COMANDO_DO_SERVIDOR *cmd, int indice) {
+void CriaMapaParaEnvio(COMANDO_DO_SERVIDOR *cmd) {
 	int i=0, j=0;
 	int x = 0, y = 0;
 	POSICAO p1, p2;
 	DWORD n;
-	
 
 
-	if ((cmd->jogador.pos.x - 5) >= 0)
+
+	/*if ((cmd->jogador.pos.x - 5) >= 0)
 		cmd->p1.x = (cmd->jogador.pos.x - 5);
 	else 
 		cmd->p1.x = 0;
+
 	if ((cmd->jogador.pos.y - 5) >= 0)
 		cmd->p1.y= (cmd->jogador.pos.y - 5);
 	else cmd->p1.y = 0;
@@ -263,9 +262,80 @@ void CriaMapaParaEnvio(COMANDO_DO_SERVIDOR *cmd, int indice) {
 		cmd->p2.x = L;
 	if ((cmd->jogador.pos.y + 5) >= 0)
 		cmd->p2.y = (cmd->jogador.pos.y + 5);
-	else cmd->p2.y = C;
+	else cmd->p2.y = C;*/
+
+	if ((cmd->jogador.pos.x - 5) < 0 && (cmd->jogador.pos.y - 5) < 0)  //cantos
+	{
+		cmd->p1.x = 0;
+		cmd->p1.y = 0;
+		cmd->p2.x = L;
+		cmd->p2.y = C;
+	}
+	else if ((cmd->jogador.pos.x - 5) < 0 && (cmd->jogador.pos.y + 5) > CT)
+	{
+		cmd->p1.x = 0;
+		cmd->p1.y = CT - C;
+		cmd->p2.x = L;
+		cmd->p2.y = CT;			
+	}
+	else if ((cmd->jogador.pos.x + 5) > LT && (cmd->jogador.pos.y + 5) > CT)
+	{
+		cmd->p1.x = LT-L;
+		cmd->p1.y = CT-C;
+		cmd->p2.x = LT;
+		cmd->p2.y = CT;
+	}
+	else if ((cmd->jogador.pos.x + 5) > LT && (cmd->jogador.pos.y - 5) < 0)
+	{
+		cmd->p1.x = LT - L;
+		cmd->p1.y = 0;
+		cmd->p2.x = LT;
+		cmd->p2.y = C;
+	}
+	else 
+	{
+		if ((cmd->jogador.pos.x + 5) > LT) //paredes laterais
+		{
+			cmd->p1.x = LT - L;
+			cmd->p1.y = (cmd->jogador.pos.y - 5) ;
+			cmd->p2.x = LT;
+			cmd->p2.y = (cmd->jogador.pos.y + 5);
+
+		}else if ((cmd->jogador.pos.x - 5) < 0)
+		{
+			cmd->p1.x = 0;
+			cmd->p1.y = (cmd->jogador.pos.y - 5);
+			cmd->p2.x = L;
+			cmd->p2.y = (cmd->jogador.pos.y + 5);
+		}
+		else if ((cmd->jogador.pos.y + 5) > CT)
+		{
+			cmd->p1.x = (cmd->jogador.pos.x - 5);
+			cmd->p1.y = CT - C;
+			cmd->p2.x = (cmd->jogador.pos.x + 5);
+			cmd->p2.y = CT;
+
+		}
+		else if ((cmd->jogador.pos.y - 5) < 0)
+		{
+			cmd->p1.x = (cmd->jogador.pos.x - 5);
+			cmd->p1.y = 0;
+			cmd->p2.x = (cmd->jogador.pos.x + 5);
+			cmd->p2.y = C;
+		}
+		else 
+		{
+			cmd->p1.x = (cmd->jogador.pos.x - 5); //o normal 
+			cmd->p1.y = (cmd->jogador.pos.y - 5);
+			cmd->p2.x = (cmd->jogador.pos.x + 5);
+			cmd->p2.y = (cmd->jogador.pos.y + 5);		
+		}
+	}
+		
+
 
 	for (i = cmd->p1.x; i < cmd->p2.x; i++) {
+		y = 0;
 		for (j = cmd->p1.y; j <cmd->p2.y; j++) {
 			cmd->mapa[x][y] = mundo[i][j];
 			y++;
@@ -323,8 +393,8 @@ void CriaMundo() {
 
 	srand((unsigned)time(NULL));
 
-	for (i = 0; i<L; i++) {			//criacao do mundo a funcionar
-		for (j = 0; j<C; j++) {
+	for (i = 0; i<LT; i++) {			//criacao do mundo a funcionar
+		for (j = 0; j<CT; j++) {
 			mundo[i][j].bloco.tipo = 0;
 
 			if (i == 0)								// paredes nas extremidades
@@ -410,7 +480,7 @@ void EnviaJogadorEMapaActual(COMANDO_DO_CLIENTE *cmd)
 	msg_a_enviar.resposta = 2;
 
 	CriaInfoSobreOJogador(&msg_a_enviar, indice);
-	//CriaMapaParaEnvio(&msg_a_enviar, indice);
+	CriaMapaParaEnvio(&msg_a_enviar, indice);
 
 	/*for (i = 0; i < N_MAX_CLIENTES; i++)
 	{
@@ -554,8 +624,7 @@ void LoginUtilizador(COMANDO_DO_CLIENTE *c) {
 }
 
 void Move(COMANDO_DO_CLIENTE *c) {
-	
-	
+
 	int indice_jogador = c->ID;
 	int accao = c->tipoComando;
 	int res;
@@ -571,16 +640,16 @@ void Move(COMANDO_DO_CLIENTE *c) {
 	switch (accao)
 	{
 	case 5:  //esquerda
-		posFinal.x = posInicial.x - 1;
-		break;
-	case 6: //direita
-		posFinal.x = posInicial.x + 1;
-		break;
-	case 7: //baixo
 		posFinal.y = posInicial.y - 1;
 		break;
-	case 8: //cima
+	case 6: //direita
 		posFinal.y = posInicial.y + 1;
+		break;
+	case 7: //baixo
+		posFinal.x = posInicial.x + 1;
+		break;
+	case 8: //cima
+		posFinal.x = posInicial.x - 1;
 		break;
 	default:
 		break;
@@ -591,10 +660,10 @@ void Move(COMANDO_DO_CLIENTE *c) {
 	if (posFinal.y < 0)
 		posFinal.y = 0;
 
-	if (posFinal.x == L)
-		posFinal.x = L ;
-	if (posFinal.y == C)
-		posFinal.y = C ;
+	if (posFinal.x > LT)
+		posFinal.x = LT ;
+	if (posFinal.y > CT)
+		posFinal.y = CT ;
 
 	res = VerificaExisteAlgoPosicao(&posFinal);
 
@@ -607,8 +676,6 @@ void Move(COMANDO_DO_CLIENTE *c) {
 
 	//caso seja um bloco que parte o que fazer?
 	EnviaJogadorEMapaActual(c);
-
-	//ReleaseMutex(hMutexMapa);
 	
 	return;
 }

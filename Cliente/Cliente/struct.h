@@ -5,6 +5,8 @@
 
 #define L 10
 #define C 10
+#define LT 20
+#define CT 20
 #define TAM_LOG 15
 #define TAM_PASS 15
 #define T_OBJ 5

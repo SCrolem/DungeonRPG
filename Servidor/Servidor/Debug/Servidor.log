@@ -3,20 +3,21 @@ c:\users\sergio\desktop\dungeonrpg\dungeonrpg\servidor\servidor\servidor.c(17): 
 c:\users\sergio\desktop\dungeonrpg\dungeonrpg\servidor\servidor\servidor.c(247): warning C4101: 'p1': unreferenced local variable
 c:\users\sergio\desktop\dungeonrpg\dungeonrpg\servidor\servidor\servidor.c(247): warning C4101: 'p2': unreferenced local variable
 c:\users\sergio\desktop\dungeonrpg\dungeonrpg\servidor\servidor\servidor.c(248): warning C4101: 'n': unreferenced local variable
-c:\users\sergio\desktop\dungeonrpg\dungeonrpg\servidor\servidor\servidor.c(324): warning C4013: 'time' undefined; assuming extern returning int
-c:\users\sergio\desktop\dungeonrpg\dungeonrpg\servidor\servidor\servidor.c(318): warning C4101: 'k': unreferenced local variable
-c:\users\sergio\desktop\dungeonrpg\dungeonrpg\servidor\servidor\servidor.c(320): warning C4101: 'p': unreferenced local variable
-c:\users\sergio\desktop\dungeonrpg\dungeonrpg\servidor\servidor\servidor.c(319): warning C4101: 'y': unreferenced local variable
-c:\users\sergio\desktop\dungeonrpg\dungeonrpg\servidor\servidor\servidor.c(320): warning C4101: 'l': unreferenced local variable
-c:\users\sergio\desktop\dungeonrpg\dungeonrpg\servidor\servidor\servidor.c(382): warning C4013: '_getpid' undefined; assuming extern returning int
-c:\users\sergio\desktop\dungeonrpg\dungeonrpg\servidor\servidor\servidor.c(372): warning C4101: 'c': unreferenced local variable
-c:\users\sergio\desktop\dungeonrpg\dungeonrpg\servidor\servidor\servidor.c(407): warning C4101: 'j': unreferenced local variable
-c:\users\sergio\desktop\dungeonrpg\dungeonrpg\servidor\servidor\servidor.c(407): warning C4101: 'i': unreferenced local variable
-c:\users\sergio\desktop\dungeonrpg\dungeonrpg\servidor\servidor\servidor.c(723): warning C4047: '==': 'int' differs in levels of indirection from 'void *'
-c:\users\sergio\desktop\dungeonrpg\dungeonrpg\servidor\servidor\servidor.c(756): warning C4047: 'initializing': 'int' differs in levels of indirection from 'LPVOID'
-c:\users\sergio\desktop\dungeonrpg\dungeonrpg\servidor\servidor\servidor.c(761): warning C4101: 'tipoDeResposta': unreferenced local variable
-c:\users\sergio\desktop\dungeonrpg\dungeonrpg\servidor\servidor\servidor.c(753): warning C4101: 'buf': unreferenced local variable
-c:\users\sergio\desktop\dungeonrpg\dungeonrpg\servidor\servidor\servidor.c(760): warning C4101: 'cmd_servidor': unreferenced local variable
-c:\users\sergio\desktop\dungeonrpg\dungeonrpg\servidor\servidor\servidor.c(877): warning C4101: 'i': unreferenced local variable
-c:\users\sergio\desktop\dungeonrpg\dungeonrpg\servidor\servidor\servidor.c(900): warning C4101: 'buf': unreferenced local variable
+c:\users\sergio\desktop\dungeonrpg\dungeonrpg\servidor\servidor\servidor.c(396): warning C4013: 'time' undefined; assuming extern returning int
+c:\users\sergio\desktop\dungeonrpg\dungeonrpg\servidor\servidor\servidor.c(390): warning C4101: 'k': unreferenced local variable
+c:\users\sergio\desktop\dungeonrpg\dungeonrpg\servidor\servidor\servidor.c(392): warning C4101: 'p': unreferenced local variable
+c:\users\sergio\desktop\dungeonrpg\dungeonrpg\servidor\servidor\servidor.c(391): warning C4101: 'y': unreferenced local variable
+c:\users\sergio\desktop\dungeonrpg\dungeonrpg\servidor\servidor\servidor.c(392): warning C4101: 'l': unreferenced local variable
+c:\users\sergio\desktop\dungeonrpg\dungeonrpg\servidor\servidor\servidor.c(454): warning C4013: '_getpid' undefined; assuming extern returning int
+c:\users\sergio\desktop\dungeonrpg\dungeonrpg\servidor\servidor\servidor.c(444): warning C4101: 'c': unreferenced local variable
+c:\users\sergio\desktop\dungeonrpg\dungeonrpg\servidor\servidor\servidor.c(485): warning C4020: 'CriaMapaParaEnvio': too many actual parameters
+c:\users\sergio\desktop\dungeonrpg\dungeonrpg\servidor\servidor\servidor.c(479): warning C4101: 'j': unreferenced local variable
+c:\users\sergio\desktop\dungeonrpg\dungeonrpg\servidor\servidor\servidor.c(479): warning C4101: 'i': unreferenced local variable
+c:\users\sergio\desktop\dungeonrpg\dungeonrpg\servidor\servidor\servidor.c(795): warning C4047: '==': 'int' differs in levels of indirection from 'void *'
+c:\users\sergio\desktop\dungeonrpg\dungeonrpg\servidor\servidor\servidor.c(828): warning C4047: 'initializing': 'int' differs in levels of indirection from 'LPVOID'
+c:\users\sergio\desktop\dungeonrpg\dungeonrpg\servidor\servidor\servidor.c(833): warning C4101: 'tipoDeResposta': unreferenced local variable
+c:\users\sergio\desktop\dungeonrpg\dungeonrpg\servidor\servidor\servidor.c(825): warning C4101: 'buf': unreferenced local variable
+c:\users\sergio\desktop\dungeonrpg\dungeonrpg\servidor\servidor\servidor.c(832): warning C4101: 'cmd_servidor': unreferenced local variable
+c:\users\sergio\desktop\dungeonrpg\dungeonrpg\servidor\servidor\servidor.c(949): warning C4101: 'i': unreferenced local variable
+c:\users\sergio\desktop\dungeonrpg\dungeonrpg\servidor\servidor\servidor.c(972): warning C4101: 'buf': unreferenced local variable
   Servidor.vcxproj -> C:\Users\Sergio\Desktop\DungeonRPG\DungeonRPG\Servidor\Debug\Servidor.exe

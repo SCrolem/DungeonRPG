@@ -279,9 +279,9 @@ int _tmain(int argc, LPTSTR argv[]) {
 				if (comando == 1)
 					comando = 6;
 				if (comando == 2)
-					comando = 7;
-				if (comando == 3)
 					comando = 8;
+				if (comando == 3)
+					comando = 7;
 
 				cmd1.tipoComando = comando;
 				cmd1.ID = indice;
@@ -361,7 +361,7 @@ DWORD WINAPI RecebeDoServidor(LPVOID param) { //recebe o pipe
 			{
 				_tprintf(TEXT("\n\nIMPRIMIR:\n"));
 			imprimeJogador(cmd);
-			//imprimeMundo(cmd);	
+			imprimeMundo(cmd);	
 			}
 
 					
@@ -387,8 +387,8 @@ void imprimeMundo(COMANDO_DO_SERVIDOR c)
 	int i = 0, j = 0;
 
 	_tprintf(TEXT("\n\n\tMundo:\n"));
-	for (i = c.p1.x; i < c.p2.x; i++) {
-		for (j = c.p1.y; j < c.p2.y; j++) {
+	for (i = 0; i < L; i++) {
+		for (j = 0; j < C; j++) {
 			
 			if (c.mapa[i][j].jogador.presente == 1)
 				_tprintf(TEXT(" X "));
@@ -398,9 +398,6 @@ void imprimeMundo(COMANDO_DO_SERVIDOR c)
 				_tprintf(TEXT(" O "));
 			else if (c.mapa[i][j].bloco.tipo != 0)
 				_tprintf(TEXT(" # "));
-			
-
-		
 
 		}
 		_tprintf(TEXT("\n"));
