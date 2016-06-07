@@ -13,12 +13,15 @@
 #define TAM 256
 
 USER users[U_MAX] = { NULL };
+MEMORIA *ptrMapa;
+
 
 TCHAR NomeMemoria[] = TEXT("Mapa Partilhado");
 TCHAR NomeMutexMapa[] = TEXT("MapaMUTEX");
 JOGADOR semjogador;
 
-
+STARTUPINFO si[10];
+PROCESS_INFORMATION pi[10];
 //MUTEXS
 HANDLE hMemoria, hMutexMapa, hMutexEnvio, hMutexEnviaID;
 
@@ -39,7 +42,7 @@ int jogadoresEmJogo = 0;
 
 int jogoEmEspera = 1;
 BOOL sair = FALSE;
-CELULA mundo[LT][CT];
+//CELULA mundo[LT][CT];
 
 BOOL encerrar = FALSE;
 JOGO game;
@@ -110,6 +113,24 @@ int _tmain(int argc, LPTSTR argv[]) {
 	_setmode(_fileno(stderr), _O_WTEXT);
 #endif
 
+	/////////////////////////Mapeamento de memória/////////////////////////////////////////////
+
+	hMemoria = CreateFileMapping(NULL, NULL, PAGE_READWRITE, 0, sizeof(MEMORIA), NomeMemoria);//Cria HANDLE para a memoria partilhada
+
+	if (hMemoria == NULL) {    //testa HANDLE
+		_tprintf(TEXT("[ERRO] Criação de handle de memória - %d"), GetLastError());
+		return -1;
+	}
+
+	ptrMapa = (MEMORIA *)MapViewOfFile(hMemoria, FILE_MAP_WRITE, 0, 0, sizeof(MEMORIA)); // Faz o mapeamento
+
+	if (ptrMapa == NULL) {    //Testa o mapeamento
+		_tprintf(TEXT("[ERRO] Mapeamento de Memoria partilhada - %d"), GetLastError());
+		return -1;
+	}
+	//////////////////////////////////////////////////////////////////////
+
+
 	//Invocar a thread que inscreve novos clientes
 	hThread = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)RecebeClientes, NULL, 0, NULL);
 	if (hThread == NULL) {
@@ -119,6 +140,8 @@ int _tmain(int argc, LPTSTR argv[]) {
 
 	//Esperar a thread recebeLeitores terminar
 	WaitForSingleObject(hThread, INFINITE);
+	UnmapViewOfFile(ptrMapa);
+	CloseHandle(hMemoria);
 	CloseHandle(hThread);
 	exit(0);
 }
@@ -337,7 +360,7 @@ void CriaMapaParaEnvio(COMANDO_DO_SERVIDOR *cmd) {
 	for (i = cmd->p1.x; i < cmd->p2.x; i++) {
 		y = 0;
 		for (j = cmd->p1.y; j <cmd->p2.y; j++) {
-			cmd->mapa[x][y] = mundo[i][j];
+			cmd->mapa[x][y] = ptrMapa->mundo[i][j];
 			y++;
 		}
 		x++;
@@ -347,20 +370,20 @@ void CriaMapaParaEnvio(COMANDO_DO_SERVIDOR *cmd) {
 
 int VerificaExisteAlgoPosicao(POSICAO *p) {
 
-	if (mundo[p->x][p->y].jogador.presente == 1) {
+	if (ptrMapa->mundo[p->x][p->y].jogador.presente == 1) {
 		return 1;	//existe um jogador
 	}
 	else {
-		if (mundo[p->x][p->y].monstro.presente == 1) {
+		if (ptrMapa->mundo[p->x][p->y].monstro.presente == 1) {
 			//if (_tcscmp(ptrMapa->mapa[p->x][p->y].inimigo.nome,TEXT(""))!=0){
 			return 2; // existe um inimigo
 		}
 		else {
-			if (mundo[p->x][p->y].bloco.tipo == 1) {
+			if (ptrMapa->mundo[p->x][p->y].bloco.tipo == 1) {
 				return 3; // existe um bloco mole
 			}
 			else {
-				if (mundo[p->x][p->y].bloco.tipo == 2) {
+				if (ptrMapa->mundo[p->x][p->y].bloco.tipo == 2) {
 					return 4; // existe um bloco duro
 				}
 				else {
@@ -395,37 +418,37 @@ void CriaMundo() {
 
 	for (i = 0; i<LT; i++) {			//criacao do mundo a funcionar
 		for (j = 0; j<CT; j++) {
-			mundo[i][j].bloco.tipo = 0;
+			ptrMapa->mundo[i][j].bloco.tipo = 0;
 
 			if (i == 0)								// paredes nas extremidades
-				mundo[i][j].bloco.tipo = 1;
-			if (i == 9)
-				mundo[i][j].bloco.tipo = 1;
+				ptrMapa->mundo[i][j].bloco.tipo = 1;
+			if (i == (CT -1))
+				ptrMapa->mundo[i][j].bloco.tipo = 1;
 			if (j == 0)
-				mundo[i][j].bloco.tipo = 1;
-			if (j == 9)
-				mundo[i][j].bloco.tipo = 1;
+				ptrMapa->mundo[i][j].bloco.tipo = 1;
+			if (j == (LT - 1))
+				ptrMapa->mundo[i][j].bloco.tipo = 1;
 
-			if (mundo[i][j].bloco.tipo != 1) {
+			if (ptrMapa->mundo[i][j].bloco.tipo != 1) {
 				for (g = 0; g < 4; g++) //CRIACAO DE ITEMS
 				{
 					x = 0 + (rand() % 100);
 
 					if (x >= 0 && x < 10) {
-						mundo[i][j].obj = 1;
+						ptrMapa->mundo[i][j].obj = 1;
 					}
 					else if (x >= 10 && x < 30) {
-						mundo[i][j].obj = 2;
+						ptrMapa->mundo[i][j].obj = 2;
 					}
 					else if (x >= 30 && x < 34) {
-						mundo[i][j].obj=3;
+						ptrMapa->mundo[i][j].obj=3;
 						
 					}
 					else if (x >= 34 && x < 39) {
-						mundo[i][j].obj=4;
+						ptrMapa->mundo[i][j].obj=4;
 					}
 					else if (x >= 39 && x < 99) {
-						mundo[i][j].obj = 0;
+						ptrMapa->mundo[i][j].obj = 0;
 					}
 					
 				}
@@ -456,14 +479,14 @@ void PreencheJogador(COMANDO_DO_CLIENTE *cmd)
 		x = rand() % 10; 
 		y = rand() % 10;
 
-		if (mundo[x][y].bloco.tipo == 0) { 
+		if (ptrMapa->mundo[x][y].bloco.tipo == 0) {
 			POSICAO p; //
 			p.x = x;//
 			p.y = y;//
 			JogadoresOnline[Indice].pos = p;//
-			mundo[x][y].jogador = JogadoresOnline[Indice];
+			ptrMapa->mundo[x][y].jogador = JogadoresOnline[Indice];
 		}
-	} while (mundo[x][y].bloco.tipo != 0);
+	} while (ptrMapa->mundo[x][y].bloco.tipo != 0);
 	//c.jogador = JogadoresOnline[Indice];
 }
 
@@ -480,7 +503,7 @@ void EnviaJogadorEMapaActual(COMANDO_DO_CLIENTE *cmd)
 	msg_a_enviar.resposta = 2;
 
 	CriaInfoSobreOJogador(&msg_a_enviar, indice);
-	CriaMapaParaEnvio(&msg_a_enviar, indice);
+	CriaMapaParaEnvio(&msg_a_enviar);
 
 	/*for (i = 0; i < N_MAX_CLIENTES; i++)
 	{
@@ -670,8 +693,8 @@ void Move(COMANDO_DO_CLIENTE *c) {
 	if (res == 0 || res == 3) 
 	{   
 		JogadoresOnline[indice_jogador].pos = posFinal;
-		mundo[posFinal.x][posFinal.y].jogador = JogadoresOnline[indice_jogador];
-		mundo[posInicial.x][posInicial.y].jogador = semjogador;
+		ptrMapa->mundo[posFinal.x][posFinal.y].jogador = JogadoresOnline[indice_jogador];
+		ptrMapa->mundo[posInicial.x][posInicial.y].jogador = semjogador;
 	}
 
 	//caso seja um bloco que parte o que fazer?
@@ -945,6 +968,60 @@ void ComecaJogo(COMANDO_DO_CLIENTE *c)
 	COMANDO_DO_SERVIDOR cmd;
 	DWORD n;
 
+	//add monstros 	
+		TCHAR monstroPath[100];
+		BLOCO mole;
+		POSICAO p;
+		int resp;
+/*
+		ZeroMemory(&si, sizeof(si));
+		ZeroMemory(&pi, sizeof(pi));
+
+		for (i = 0; i<10; i++) {
+			si[i].cb = sizeof(si);
+			//si[i].dwFlags = STARTF_USESHOWWINDOW;
+			//si[i].wShowWindow = SW_HIDE;
+		}
+
+		game.dificuldade = 1;
+
+        WaitForSingleObject(hMutexMapa, INFINITE);
+
+		switch (game.dificuldade)//Coloca peças mediante difuculdade escolhida
+		{
+		case 1: //coloca em jogo 3 inimigos 
+        
+			for (i = 0; i<3; i++) {
+				do {
+					CalculaPosicaoAleatoria(&p);
+					resp = VerificaExisteAlgoPosicao(&p);
+				} while (resp != 0);
+
+				_stprintf_s(monstroPath, 100, TEXT("C:\\Users\\Sergio\\Desktop\\DungeonRPG\\Inimigo\\Debug\\Inimigo.exe %d %d 500"), p.x, p.y);
+				Sleep(500);
+
+				if (!CreateProcess(NULL, monstroPath, NULL, NULL, 0, CREATE_NEW_CONSOLE, NULL, NULL, &si[i], &pi[i])) {
+					MessageBox(NULL, _T("Unable to create process."), _T("Error"), MB_OK);
+					break;
+				}
+				else {
+					ptrMapa->mapa[p.x][p.y].monstro.pos = p;
+					ptrMapa->mapa[p.x][p.y].monstro.presente = 1;
+					ptrMapa->mapa[p.x][p.y].monstro.saude = 10;
+					ptrMapa->mapa[p.x][p.y].monstro.lentidao = 5;
+				}
+			}
+
+			break;
+		case 2:
+			break;
+		default:
+			break;
+		}
+	
+	ReleaseMutex(hMutexMapa);
+*/
+
 	game.iniciado = 1; //jogo passa a estar a decorrer
 	cmd.tipoResposta = 1;
 
@@ -955,8 +1032,6 @@ void ComecaJogo(COMANDO_DO_CLIENTE *c)
 
 	MandarMensagens(c, 1);
 	AbrirJogoATodosClientesEmJogo();
-
-	//ActualizaOsMapas();
 }
 
 void MandarMensagens(COMANDO_DO_CLIENTE *c, int tipo_mensagem)

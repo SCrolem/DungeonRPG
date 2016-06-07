@@ -97,10 +97,10 @@ typedef struct {
 
 
 typedef struct {
-	CELULA mapa[L][C];
+	CELULA mundo[LT][CT];
 }MEMORIA;
 
-typedef struct {
+/*typedef struct {
 	JOGADOR jogador;
 	BOOL monstro;
 	int objecto;
@@ -109,7 +109,7 @@ typedef struct {
 
 typedef struct {
 	CELULACLI mapa[L][C];
-}MAPACLIENTE;
+}MAPACLIENTE;*/
 
 typedef struct {
 	BOOL criado;
