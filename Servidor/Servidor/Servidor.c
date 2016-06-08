@@ -88,12 +88,17 @@ void TrataComando(COMANDO_DO_CLIENTE *c);
 
 //comandos de ação
 void Move(COMANDO_DO_CLIENTE *cmd);
+void MoveMonstro(COMANDO_DO_CLIENTE * c);
 
 
 //consequencias
 JOGADOR JogadorMorre(JOGADOR j);
 //void ApanhaObjecto(POSICAO p, COMANDO_DO_CLIENTE *c);
+
+//zera vars
 void iniciaOsemjogador();
+void zeramonstros();
+void zerajogadores();
 
 int _tmain(int argc, LPTSTR argv[]) {
 	HANDLE hThread;	
@@ -416,6 +421,9 @@ void CriaMundo() {
 
 	srand((unsigned)time(NULL));
 
+	zeramonstros();
+	zerajogadores();
+
 	for (i = 0; i<LT; i++) {			//criacao do mundo a funcionar
 		for (j = 0; j<CT; j++) {
 			ptrMapa->mundo[i][j].bloco.tipo = 0;
@@ -495,27 +503,22 @@ void EnviaJogadorEMapaActual(COMANDO_DO_CLIENTE *cmd)
 	WaitForSingleObject(hMutexEnvio, INFINITE);
 
 	DWORD n;
-	int indice = cmd->ID;
+//	int indice = cmd->ID;
 	COMANDO_DO_SERVIDOR msg_a_enviar;
 	int i, j;
 	
 	msg_a_enviar.tipoResposta = 1;
 	msg_a_enviar.resposta = 2;
 
-	CriaInfoSobreOJogador(&msg_a_enviar, indice);
-	CriaMapaParaEnvio(&msg_a_enviar);
-
-	/*for (i = 0; i < N_MAX_CLIENTES; i++)
+	for (i = 0; i < N_MAX_CLIENTES; i++)
 	{
-		if (wSemEsperarPipeClientes[i] != NULL && JogadoresOnline[i].Ajogar == 1) {
-			//cmd.mapa = CriaMapaParaEnvio(JogadorOnline[i]);
-			WriteFile(wSemEsperarPipeClientes[i], &cmd, sizeof(COMANDO_DO_SERVIDOR), &n, NULL);
+		if (wSemEsperarPipeClientes[i] != NULL && JogadoresOnline[i].Ajogar == 1) 
+		{
+		CriaInfoSobreOJogador(&msg_a_enviar, i);
+		CriaMapaParaEnvio(&msg_a_enviar);
+        WriteFile(wSemEsperarPipeClientes[i], &msg_a_enviar, sizeof(COMANDO_DO_SERVIDOR), &n, NULL);
 		}
-	}*/
-
-
-    
-	WriteFile(wSemEsperarPipeClientes[indice], &msg_a_enviar, sizeof(COMANDO_DO_SERVIDOR), &n, NULL);
+	}
 
 	ReleaseMutex(hMutexEnvio);
 }
@@ -565,7 +568,12 @@ void TrataComando(COMANDO_DO_CLIENTE *cmd) {
 		Move(cmd);		
 		ReleaseMutex(hMutexMapa);
 		break;
-
+	case 9:
+		WaitForSingleObject(hMutexMapa, INFINITE);
+		_tprintf(TEXT("monstro fez movimento...\n"));
+		MoveMonstro(cmd);
+		ReleaseMutex(hMutexMapa);
+		break;
 	case 10: // verifica jogo
 		VerificaJogo(cmd);
 		break;
@@ -701,6 +709,73 @@ void Move(COMANDO_DO_CLIENTE *c) {
 	EnviaJogadorEMapaActual(c);
 	
 	return;
+}
+
+void MoveMonstro(COMANDO_DO_CLIENTE * c) 
+{
+	
+	int accao = c->resposta;
+	int res;
+	POSICAO posInicial;
+	POSICAO posFinal;
+	COMANDO_DO_SERVIDOR cmd;
+	DWORD n;
+
+
+	
+	posInicial = c->p_monstro;
+
+	posFinal = posInicial;
+
+	switch (accao)
+	{
+	case 0:  //esquerda
+		posFinal.y = posInicial.y - 1;
+		break;
+	case 1: //direita
+		posFinal.y = posInicial.y + 1;
+		break;
+	case 2: //baixo
+		posFinal.x = posInicial.x + 1;
+		break;
+	case 3: //cima
+		posFinal.x = posInicial.x - 1;
+		break;
+	default:
+		break;
+	}
+
+	if (posFinal.x < 0)
+		posFinal.x = 0;
+	if (posFinal.y < 0)
+		posFinal.y = 0;
+
+	if (posFinal.x > LT)
+		posFinal.x = LT;
+	if (posFinal.y > CT)
+		posFinal.y = CT;
+
+	res = VerificaExisteAlgoPosicao(&posFinal);
+
+	if (res == 0 || res == 3)
+	{
+		cmd.p1 = posFinal;
+		ptrMapa->mundo[posFinal.x][posFinal.y].monstro = ptrMapa->mundo[posInicial.x][posInicial.y].monstro;
+		ptrMapa->mundo[posFinal.x][posFinal.y].monstro.presente = 1;
+		ptrMapa->mundo[posInicial.x][posInicial.y].monstro.presente = 0;
+	}
+	else 
+	{
+		cmd.p1 = posInicial;
+	}
+
+	//caso seja um bloco que parte o que fazer?
+	
+	EnviaJogadorEMapaActual(c);
+    WriteFile(wPipeClientes[c->ID], &cmd, sizeof(COMANDO_DO_SERVIDOR), &n, NULL);
+	
+	return;
+
 }
 
 void RegistaUtilizador(COMANDO_DO_CLIENTE *c) {
@@ -863,12 +938,11 @@ DWORD WINAPI AtendeCliente(LPVOID indice)
 		if (!ret || !n)
 			break;
 
-		_tprintf(TEXT("[SERVIDOR-%d] Sou cliente... (ReadFile)\n"), GetCurrentThreadId());
-
+        _tprintf(TEXT("[SERVIDOR] o comando do cliente indice [%d] foi %d \n"),indice_deste_cliente, cmd_cliente.tipoComando);
 		//calcular
 		TrataComando(&cmd_cliente);
 		
-		_tprintf(TEXT("[SERVIDOR] o comando do cliente indice [%d] foi %d \n"),indice_deste_cliente, cmd_cliente.tipoComando);
+		
 	} while (!(cmd_cliente.tipoComando == (-1)));
 
 
@@ -973,7 +1047,7 @@ void ComecaJogo(COMANDO_DO_CLIENTE *c)
 		BLOCO mole;
 		POSICAO p;
 		int resp;
-/*
+
 		ZeroMemory(&si, sizeof(si));
 		ZeroMemory(&pi, sizeof(pi));
 
@@ -991,24 +1065,27 @@ void ComecaJogo(COMANDO_DO_CLIENTE *c)
 		{
 		case 1: //coloca em jogo 3 inimigos 
         
-			for (i = 0; i<3; i++) {
+			for (i = 0; i<1; i++) {
 				do {
 					CalculaPosicaoAleatoria(&p);
 					resp = VerificaExisteAlgoPosicao(&p);
 				} while (resp != 0);
 
-				_stprintf_s(monstroPath, 100, TEXT("C:\\Users\\Sergio\\Desktop\\DungeonRPG\\Inimigo\\Debug\\Inimigo.exe %d %d 500"), p.x, p.y);
+				_stprintf_s(monstroPath, 100, TEXT("C:\\Users\\Sergio\\Desktop\\DungeonRPG\\DungeonRPG\\monstro\\Debug\\monstro.exe %d %d 1"), p.x, p.y);
 				Sleep(500);
 
 				if (!CreateProcess(NULL, monstroPath, NULL, NULL, 0, CREATE_NEW_CONSOLE, NULL, NULL, &si[i], &pi[i])) {
 					MessageBox(NULL, _T("Unable to create process."), _T("Error"), MB_OK);
 					break;
 				}
-				else {
-					ptrMapa->mapa[p.x][p.y].monstro.pos = p;
-					ptrMapa->mapa[p.x][p.y].monstro.presente = 1;
-					ptrMapa->mapa[p.x][p.y].monstro.saude = 10;
-					ptrMapa->mapa[p.x][p.y].monstro.lentidao = 5;
+				else {//tipo 1
+
+						ptrMapa->mundo[p.x][p.y].monstro.saude = 10;
+						ptrMapa->mundo[p.x][p.y].monstro.ataque = 5;
+						ptrMapa->mundo[p.x][p.y].monstro.defesa = 5;
+						ptrMapa->mundo[p.x][p.y].monstro.lentidao = 4;
+						ptrMapa->mundo[p.x][p.y].monstro.raioDeVisao = 3;
+							
 				}
 			}
 
@@ -1020,7 +1097,7 @@ void ComecaJogo(COMANDO_DO_CLIENTE *c)
 		}
 	
 	ReleaseMutex(hMutexMapa);
-*/
+
 
 	game.iniciado = 1; //jogo passa a estar a decorrer
 	cmd.tipoResposta = 1;
@@ -1079,6 +1156,26 @@ void AbrirJogoATodosClientesEmJogo() { // o que faz é actualizar a var em jogo a
 	{
 		if (wSemEsperarPipeClientes[i] != NULL && JogadoresOnline[i].Ajogar == 1) {
 			WriteFile(wSemEsperarPipeClientes[i], &cmd, sizeof(COMANDO_DO_SERVIDOR), &n, NULL);
+		}
+	}
+}
+
+void zeramonstros() 
+{
+	int i, j;
+	for (i = 0; i < LT; i++) {			//criacao do mundo a funcionar
+		for (j = 0; j < CT; j++) {
+			ptrMapa->mundo[i][j].monstro.presente = 0;			
+		}
+	}
+}
+
+void zerajogadores()
+{
+	int i, j;
+	for (i = 0; i < LT; i++) {			//criacao do mundo a funcionar
+		for (j = 0; j < CT; j++) {
+			ptrMapa->mundo[i][j].jogador = semjogador;
 		}
 	}
 }

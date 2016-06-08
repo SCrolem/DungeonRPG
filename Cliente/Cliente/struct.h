@@ -75,6 +75,7 @@ typedef struct {
 	int resposta;
 	USER user;
 	TCHAR msg[TAM_MSG];
+	POSICAO p_monstro;
 }COMANDO_DO_CLIENTE;
 
 typedef struct {

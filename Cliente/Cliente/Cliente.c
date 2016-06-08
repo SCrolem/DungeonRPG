@@ -392,6 +392,8 @@ void imprimeMundo(COMANDO_DO_SERVIDOR c)
 			
 			if (c.mapa[i][j].jogador.presente == 1)
 				_tprintf(TEXT(" X "));
+			else if (c.mapa[i][j].monstro.presente == 1)
+				_tprintf(TEXT(" M "));
 			else if (c.mapa[i][j].objeto.tipo != 0)
 				_tprintf(TEXT(" Z "));
 			else if (c.mapa[i][j].bloco.tipo == 0)
