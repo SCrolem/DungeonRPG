@@ -112,10 +112,10 @@ BOOL monstro;
 int objecto;
 int parede;
 }CELULACLI;
-
+*/
 typedef struct {
-CELULACLI mapa[L][C];
-}MAPACLIENTE;*/
+CELULA mapa[L][C];
+}MAPACLIENTE;
 
 typedef struct {
 	BOOL criado;

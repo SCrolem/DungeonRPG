@@ -31,7 +31,8 @@
 // do Windows API e os tipos usados na programação Windows
 #include <windows.h>
 #include <tchar.h>
-#include "C:\Users\Sergio\Desktop\DungeonRPG\DungeonRPG\Cliente_GUI\Cliente_GUI\resource.h"
+//#include "C:\Users\Sergio\Desktop\DungeonRPG\DungeonRPG\Cliente_GUI\Cliente_GUI\resource.h"
+#include "C:\Users\Dmytro Yaremyshyn\Desktop\DungeonRPG\Cliente_GUI\Cliente_GUI\resource.h"
 #include "struct.h"
 
 // Pré-declaração da função WndProc (a que executa os procedimentos da janela por
@@ -42,8 +43,14 @@
 #define PIPE_N_READ TEXT("\\\\.\\pipe\\ParaCliente")
 
 HANDLE wPipe, rPipe, rrPipe;
+<<<<<<< HEAD
 
 void actualiza_jogador(COMANDO_DO_SERVIDOR * cmd);
+=======
+void WINAPI ImprimeMapa(LPVOID param);
+void WINAPI ImprimeJogador(LPVOID param);
+
+>>>>>>> origin/master
 int Autenticar(TCHAR *login, TCHAR *pass, TCHAR * ip);
 int Registar(TCHAR *login, TCHAR *pass);
 int Cria_Jogo();
@@ -54,12 +61,23 @@ BOOL CALLBACK funcaotrataLogin(HWND hDlg, UINT m, WPARAM w, LPARAM l);
 BOOL CALLBACK funcaotrataLogin(HWND hDlg, UINT m, WPARAM w, LPARAM l);
 BOOL CALLBACK funcaotrataCriarJogoECamecar(HWND hDlg, UINT m, WPARAM w, LPARAM l);
 LRESULT CALLBACK TrataEventos(HWND, UINT, WPARAM, LPARAM);
+<<<<<<< HEAD
 void Move(direcao);
+=======
 
+HINSTANCE hInstGlobal;
+>>>>>>> origin/master
 
+MAPACLIENTE Mapa;
+static JOGADOR jog;
+
+static HBITMAP myPlayer, vazio, wall, relva, monstro, vitamina, redbull, pedra, rebucado, monstro2;
+HDC memdc;
+PAINTSTRUCT area;
+HBITMAP hbit;
 
 HANDLE  hMutexEspera;
-
+static int maxX, maxY;
 
 
 int aEsperaDeJogar = 0;
@@ -483,15 +501,42 @@ LRESULT CALLBACK TrataEventos(HWND hWnd, UINT messg, WPARAM wParam, LPARAM lPara
 
 	case WM_CREATE:
 		hMenu = GetMenu(hWnd);
-		//hdc = GetDC(hWnd);
 		
-		//ReleaseDC(hWnd, hdc);
+
+		wall = LoadBitmap(hInstGlobal, (TCHAR *)IDB_BITMAP1);
+		vazio = LoadBitmap(hInstGlobal, (TCHAR *)IDB_BITMAP2);
+		myPlayer = LoadBitmap(hInstGlobal, (TCHAR *)IDB_BITMAP8);
+		relva = LoadBitmap(hInstGlobal, (TCHAR *)IDB_BITMAP5);
+		monstro  = LoadBitmap(hInstGlobal, (TCHAR *)IDB_BITMAP6);
+		monstro2 = LoadBitmap(hInstGlobal, (TCHAR *)IDB_BITMAP7);
+		vitamina = LoadBitmap(hInstGlobal, (TCHAR *)IDB_BITMAP9);
+		redbull = LoadBitmap(hInstGlobal, (TCHAR *)IDB_BITMAP10);
+		pedra = LoadBitmap(hInstGlobal, (TCHAR *)IDB_BITMAP11);
+		rebucado = LoadBitmap(hInstGlobal, (TCHAR *)IDB_BITMAP12);
+		
+		////////////////
+		maxX = GetSystemMetrics(SM_CXSCREEN);
+		maxY = GetSystemMetrics(SM_CYSCREEN);
+		hdc = GetDC(hWnd);
+		memdc = CreateCompatibleDC(hdc);
+		hbit = CreateCompatibleBitmap(hdc, maxX, maxY);
+		SelectObject(memdc, hbit);
+		//ImprimeJogador(hWnd);
+		ImprimeMapa(hWnd);
+		ReleaseDC(hWnd, hdc);
+
 		break;
 
 	case WM_PAINT:
 		hdc = BeginPaint(hWnd, &p);
-		_stprintf_s(texto, 100, TEXT("Area afetada«: %d %d a %d %d        "), p.rcPaint.left, p.rcPaint.top, p.rcPaint.right, p.rcPaint.bottom);
-		TextOut(hdc, 0, 0, texto, _tcslen(texto));
+
+
+		ImprimeMapa(hWnd);
+		ImprimeJogador(hWnd);
+
+		BitBlt(hdc, 0, 0, maxX, maxY, memdc, 0, 0, SRCCOPY);
+		//_stprintf_s(texto, 100, TEXT("Area afetada«: %d %d a %d %d        "), p.rcPaint.left, p.rcPaint.top, p.rcPaint.right, p.rcPaint.bottom);
+		//TextOut(hdc, 0, 0, texto, _tcslen(texto));
 		Rectangle(hdc, xi, yi, xf, yf);
 
 
@@ -896,6 +941,7 @@ DWORD WINAPI RecebeDoServidor(LPVOID param) { //recebe o pipe
 	return 0;
 }
 
+<<<<<<< HEAD
 
 void actualiza_jogador(COMANDO_DO_SERVIDOR * cmd) 
 {
@@ -910,6 +956,122 @@ void actualiza_jogador(COMANDO_DO_SERVIDOR * cmd)
 }
 
 
+=======
+void WINAPI ImprimeMapa(LPVOID param) {
+	HWND hWnd = (HWND)param;
+	HDC hdc, auxdc;
+
+	auxdc = CreateCompatibleDC(memdc);
+	//auxdc=GetDC(hWnd);
+
+	SelectObject(memdc, GetStockObject(WHITE_BRUSH));
+	Rectangle(memdc, 0, 0, 800, 600);
+
+	for (int i = 0; i<L; i++) {
+		for (int j = 0; j<C; j++) {
+			switch (Mapa.mapa[i][j].bloco.tipo)
+			{
+			case 0:// se posicao esta vazia
+
+				SelectObject(auxdc, vazio);
+
+				switch (Mapa.mapa[i][j].objeto.tipo) //verifica se ha objectos
+				{
+				case 0:// Obrigatorio
+					SelectObject(auxdc, pedra);
+					break;
+				case 1:// 
+					SelectObject(auxdc, vitamina);
+					break;
+				case 2:// 
+					SelectObject(auxdc, redbull);
+					break;
+				case 3:// 
+					SelectObject(auxdc, rebucado);
+					break;
+				default:
+					break;
+				}
+
+				
+
+				if (Mapa.mapa[i][j].monstro.presente==1) {
+					if (Mapa.mapa[i][j].monstro.tipo_monstro==1)
+						SelectObject(auxdc, monstro);
+					else
+						SelectObject(auxdc, monstro2);
+
+				}
+
+				break;
+			case 1:
+				SelectObject(auxdc, relva);
+				break;
+			case 2:
+				SelectObject(auxdc, wall);
+				break;
+			default:
+				break;
+			}
+			BitBlt(memdc, (j * 40) + 120, (i * 40) + 10, 40, 40, auxdc, 0, 0, SRCCOPY);
+
+			if (JogoCriado && jog.vidas >= 0) {
+				SelectObject(auxdc, myPlayer);
+				BitBlt(memdc, (jog.pos.y * 40) + 120, (jog.pos.x * 40) + 10, 40, 40, auxdc, 0, 0, SRCCOPY);
+			}
+
+		}
+	}
+
+	DeleteDC(auxdc);
+	//EndPaint(hWnd,&area);
+}
+
+void WINAPI ImprimeJogador(LPVOID param) {
+	HDC hdc, auxdc;
+	HPEN hpen;
+	TCHAR str[50];
+
+	auxdc = CreateCompatibleDC(memdc);
+
+	_stprintf_s(str, 50, TEXT("JOGADOR:"));
+	TextOut(memdc, 10, 10, str, _tcslen(str));
+
+	_stprintf_s(str, 50, TEXT("SAUDE:"));
+	TextOut(memdc, 10, 60, TEXT("     "), 5);
+	TextOut(memdc, 10, 60, str, _tcslen(str));
+
+	_stprintf_s(str, 50, TEXT("VIDAS:"));
+	TextOut(memdc, 10, 100, TEXT("   "), 3);
+	TextOut(memdc, 10, 100, str, _tcslen(str));
+
+	
+	_stprintf_s(str, 50, TEXT("PONTOS:"));
+	TextOut(memdc, 10, 180, TEXT("       "), 7);
+	TextOut(memdc, 10, 180, str, _tcslen(str));
+
+	//hpen=(HPEN)GetStockObject(ANSI_VAR_FONT);
+
+	//SelectObject(auxdc,hpen);
+
+	_stprintf_s(str, 50, TEXT("%s"), jog.username);
+	TextOut(memdc, 10, 30, str, _tcslen(str));
+
+	_stprintf_s(str, 50, TEXT("%d"), jog.saude);
+	TextOut(memdc, 10, 80, str, _tcslen(str));
+
+	_stprintf_s(str, 50, TEXT("%d"), jog.vidas);
+	TextOut(memdc, 10, 120, str, _tcslen(str));
+
+	_stprintf_s(str, 50, TEXT("%d"), jog.pontos);
+	TextOut(memdc, 10, 200, str, _tcslen(str));
+
+	DeleteDC(auxdc);
+}
+
+
+
+>>>>>>> origin/master
 /*
 void imprimeJogador(COMANDO_DO_SERVIDOR cmd)
 {
