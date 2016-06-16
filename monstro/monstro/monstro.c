@@ -53,21 +53,9 @@ int _tmain(int argc, LPTSTR argv[]) {
 		monstro.pos.y = _wtoi(argv[2]);
 		monstro.tipo_monstro = _wtoi(argv[3]);
 		_tprintf(TEXT("[MONSTRO] recebi x= %d y= %d e tipo %d...\n"), monstro.pos.x, monstro.pos.y, monstro.tipo_monstro);
-		if (monstro.tipo_monstro == 1) 
-		{
-		monstro.saude = 10;
-		monstro.ataque = 5;
-		monstro.defesa = 5;
-		monstro.lentidao = 4;
-		monstro.raioDeVisao = 3;
-		}else if(monstro.tipo_monstro == 1)
-		{
-			monstro.saude = 15;
-			monstro.ataque = 10;
-			monstro.defesa = 10;
-			monstro.lentidao = 15;
-			monstro.raioDeVisao = 2;
-		}
+
+		preencheMonstro(&cmd);
+
 	}
 
 
@@ -196,4 +184,26 @@ int EnviaComando()
 		{}
 		monstro.pos = cmd2.p1;
        
+}
+
+void preencheMonstro(COMANDO_DO_SERVIDOR *cmd) {
+
+	if (monstro.tipo_monstro == 1)
+	{
+		monstro.saude = 10;
+		monstro.ataque = 5;
+		monstro.defesa = 5;
+		monstro.lentidao = 4;
+		monstro.raioDeVisao = 3;
+		monstro.limSaude = 16;
+	}
+	else if (monstro.tipo_monstro == 2)
+	{
+		monstro.saude = 15;
+		monstro.ataque = 10;
+		monstro.defesa = 10;
+		monstro.lentidao = 15;
+		monstro.raioDeVisao = 2;
+		monstro.limSaude = 24;
+	}
 }

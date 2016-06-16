@@ -42,6 +42,9 @@ typedef struct {
 	int saude;
 	int vidas;
 	int pontos;
+	OBJETO mochila[T_OBJ];
+	int modoAtaque;
+	int limSaude;
 }JOGADOR;
 
 typedef struct {
@@ -58,6 +61,7 @@ typedef struct {
 	int saude;
 	int lentidao;
 	int raioDeVisao;
+	int limSaude;
 }MONSTRO;
 
 typedef struct {
@@ -86,6 +90,7 @@ typedef struct {
 	CELULA mapa[10][10];
 	POSICAO p1;
 	POSICAO p2;
+
 }COMANDO_DO_SERVIDOR;
 
 typedef struct {
@@ -102,14 +107,14 @@ typedef struct {
 }MEMORIA;
 
 /*typedef struct {
-	JOGADOR jogador;
-	BOOL monstro;
-	int objecto;
-	int parede;
+JOGADOR jogador;
+BOOL monstro;
+int objecto;
+int parede;
 }CELULACLI;
 
 typedef struct {
-	CELULACLI mapa[L][C];
+CELULACLI mapa[L][C];
 }MAPACLIENTE;*/
 
 typedef struct {

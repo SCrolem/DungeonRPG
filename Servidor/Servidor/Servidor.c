@@ -93,6 +93,7 @@ void MoveMonstro(COMANDO_DO_CLIENTE * c);
 
 //consequencias
 JOGADOR JogadorMorre(JOGADOR j);
+void apanhaObjeto();
 //void ApanhaObjecto(POSICAO p, COMANDO_DO_CLIENTE *c);
 
 //zera vars
@@ -1188,6 +1189,39 @@ void zerajogadores()
 	for (i = 0; i < LT; i++) {			//criacao do mundo a funcionar
 		for (j = 0; j < CT; j++) {
 			ptrMapa->mundo[i][j].jogador = semjogador;
+		}
+	}
+}
+
+
+void apanhaObjeto() {
+	int i, j;
+
+	for (i = 0; i < LT; i++) {
+		for (j = 0; j < CT; j++) {
+
+			if (ptrMapa->mundo[i][j].jogador.presente == 1) {
+				if (ptrMapa->mundo[i][j].objeto.presente == 1) {  // se for do tipo pedra, guarda
+					if (ptrMapa->mundo[i][j].objeto.tipo == 0)
+						ptrMapa->mundo[i][j].jogador.nPedras++;
+					else if (ptrMapa->mundo[i][j].objeto.tipo == 1) {
+						ptrMapa->mundo[i][j].jogador.limSaude = 20;
+						if (ptrMapa->mundo[i][j].jogador.saude<ptrMapa->mundo[i][j].jogador.limSaude)
+							ptrMapa->mundo[i][j].jogador.saude++;
+
+					}
+					else if (ptrMapa->mundo[i][j].objeto.tipo == 2) {
+						ptrMapa->mundo[i][j].jogador.limSaude = 20;
+						if (ptrMapa->mundo[i][j].jogador.saude<ptrMapa->mundo[i][j].jogador.limSaude)
+							ptrMapa->mundo[i][j].jogador.saude += 3;
+					}
+					else if (ptrMapa->mundo[i][j].objeto.tipo == 3) {
+
+					}
+					ptrMapa->mundo[i][j].objeto.presente = 0;
+				}
+
+			}
 		}
 	}
 }

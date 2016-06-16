@@ -71,7 +71,7 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>C:\Users\Sergio\Desktop\DungeonRPG\DungeonRPG\Cliente\Cliente;C:\Users\Sergio\Desktop\DungeonRPG\DungeonRPG\DLL\DLL;$(IncludePath)</IncludePath>
+    <IncludePath>C:\Users\Dmytro Yaremyshyn\Desktop\DungeonRPG\Cliente\Cliente;C:\Users\Sergio\Desktop\DungeonRPG\DungeonRPG\Cliente\Cliente;C:\Users\Sergio\Desktop\DungeonRPG\DungeonRPG\DLL\DLL;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>

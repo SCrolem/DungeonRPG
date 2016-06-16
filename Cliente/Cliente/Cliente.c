@@ -22,7 +22,9 @@ int pid = 0;
 
 void imprimeMundo(COMANDO_DO_SERVIDOR  c);
 void imprimeJogador(COMANDO_DO_SERVIDOR cmd);
-
+void atacarMonstro(COMANDO_DO_SERVIDOR *cmd, int Ax, int Ay, int posX, int posY);
+void atacarJogador(COMANDO_DO_SERVIDOR *cmd, int Ax, int Ay, int posX, int posY);
+void atacar(COMANDO_DO_SERVIDOR cmd);
 
 int _tmain(int argc, LPTSTR argv[]) {
 	TCHAR buf[256];
@@ -406,4 +408,63 @@ void imprimeMundo(COMANDO_DO_SERVIDOR c)
 	}
 
 	_tprintf(TEXT("\n\n"));
+}
+
+
+
+
+void atacarMonstro(COMANDO_DO_SERVIDOR *cmd, int Ax, int Ay, int posX, int posY) {
+	if (cmd->mapa[posX][posY].jogador.presente == 1 && cmd->mapa[posX][posY].monstro.presente == 1) {
+		cmd->mapa[posX][posY].jogador.vidas--;
+		if (cmd->mapa[posX][posY].monstro.saude < cmd->mapa[posX][posY].monstro.limSaude)
+			cmd->mapa[posX][posY].monstro.saude++;
+		else {
+			//envia pedido ao servidor para que seja criado outro monstro na pos adjacente da pos atual do monstro "pai"
+		}
+	}
+	cmd->mapa[Ax][Ay].monstro.saude--;
+}
+
+void atacarJogador(COMANDO_DO_SERVIDOR *cmd, int Ax, int Ay, int posX, int posY) {
+
+	if (cmd->mapa[posX][posY].jogador.modoAtaque == 1 && cmd->mapa[posX][posY].jogador.nPedras > 0) {
+		cmd->mapa[Ax][Ay].jogador.vidas -= 2;
+		cmd->mapa[Ax][Ay].jogador.nPedras--;
+	}
+	else {
+		cmd->mapa[Ax][Ay].jogador.vidas--;
+	}
+}
+
+void atacar(COMANDO_DO_SERVIDOR cmd) {
+	int i, j;
+
+	for (i = 0; i < L; i++) {
+		for (j = 0; j < C; j++) {
+			if (cmd.mapa[i][j].jogador.presente == 1) {
+
+				//atacar um jogador
+				if (cmd.mapa[i - 1][j].jogador.presente == 1)
+					atacarJogador(&cmd, i - 1, j, i, j);
+				else if (cmd.mapa[i + 1][j].jogador.presente == 1)
+					atacarJogador(&cmd, i + 1, j, i, j);
+				else if (cmd.mapa[i][j - 1].jogador.presente == 1)
+					atacarJogador(&cmd, i, j - 1, i, j);
+				else if (cmd.mapa[i][j + 1].jogador.presente == 1)
+					atacarJogador(&cmd, i, j + 1, i, j);
+
+				//atacar um monstro 
+				if (cmd.mapa[i][j].monstro.presente == 1)
+					atacarMonstro(&cmd, i, j, i, j);
+				else if (cmd.mapa[i - 1][j].monstro.presente == 1)
+					atacarMonstro(&cmd, i - 1, j, i, j);
+				else if (cmd.mapa[i + 1][j].monstro.presente == 1)
+					atacarMonstro(&cmd, i + 1, j, i, j);
+				else if (cmd.mapa[i][j - 1].monstro.presente == 1)
+					atacarMonstro(&cmd, i, j - 1, i, j);
+				else if (cmd.mapa[i][j + 1].monstro.presente == 1)
+					atacarMonstro(&cmd, i, j + 1, i, j);
+			}
+		}
+	}
 }
