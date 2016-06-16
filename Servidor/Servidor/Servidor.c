@@ -1195,6 +1195,7 @@ void AbrirJogoATodosClientesEmJogo() { // o que faz é actualizar a var em jogo a
 	cmd.resposta = 1;
 	for (i = 0; i < N_MAX_CLIENTES; i++)
 	{
+		_tprintf(TEXT("[SERVIDOR] ENVIEI"));
 		if (wSemEsperarPipeClientes[i] != NULL && JogadoresOnline[i].Ajogar == 1) {
 			WriteFile(wSemEsperarPipeClientes[i], &cmd, sizeof(COMANDO_DO_SERVIDOR), &n, NULL);
 		}

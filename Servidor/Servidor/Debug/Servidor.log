@@ -17,5 +17,5 @@ c:\users\sergio\desktop\dungeonrpg\dungeonrpg\servidor\servidor\servidor.c(938):
 c:\users\sergio\desktop\dungeonrpg\dungeonrpg\servidor\servidor\servidor.c(930): warning C4101: 'buf': unreferenced local variable
 c:\users\sergio\desktop\dungeonrpg\dungeonrpg\servidor\servidor\servidor.c(937): warning C4101: 'cmd_servidor': unreferenced local variable
 c:\users\sergio\desktop\dungeonrpg\dungeonrpg\servidor\servidor\servidor.c(1060): warning C4101: 'mole': unreferenced local variable
-c:\users\sergio\desktop\dungeonrpg\dungeonrpg\servidor\servidor\servidor.c(1166): warning C4101: 'buf': unreferenced local variable
+c:\users\sergio\desktop\dungeonrpg\dungeonrpg\servidor\servidor\servidor.c(1160): warning C4101: 'buf': unreferenced local variable
   Servidor.vcxproj -> C:\Users\Sergio\Desktop\DungeonRPG\DungeonRPG\Servidor\Debug\Servidor.exe

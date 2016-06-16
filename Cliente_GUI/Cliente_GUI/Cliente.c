@@ -45,6 +45,7 @@
 HANDLE wPipe, rPipe, rrPipe;
 
 
+void atualizaMapa(COMANDO_DO_SERVIDOR *cmd);
 void actualiza_jogador(COMANDO_DO_SERVIDOR * cmd);
 
 void WINAPI ImprimeMapa(LPVOID param);
@@ -634,9 +635,9 @@ LRESULT CALLBACK TrataEventos(HWND hWnd, UINT messg, WPARAM wParam, LPARAM lPara
 		break;*/
 
 	case WM_KEYDOWN:
-		Sleep(jogador_info.lentidao * 100);
+		//Sleep(jogador_info.lentidao * 100);
 		hdc = GetDC(hWnd);
-		if (emjogo == 1 && jogador_info.saude > 0) { //Jogo iniciado && jogador tem vidas
+		if (emjogo == 1 /*&& jogador_info.saude > 0*/) { //Jogo iniciado && jogador tem vidas
 			switch (wParam)
 			{
 			case VK_UP:
@@ -930,10 +931,9 @@ DWORD WINAPI RecebeDoServidor(LPVOID param) { //recebe o pipe
 			}
 			else if (cmd.resposta == 2)
 			{
-				_tprintf(TEXT("\n\nIMPRIMIR:\n"));
-				ImprimeMapa(&cmd);
-				//ImprimeJogador(&cmd);
-				actualiza_jogador(&cmd);
+				
+			//	atualizaMapa(&cmd);
+				//actualiza_jogador(&cmd);
 			}
 		}
 	}
