@@ -43,14 +43,14 @@
 #define PIPE_N_READ TEXT("\\\\.\\pipe\\ParaCliente")
 
 HANDLE wPipe, rPipe, rrPipe;
-<<<<<<< HEAD
+
 
 void actualiza_jogador(COMANDO_DO_SERVIDOR * cmd);
-=======
+
 void WINAPI ImprimeMapa(LPVOID param);
 void WINAPI ImprimeJogador(LPVOID param);
 
->>>>>>> origin/master
+
 int Autenticar(TCHAR *login, TCHAR *pass, TCHAR * ip);
 int Registar(TCHAR *login, TCHAR *pass);
 int Cria_Jogo();
@@ -61,12 +61,12 @@ BOOL CALLBACK funcaotrataLogin(HWND hDlg, UINT m, WPARAM w, LPARAM l);
 BOOL CALLBACK funcaotrataLogin(HWND hDlg, UINT m, WPARAM w, LPARAM l);
 BOOL CALLBACK funcaotrataCriarJogoECamecar(HWND hDlg, UINT m, WPARAM w, LPARAM l);
 LRESULT CALLBACK TrataEventos(HWND, UINT, WPARAM, LPARAM);
-<<<<<<< HEAD
+
 void Move(direcao);
-=======
+
 
 HINSTANCE hInstGlobal;
->>>>>>> origin/master
+
 
 MAPACLIENTE Mapa;
 static JOGADOR jog;
@@ -941,7 +941,6 @@ DWORD WINAPI RecebeDoServidor(LPVOID param) { //recebe o pipe
 	return 0;
 }
 
-<<<<<<< HEAD
 
 void actualiza_jogador(COMANDO_DO_SERVIDOR * cmd) 
 {
@@ -956,7 +955,7 @@ void actualiza_jogador(COMANDO_DO_SERVIDOR * cmd)
 }
 
 
-=======
+
 void WINAPI ImprimeMapa(LPVOID param) {
 	HWND hWnd = (HWND)param;
 	HDC hdc, auxdc;
@@ -1071,7 +1070,6 @@ void WINAPI ImprimeJogador(LPVOID param) {
 
 
 
->>>>>>> origin/master
 /*
 void imprimeJogador(COMANDO_DO_SERVIDOR cmd)
 {
