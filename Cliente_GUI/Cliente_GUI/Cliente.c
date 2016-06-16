@@ -404,9 +404,9 @@ BOOL CALLBACK funcaotrataCriarJogoECamecar(HWND hDlg, UINT m, WPARAM w, LPARAM l
 			case 1:
 
 				//ShowWindow(IDC_BUTTON_Comecar, SW_SHOW);//mostrar botao
-				ShowWindow(GetDlgItem(hDlg, ID_CriarJogo), SW_SHOW);
+				ShowWindow(GetDlgItem(hDlg, ID_CriarJogo), SW_HIDE);
 				ShowWindow(GetDlgItem(hDlg, IDC_BUTTON_Comecar), SW_SHOW);
-				//ShowWindow(IDCANCELCJ, SW_HIDE);
+				ShowWindow(GetDlgItem(hDlg, IDCANCELCJ), SW_HIDE);
 				MessageBox(hDlg, TEXT("Jogo criado!"), TEXT("Mensagem"), MB_OK);
 				break;
 			case 0:
