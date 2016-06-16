@@ -539,7 +539,7 @@ void CriaInfoSobreOJogador(COMANDO_DO_SERVIDOR *cmd, int indice)
 
 void TrataComando(COMANDO_DO_CLIENTE *cmd) {
 
-	_tprintf(TEXT("recebi o comando : %d do cliente :%d   com o nome : %s"), cmd->tipoComando, cmd->ID, cmd->user.login);
+	//_tprintf(TEXT("recebi o comando : %d do cliente :%d   com o nome : %s"), cmd->tipoComando, cmd->ID, cmd->user.login);
 
 	switch (cmd->tipoComando)
 	{

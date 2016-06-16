@@ -148,7 +148,7 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst,
 														IDI_QUESTION		Question mark icon.
 														IDI_WARNING			Exclamation point icon*/
 
-	wcApp.hCursor = LoadCursor(NULL, IDC_NO);	// "hCursor" = handler do cursor (rato)
+	wcApp.hCursor = LoadCursor(NULL, IDC_HAND);	// "hCursor" = handler do cursor (rato)
 												// "NULL" = Forma definida no Windows
 												// "IDC_ARROW" Aspecto "seta" 
 												/*OUTROS TIPOS DE CURSORES:	IDC_CROSS IDC_HAND IDC_HELP IDC_UPARROW IDC_WAIT */
@@ -517,7 +517,7 @@ LRESULT CALLBACK TrataEventos(HWND hWnd, UINT messg, WPARAM wParam, LPARAM lPara
 		break;
 
 
-	case WM_LBUTTONUP:
+	/*case WM_LBUTTONUP:
 		x = LOWORD(lParam);
 		y = HIWORD(lParam);
 		xf = x;
@@ -559,7 +559,7 @@ LRESULT CALLBACK TrataEventos(HWND hWnd, UINT messg, WPARAM wParam, LPARAM lPara
 		TextOut(hdc, xi, yi, TEXT("double click"), _tcslen(TEXT("doucle click")));
 		ReleaseDC(hdc, hWnd);
 
-		break;
+		break;*/
 
 	case WM_KEYDOWN:
 		hdc = GetDC(hWnd);

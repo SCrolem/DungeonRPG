@@ -127,8 +127,7 @@ int _tmain(int argc, LPTSTR argv[]) {
 	do {
 		//Sleep(monstro.lentidao * 100);
 		_tprintf(TEXT("[MONSTRO] CHEGUEI...\n"));
-		Sleep(300);
-
+		Sleep(100*monstro.lentidao);
 
 		EnviaComando();
 

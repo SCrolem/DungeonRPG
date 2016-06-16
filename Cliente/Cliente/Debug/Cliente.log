@@ -1,3 +1,4 @@
 ﻿  Cliente.c
-c:\users\sergio\desktop\dungeonrpg\dungeonrpg\cliente\cliente\cliente.c(333): warning C4101: 'buf': unreferenced local variable
+c:\users\sergio\desktop\dungeonrpg\dungeonrpg\cliente\cliente\cliente.c(335): warning C4101: 'buf': unreferenced local variable
+Cliente.obj : warning LNK4075: ignoring '/EDITANDCONTINUE' due to '/OPT:LBR' specification
   Cliente.vcxproj -> C:\Users\Sergio\Desktop\DungeonRPG\DungeonRPG\Cliente\Debug\Cliente.exe
