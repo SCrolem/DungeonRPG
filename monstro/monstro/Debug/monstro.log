@@ -1,6 +1,6 @@
 ﻿  monstro.c
 c:\users\sergio\desktop\dungeonrpg\dungeonrpg\monstro\monstro\monstro.c(32): warning C4101: 'buf': unreferenced local variable
 c:\users\sergio\desktop\dungeonrpg\dungeonrpg\monstro\monstro\monstro.c(34): warning C4101: 'comando': unreferenced local variable
-c:\users\sergio\desktop\dungeonrpg\dungeonrpg\monstro\monstro\monstro.c(181): warning C4101: 'buf': unreferenced local variable
-c:\users\sergio\desktop\dungeonrpg\dungeonrpg\monstro\monstro\monstro.c(199): warning C4716: 'EnviaComando': must return a value
+c:\users\sergio\desktop\dungeonrpg\dungeonrpg\monstro\monstro\monstro.c(169): warning C4101: 'buf': unreferenced local variable
+c:\users\sergio\desktop\dungeonrpg\dungeonrpg\monstro\monstro\monstro.c(187): warning C4716: 'EnviaComando': must return a value
   monstro.vcxproj -> C:\Users\Sergio\Desktop\DungeonRPG\DungeonRPG\monstro\Debug\monstro.exe

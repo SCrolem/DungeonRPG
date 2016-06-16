@@ -31,8 +31,8 @@
 // do Windows API e os tipos usados na programação Windows
 #include <windows.h>
 #include <tchar.h>
-//#include "C:\Users\Sergio\Desktop\DungeonRPG\DungeonRPG\Cliente_GUI\Cliente_GUI\resource.h"
-#include "C:\Users\Dmytro Yaremyshyn\Desktop\DungeonRPG\Cliente_GUI\Cliente_GUI\resource.h"
+#include "C:\Users\Sergio\Desktop\DungeonRPG\DungeonRPG\Cliente_GUI\Cliente_GUI\resource.h"
+//#include "C:\Users\Dmytro Yaremyshyn\Desktop\DungeonRPG\Cliente_GUI\Cliente_GUI\resource.h"
 #include "struct.h"
 
 // Pré-declaração da função WndProc (a que executa os procedimentos da janela por
@@ -931,8 +931,8 @@ DWORD WINAPI RecebeDoServidor(LPVOID param) { //recebe o pipe
 			else if (cmd.resposta == 2)
 			{
 				_tprintf(TEXT("\n\nIMPRIMIR:\n"));
-				//imprimeJogador(&cmd);
-				//imprimeMundo(&cmd);
+				ImprimeMapa(&cmd);
+				//ImprimeJogador(&cmd);
 				actualiza_jogador(&cmd);
 			}
 		}

@@ -54,7 +54,7 @@ int _tmain(int argc, LPTSTR argv[]) {
 		monstro.tipo_monstro = _wtoi(argv[3]);
 		_tprintf(TEXT("[MONSTRO] recebi x= %d y= %d e tipo %d...\n"), monstro.pos.x, monstro.pos.y, monstro.tipo_monstro);
 
-		preencheMonstro(&cmd);
+		//preencheMonstro(&cmd);
 
 	}
 
@@ -150,6 +150,7 @@ void PreparaComando(COMANDO_DO_CLIENTE *cmd1)
 	cmd1->p_monstro.x = monstro.pos.x;
 	cmd1->p_monstro.y = monstro.pos.y;
 	cmd1->resposta = MovimentoIA(monstro.tipo_monstro);
+
 	_tprintf(TEXT("a preencher movimento e foi %d\n"), cmd1->tipoComando);
 }
 

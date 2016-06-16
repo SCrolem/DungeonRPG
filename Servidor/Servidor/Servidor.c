@@ -1078,7 +1078,7 @@ void ComecaJogo(COMANDO_DO_CLIENTE *c)
 		{
 		case 1: //coloca em jogo 3 inimigos 
         
-			for (i = 0; i<1; i++) {
+			for (i = 0; i<0; i++) {
 				do {
 					CalculaPosicaoAleatoria(&p);
 					resp = VerificaExisteAlgoPosicao(&p);
@@ -1093,14 +1093,42 @@ void ComecaJogo(COMANDO_DO_CLIENTE *c)
 				}
 				else {//tipo 1
 
+				
 						ptrMapa->mundo[p.x][p.y].monstro.saude = 10;
 						ptrMapa->mundo[p.x][p.y].monstro.ataque = 5;
 						ptrMapa->mundo[p.x][p.y].monstro.defesa = 5;
 						ptrMapa->mundo[p.x][p.y].monstro.lentidao = 4;
 						ptrMapa->mundo[p.x][p.y].monstro.raioDeVisao = 3;
-							
+						ptrMapa->mundo[p.x][p.y].monstro.limSaude = 16;
+					
 				}
 			}
+
+		/*	for (i = 0; i<1; i++) {
+				do {
+					CalculaPosicaoAleatoria(&p);
+					resp = VerificaExisteAlgoPosicao(&p);
+				} while (resp != 0);
+
+				_stprintf_s(monstroPath, 100, TEXT("C:\\Users\\Sergio\\Desktop\\DungeonRPG\\DungeonRPG\\monstro\\Debug\\monstro.exe %d %d 2"), p.x, p.y);
+				Sleep(500);
+
+				if (!CreateProcess(NULL, monstroPath, NULL, NULL, 0, CREATE_NEW_CONSOLE, NULL, NULL, &si[i], &pi[i])) {
+					MessageBox(NULL, _T("Unable to create process."), _T("Error"), MB_OK);
+					break;
+				}
+				else {//tipo 2
+
+					ptrMapa->mundo[p.x][p.y].monstro.saude = 15;
+					ptrMapa->mundo[p.x][p.y].monstro.ataque = 10;
+					ptrMapa->mundo[p.x][p.y].monstro.defesa = 10;
+					ptrMapa->mundo[p.x][p.y].monstro.lentidao = 15;
+					ptrMapa->mundo[p.x][p.y].monstro.raioDeVisao = 2;
+					ptrMapa->mundo[p.x][p.y].monstro.limSaude = 24;
+				}
+			}
+			*/
+
 
 			break;
 		case 2:
