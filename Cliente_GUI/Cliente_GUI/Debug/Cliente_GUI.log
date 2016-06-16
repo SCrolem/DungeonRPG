@@ -1,4 +1,5 @@
 ﻿  Cliente.c
+<<<<<<< HEAD
 c:\users\sergio\desktop\dungeonrpg\dungeonrpg\cliente_gui\cliente_gui\cliente.c(317): warning C4133: 'function': incompatible types - from 'char [5]' to 'TCHAR *'
 c:\users\sergio\desktop\dungeonrpg\dungeonrpg\cliente_gui\cliente_gui\cliente.c(317): warning C4133: 'function': incompatible types - from 'char [3]' to 'TCHAR *'
 c:\users\sergio\desktop\dungeonrpg\dungeonrpg\cliente_gui\cliente_gui\cliente.c(303): warning C4101: 'percorre': unreferenced local variable
@@ -24,3 +25,14 @@ c:\users\sergio\desktop\dungeonrpg\dungeonrpg\cliente_gui\cliente_gui\cliente.c(
 c:\users\sergio\desktop\dungeonrpg\dungeonrpg\cliente_gui\cliente_gui\cliente.c(1031): warning C4101: 'hpen': unreferenced local variable
 c:\users\sergio\desktop\dungeonrpg\dungeonrpg\cliente_gui\cliente_gui\cliente.c(465): warning C4716: 'funcaotrataEntrarEmJogo': must return a value
   Cliente_GUI.vcxproj -> C:\Users\Sergio\Desktop\DungeonRPG\DungeonRPG\Cliente_GUI\Debug\Cliente_GUI.exe
+=======
+c:\users\dmytro yaremyshyn\desktop\dungeonrpg\cliente_gui\cliente_gui\cliente.c(264): error C2198: 'RecebeDoServidor': too few arguments for call
+c:\users\dmytro yaremyshyn\desktop\dungeonrpg\cliente_gui\cliente_gui\cliente.c(317): warning C4133: 'function': incompatible types - from 'char [5]' to 'TCHAR *'
+c:\users\dmytro yaremyshyn\desktop\dungeonrpg\cliente_gui\cliente_gui\cliente.c(317): warning C4133: 'function': incompatible types - from 'char [3]' to 'TCHAR *'
+c:\users\dmytro yaremyshyn\desktop\dungeonrpg\cliente_gui\cliente_gui\cliente.c(375): warning C4133: 'function': incompatible types - from 'char [5]' to 'TCHAR *'
+c:\users\dmytro yaremyshyn\desktop\dungeonrpg\cliente_gui\cliente_gui\cliente.c(661): warning C4133: 'function': incompatible types - from 'HDC' to 'HWND'
+c:\users\dmytro yaremyshyn\desktop\dungeonrpg\cliente_gui\cliente_gui\cliente.c(661): warning C4133: 'function': incompatible types - from 'HWND' to 'HDC'
+c:\users\dmytro yaremyshyn\desktop\dungeonrpg\cliente_gui\cliente_gui\cliente.c(670): warning C4133: 'function': incompatible types - from 'HDC' to 'HWND'
+c:\users\dmytro yaremyshyn\desktop\dungeonrpg\cliente_gui\cliente_gui\cliente.c(670): warning C4133: 'function': incompatible types - from 'HWND' to 'HDC'
+c:\users\dmytro yaremyshyn\desktop\dungeonrpg\cliente_gui\cliente_gui\cliente.c(843): warning C4133: 'function': incompatible types - from 'char [8]' to 'const wchar_t *'
+>>>>>>> origin/master

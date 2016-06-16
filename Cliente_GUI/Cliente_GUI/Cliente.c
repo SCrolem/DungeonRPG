@@ -1068,7 +1068,16 @@ void WINAPI ImprimeJogador(LPVOID param) {
 	DeleteDC(auxdc);
 }
 
+void atualizaMapa(COMANDO_DO_SERVIDOR *cmd) {
+	int i, j;
+	
+	for (i = cmd->p1.x; i < cmd->p2.x; i++) {
+		for (j = cmd->p1.y; j < cmd->p2.y; j++) {
+			Mapa.mapa[i][j] = cmd->mapa[i][j];
+		}
+	}
 
+}
 
 /*
 void imprimeJogador(COMANDO_DO_SERVIDOR cmd)
