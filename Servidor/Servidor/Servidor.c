@@ -538,6 +538,8 @@ void CriaInfoSobreOJogador(COMANDO_DO_SERVIDOR *cmd, int indice)
 
 void TrataComando(COMANDO_DO_CLIENTE *cmd) {
 
+	_tprintf(TEXT("recebi o comando : %d do cliente :%d   com o nome : %s"), cmd->tipoComando, cmd->ID, cmd->user.login);
+
 	switch (cmd->tipoComando)
 	{
 	case 0:  //AUTENTICAR
@@ -609,6 +611,7 @@ void LoginUtilizador(COMANDO_DO_CLIENTE *c) {
 			}
 		}
 		if (flag == 0) {
+			cmd.resposta = 2;
 			_tcscpy_s(cmd.msg, TAM_MSG, TEXT("Utilizador nao registado!"));
 		}
 	}
@@ -620,6 +623,7 @@ void LoginUtilizador(COMANDO_DO_CLIENTE *c) {
 			{
 				if (_tcscmp(JogadoresOnline[i].username, c->user.login) == 0) {
 					flag = 1;
+					cmd.resposta = 3;
 					_tcscpy_s(cmd.msg, TAM_MSG, TEXT("Esse user já esta em jogo!"));
 					break;
 				}
@@ -786,6 +790,8 @@ void RegistaUtilizador(COMANDO_DO_CLIENTE *c) {
 	int conta = 0;
 	int flag = 0;
 	cmd.resposta = 0;
+	
+
 	if (registados == -1) {
 		registados+=1;
 		_tcscpy_s(JogadoresRegistados[registados].username, TAM_LOG, c->user.login);
@@ -800,6 +806,7 @@ void RegistaUtilizador(COMANDO_DO_CLIENTE *c) {
 			if (_tcscmp(c->user.login, JogadoresRegistados[i].username) == 0) {
 
 				flag = 1;
+				cmd.resposta = 3;
 				_tcscpy_s(cmd.msg, TAM_MSG, TEXT("Tal username já existe!"));
 				break;
 			}
@@ -810,12 +817,16 @@ void RegistaUtilizador(COMANDO_DO_CLIENTE *c) {
 			_tcscpy_s(cmd.msg, TAM_MSG, TEXT("Registado com sucesso"));
 		}
 	}
-	else 
+	else {
+		cmd.resposta = 2;
 		_tcscpy_s(cmd.msg, TAM_MSG, TEXT("Excedeu o numero de inscritos!"));
+	
+	}
+
 	
 	id = c->ID;
 	WriteFile(wPipeClientes[id], &cmd, sizeof(COMANDO_DO_SERVIDOR), &n, NULL);
-
+	
 }
 
 DWORD WINAPI RecebeClientes(LPVOID param) {
@@ -1008,6 +1019,7 @@ void CriaJogo(COMANDO_DO_CLIENTE *c)
 	COMANDO_DO_SERVIDOR cmd;
 	DWORD n;
 	cmd.tipoResposta = 1; //tipo para a resposta de jogo
+
 	if (game.criado == 0) 
 	{
 		game.criado = 1; //jogo criado
@@ -1033,7 +1045,7 @@ void CriaJogo(COMANDO_DO_CLIENTE *c)
 	}
 
 	WriteFile(wPipeClientes[c->ID], &cmd, sizeof(COMANDO_DO_SERVIDOR), &n, NULL);
-	_tprintf(TEXT("[SERVIDOR] Enviei %d bytes ao cliente [%d]...\n"), n, c->ID);
+	_tprintf(TEXT("\n[SERVIDOR_CRIARJOGO] Enviei %d bytes ao cliente [%d] a resposta %d...\n"), n, c->ID, c->resposta);
 }
 
 void ComecaJogo(COMANDO_DO_CLIENTE *c)
