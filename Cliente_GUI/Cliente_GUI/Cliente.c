@@ -43,17 +43,18 @@
 
 HANDLE wPipe, rPipe, rrPipe;
 
-
+void actualiza_jogador(COMANDO_DO_SERVIDOR * cmd);
 int Autenticar(TCHAR *login, TCHAR *pass, TCHAR * ip);
 int Registar(TCHAR *login, TCHAR *pass);
 int Cria_Jogo();
 int Comecar_jogo();
+int entrar_em_jogo();
 
 BOOL CALLBACK funcaotrataLogin(HWND hDlg, UINT m, WPARAM w, LPARAM l);
 BOOL CALLBACK funcaotrataLogin(HWND hDlg, UINT m, WPARAM w, LPARAM l);
 BOOL CALLBACK funcaotrataCriarJogoECamecar(HWND hDlg, UINT m, WPARAM w, LPARAM l);
 LRESULT CALLBACK TrataEventos(HWND, UINT, WPARAM, LPARAM);
-
+void Move(direcao);
 
 
 
@@ -73,6 +74,8 @@ int EsperaDeComeçar = 0;
 int fezlogin = 0;
 int indice = 0;
 int pid = 0;
+JOGADOR jogador_info;
+
 
 static HMENU hMenu;
 //void imprimeMundo(COMANDO_DO_SERVIDOR  c);
@@ -235,7 +238,7 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst,
 
 	EnableMenuItem(hMenu, ID_JOGO_CRIARJOGO, MF_GRAYED);
 	EnableMenuItem(hMenu, ID_JOGO_ENTRAREMJOGO, MF_GRAYED);
-	
+	jogador_info.lentidao = 4;
 
 	Inicia_comunicacao();
 
@@ -422,6 +425,7 @@ BOOL CALLBACK funcaotrataCriarJogoECamecar(HWND hDlg, UINT m, WPARAM w, LPARAM l
 		case IDC_BUTTON_Comecar:
 			 Comecar_jogo();
 
+
 		case IDCANCELCJ:
 			EndDialog(hDlg, 0);
 			return 1;
@@ -472,6 +476,7 @@ LRESULT CALLBACK TrataEventos(HWND hWnd, UINT messg, WPARAM wParam, LPARAM lPara
 	static int xi, yi;
 	static int xf, yf;
 	PAINTSTRUCT p;
+	int resultado;
 	TCHAR texto[100];
 	int resposta;
 	switch (messg) {
@@ -511,6 +516,28 @@ LRESULT CALLBACK TrataEventos(HWND hWnd, UINT messg, WPARAM wParam, LPARAM lPara
 		case ID_JOGO_CRIARJOGO:
 			DialogBox(GetModuleHandle(NULL), MAKEINTRESOURCE(IDD_DIALOGCriarJogo), hWnd, (DLGPROC)funcaotrataCriarJogoECamecar);
 			return 1;
+		case ID_JOGO_ENTREREMJOGO:
+			 resultado = entrar_em_jogo();
+			
+			 if (resultado == 0) {
+				 EnableMenuItem(hMenu, ID_JOGO_CRIARJOGO, MF_GRAYED);
+				 EnableMenuItem(hMenu, ID_JOGO_ENTRAREMJOGO, MF_GRAYED);
+				 MessageBox(hWnd, TEXT("Jogo ja começou"), TEXT("Mensagem"), MB_OK);
+			 }
+			 else if (resultado == 1) {
+				 EnableMenuItem(hMenu, ID_JOGO_CRIARJOGO, MF_GRAYED);
+				 EnableMenuItem(hMenu, ID_JOGO_ENTRAREMJOGO, MF_GRAYED);
+				 MessageBox(hWnd, TEXT("Jogador adicionado , favor esperar até o jogo começar"), TEXT("Mensagem"), MB_OK);
+			 }
+			 else if (resultado == 2) {
+				
+				 MessageBox(hWnd, TEXT("nenhum jogo criado"), TEXT("Mensagem"), MB_OK);
+			 }
+			
+
+
+		return 1;
+		
 		}
 
 
@@ -562,37 +589,34 @@ LRESULT CALLBACK TrataEventos(HWND hWnd, UINT messg, WPARAM wParam, LPARAM lPara
 		break;*/
 
 	case WM_KEYDOWN:
+		Sleep(jogador_info.lentidao * 100);
 		hdc = GetDC(hWnd);
-		Rectangle(hdc, 0, 0, 100, 200);
-		//Elipse(hdc, 150, 150, 250, 300);
-		ReleaseDC(hdc, hWnd);
-		break;
-
-
-	case WM_KEYUP:
-
-		hdc = GetDC(hWnd);
-
-		switch (wParam)
-		{
-		case VK_DOWN:
-			y += 5;
-			TextOut(hdc, x, y, TEXT("DOWN"), _tcslen(TEXT("DOWN")));
-			break;
-
-		case VK_UP:
-			y -= 5;
-			if (y < 0)
-				y = 0;
-			TextOut(hdc, x, y, TEXT("UP"), _tcslen(TEXT("UP")));
-			break;
-
-		default:
-			break;
+		if (emjogo == 1 && jogador_info.saude > 0) { //Jogo iniciado && jogador tem vidas
+			switch (wParam)
+			{
+			case VK_UP:
+				Move(8);
+				return 1;
+			case VK_DOWN:
+				Move(7);
+				return 1;
+			case VK_LEFT:
+				Move(5);
+				return 1;
+			case VK_RIGHT:
+				Move(6);
+				return 1;
+			case VK_SPACE:
+				//para activar ataque ou nao
+				break;
+			default:
+				break;
+			}
 		}
-
 		ReleaseDC(hdc, hWnd);
-		break;
+		return(0);
+
+
 
 	case WM_CLOSE:
 
@@ -615,6 +639,25 @@ LRESULT CALLBACK TrataEventos(HWND hWnd, UINT messg, WPARAM wParam, LPARAM lPara
 	}
 	return(0);
 }
+
+void Move( direcao) 
+{
+	int comando=20;
+	DWORD n;
+	COMANDO_DO_CLIENTE cmd1;
+	BOOL ret;
+
+
+	if (direcao >= 5 && direcao <= 8)
+	{
+		comando = direcao;
+	}
+		cmd1.tipoComando = comando;
+		cmd1.ID = indice;
+
+		ret = WriteFile(wPipe, &cmd1, sizeof(COMANDO_DO_CLIENTE), &n, NULL);
+
+};
 
 int Autenticar(TCHAR *login, TCHAR *pass, TCHAR *ip) {
 	DWORD n;
@@ -786,6 +829,31 @@ int Comecar_jogo()
 		return cmd.resposta;
 }
 
+int entrar_em_jogo() 
+{
+	DWORD n;
+	COMANDO_DO_CLIENTE cmd1;
+	COMANDO_DO_SERVIDOR cmd;
+	int resposta;
+	int comando;
+	BOOL ret;
+
+	comando = 3;
+
+	cmd1.ID = indice;
+	cmd1.tipoComando = comando;
+
+
+	ret = WriteFile(wPipe, &cmd1, sizeof(COMANDO_DO_CLIENTE), &n, NULL);
+
+
+	ret = ReadFile(rPipe, &cmd, sizeof(COMANDO_DO_SERVIDOR), &n, NULL);
+
+
+	return cmd.resposta;
+
+}
+
 DWORD WINAPI RecebeDoServidor(LPVOID param) { //recebe o pipe 
 	//HANDLE rPipe = (HANDLE)param; //atribui o pipe que recebe (pipe )
 	TCHAR buf[256];
@@ -818,14 +886,29 @@ DWORD WINAPI RecebeDoServidor(LPVOID param) { //recebe o pipe
 			else if (cmd.resposta == 2)
 			{
 				_tprintf(TEXT("\n\nIMPRIMIR:\n"));
-				//imprimeJogador(cmd);
-				//imprimeMundo(cmd);
+				//imprimeJogador(&cmd);
+				//imprimeMundo(&cmd);
+				actualiza_jogador(&cmd);
 			}
 		}
 	}
 
 	return 0;
 }
+
+
+void actualiza_jogador(COMANDO_DO_SERVIDOR * cmd) 
+{
+	int i = indice;
+	_tcscpy_s(jogador_info.username, 15, cmd->jogador.username);
+	
+	jogador_info.lentidao = cmd->jogador.lentidao;
+	jogador_info.nPedras = cmd->jogador.nPedras;
+	jogador_info.saude = cmd->jogador.saude;
+	jogador_info.pos.x = cmd->jogador.pos.x;
+	jogador_info.pos.y = cmd->jogador.pos.y;
+}
+
 
 /*
 void imprimeJogador(COMANDO_DO_SERVIDOR cmd)

@@ -478,7 +478,7 @@ void PreencheJogador(COMANDO_DO_CLIENTE *cmd)
 
 	JogadoresOnline[Indice].Ajogar = 1;
 	JogadoresOnline[Indice].pontos = 0;
-	JogadoresOnline[Indice].lentidao = 5;
+	JogadoresOnline[Indice].lentidao = 3;
 	JogadoresOnline[Indice].saude = 10;
 	JogadoresOnline[Indice].presente = 1;  //a verificar
 	JogadoresOnline[Indice].pid = _getpid();
