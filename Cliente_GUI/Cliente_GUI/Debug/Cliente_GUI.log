@@ -8,6 +8,7 @@ c:\users\sergio\desktop\dungeonrpg\dungeonrpg\cliente_gui\cliente_gui\cliente.c(
 c:\users\sergio\desktop\dungeonrpg\dungeonrpg\cliente_gui\cliente_gui\cliente.c(662): warning C4133: 'function': incompatible types - from 'HWND' to 'HDC'
 c:\users\sergio\desktop\dungeonrpg\dungeonrpg\cliente_gui\cliente_gui\cliente.c(671): warning C4133: 'function': incompatible types - from 'HDC' to 'HWND'
 c:\users\sergio\desktop\dungeonrpg\dungeonrpg\cliente_gui\cliente_gui\cliente.c(671): warning C4133: 'function': incompatible types - from 'HWND' to 'HDC'
+c:\users\sergio\desktop\dungeonrpg\dungeonrpg\cliente_gui\cliente_gui\cliente.c(497): warning C4101: 'p': unreferenced local variable
 c:\users\sergio\desktop\dungeonrpg\dungeonrpg\cliente_gui\cliente_gui\cliente.c(499): warning C4101: 'texto': unreferenced local variable
 c:\users\sergio\desktop\dungeonrpg\dungeonrpg\cliente_gui\cliente_gui\cliente.c(500): warning C4101: 'resposta': unreferenced local variable
 c:\users\sergio\desktop\dungeonrpg\dungeonrpg\cliente_gui\cliente_gui\cliente.c(744): warning C4101: 'resposta': unreferenced local variable
@@ -20,7 +21,7 @@ c:\users\sergio\desktop\dungeonrpg\dungeonrpg\cliente_gui\cliente_gui\cliente.c(
 c:\users\sergio\desktop\dungeonrpg\dungeonrpg\cliente_gui\cliente_gui\cliente.c(883): warning C4101: 'resposta': unreferenced local variable
 c:\users\sergio\desktop\dungeonrpg\dungeonrpg\cliente_gui\cliente_gui\cliente.c(905): warning C4101: 'buf': unreferenced local variable
 c:\users\sergio\desktop\dungeonrpg\dungeonrpg\cliente_gui\cliente_gui\cliente.c(961): warning C4101: 'hdc': unreferenced local variable
-c:\users\sergio\desktop\dungeonrpg\dungeonrpg\cliente_gui\cliente_gui\cliente.c(1030): warning C4101: 'hdc': unreferenced local variable
-c:\users\sergio\desktop\dungeonrpg\dungeonrpg\cliente_gui\cliente_gui\cliente.c(1031): warning C4101: 'hpen': unreferenced local variable
+c:\users\sergio\desktop\dungeonrpg\dungeonrpg\cliente_gui\cliente_gui\cliente.c(1032): warning C4101: 'hdc': unreferenced local variable
+c:\users\sergio\desktop\dungeonrpg\dungeonrpg\cliente_gui\cliente_gui\cliente.c(1033): warning C4101: 'hpen': unreferenced local variable
 c:\users\sergio\desktop\dungeonrpg\dungeonrpg\cliente_gui\cliente_gui\cliente.c(466): warning C4716: 'funcaotrataEntrarEmJogo': must return a value
   Cliente_GUI.vcxproj -> C:\Users\Sergio\Desktop\DungeonRPG\DungeonRPG\Cliente_GUI\Debug\Cliente_GUI.exe

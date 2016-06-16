@@ -529,22 +529,22 @@ LRESULT CALLBACK TrataEventos(HWND hWnd, UINT messg, WPARAM wParam, LPARAM lPara
 		break;
 
 	case WM_PAINT:
-		hdc = BeginPaint(hWnd, &p);
+		hdc = BeginPaint(hWnd, &area);
 
 
 		ImprimeMapa(hWnd);
-		ImprimeJogador(hWnd);
+		//ImprimeJogador(hWnd);
 
 		BitBlt(hdc, 0, 0, maxX, maxY, memdc, 0, 0, SRCCOPY);
 		//_stprintf_s(texto, 100, TEXT("Area afetada«: %d %d a %d %d        "), p.rcPaint.left, p.rcPaint.top, p.rcPaint.right, p.rcPaint.bottom);
 		//TextOut(hdc, 0, 0, texto, _tcslen(texto));
-		Rectangle(hdc, xi, yi, xf, yf);
+		//Rectangle(hdc, xi, yi, xf, yf);
 
 
-		for (int i = xi; i<xf; i += 10)
-			for (int j = yi; j<yf; j += 10)
-				Rectangle(hdc, i, j, (i + 10), (j + 10));
-		EndPaint(hWnd, &p);
+		//for (int i = xi; i<xf; i += 10)
+		//	for (int j = yi; j<yf; j += 10)
+			//	Rectangle(hdc, i, j, (i + 10), (j + 10));
+		EndPaint(hWnd, &area);
 		break;
 
 		case WM_COMMAND:
@@ -1003,6 +1003,7 @@ void WINAPI ImprimeMapa(LPVOID param) {
 				}
 
 				break;
+
 			case 1:
 				SelectObject(auxdc, relva);
 				break;
@@ -1014,7 +1015,7 @@ void WINAPI ImprimeMapa(LPVOID param) {
 			}
 			BitBlt(memdc, (j * 40) + 120, (i * 40) + 10, 40, 40, auxdc, 0, 0, SRCCOPY);
 
-			if (JogoCriado && jog.vidas >= 0) {
+			if (emjogo == 1) {
 				SelectObject(auxdc, myPlayer);
 				BitBlt(memdc, (jog.pos.y * 40) + 120, (jog.pos.x * 40) + 10, 40, 40, auxdc, 0, 0, SRCCOPY);
 			}
@@ -1071,9 +1072,11 @@ void WINAPI ImprimeJogador(LPVOID param) {
 void atualizaMapa(COMANDO_DO_SERVIDOR *cmd) {
 	int i, j;
 	
-	for (i = cmd->p1.x; i < cmd->p2.x; i++) {
-		for (j = cmd->p1.y; j < cmd->p2.y; j++) {
-			Mapa.mapa[i][j] = cmd->mapa[i][j];
+	for (i = 0; i < L; i++) {
+		for (j = 0; j < C; j++) {
+			Mapa.mapa[i][j].bloco.tipo = cmd->mapa[i][j].bloco.tipo;
+			Mapa.mapa[i][j].jogador.presente = cmd->mapa[i][j].jogador.presente;
+			Mapa.mapa[i][j].monstro.presente = cmd->mapa[i][j].monstro.presente;
 		}
 	}
 
