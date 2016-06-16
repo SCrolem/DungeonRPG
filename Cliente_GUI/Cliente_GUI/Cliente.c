@@ -503,16 +503,16 @@ LRESULT CALLBACK TrataEventos(HWND hWnd, UINT messg, WPARAM wParam, LPARAM lPara
 		hMenu = GetMenu(hWnd);
 		
 
-		wall = LoadBitmap(hInstGlobal, (TCHAR *)IDB_BITMAP1);
-		vazio = LoadBitmap(hInstGlobal, (TCHAR *)IDB_BITMAP2);
+		wall = LoadBitmap(hInstGlobal, (TCHAR *)IDB_BITMAP2);
+		relva = LoadBitmap(hInstGlobal, (TCHAR *)IDB_BITMAP1);
 		myPlayer = LoadBitmap(hInstGlobal, (TCHAR *)IDB_BITMAP8);
-		relva = LoadBitmap(hInstGlobal, (TCHAR *)IDB_BITMAP5);
-		monstro  = LoadBitmap(hInstGlobal, (TCHAR *)IDB_BITMAP6);
-		monstro2 = LoadBitmap(hInstGlobal, (TCHAR *)IDB_BITMAP7);
-		vitamina = LoadBitmap(hInstGlobal, (TCHAR *)IDB_BITMAP9);
-		redbull = LoadBitmap(hInstGlobal, (TCHAR *)IDB_BITMAP10);
-		pedra = LoadBitmap(hInstGlobal, (TCHAR *)IDB_BITMAP11);
-		rebucado = LoadBitmap(hInstGlobal, (TCHAR *)IDB_BITMAP12);
+		vazio = LoadBitmap(hInstGlobal, (TCHAR *)IDB_BITMAP3);
+		monstro  = LoadBitmap(hInstGlobal, (TCHAR *)IDB_BITMAP9);
+		monstro2 = LoadBitmap(hInstGlobal, (TCHAR *)IDB_BITMAP10);
+		vitamina = LoadBitmap(hInstGlobal, (TCHAR *)IDB_BITMAP5);
+		redbull = LoadBitmap(hInstGlobal, (TCHAR *)IDB_BITMAP6);
+		pedra = LoadBitmap(hInstGlobal, (TCHAR *)IDB_BITMAP7);
+		rebucado = LoadBitmap(hInstGlobal, (TCHAR *)IDB_BITMAP4);
 		
 		////////////////
 		maxX = GetSystemMetrics(SM_CXSCREEN);

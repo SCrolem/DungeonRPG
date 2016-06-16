@@ -23,5 +23,4 @@ c:\users\dmytro yaremyshyn\desktop\dungeonrpg\cliente_gui\cliente_gui\cliente.c(
 c:\users\dmytro yaremyshyn\desktop\dungeonrpg\cliente_gui\cliente_gui\cliente.c(1030): warning C4101: 'hdc': unreferenced local variable
 c:\users\dmytro yaremyshyn\desktop\dungeonrpg\cliente_gui\cliente_gui\cliente.c(1031): warning C4101: 'hpen': unreferenced local variable
 c:\users\dmytro yaremyshyn\desktop\dungeonrpg\cliente_gui\cliente_gui\cliente.c(465): warning C4716: 'funcaotrataEntrarEmJogo': must return a value
-  LINK : C:\Users\Dmytro Yaremyshyn\Desktop\DungeonRPG\Cliente_GUI\Debug\Cliente_GUI.exe not found or not built by the last incremental link; performing full link
   Cliente_GUI.vcxproj -> C:\Users\Dmytro Yaremyshyn\Desktop\DungeonRPG\Cliente_GUI\Debug\Cliente_GUI.exe
